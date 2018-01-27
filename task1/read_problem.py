@@ -20,48 +20,50 @@ def read(f):
     vehicle_max_duration.append(int(d))
     vehicle_max_load.append(int(l))
 
-
-  customers = []
+  GUI_customers = []
+  customers_params = []
   for j in range(1 + num_depots, num_customers + num_depots + 1):
     i, x, y, d, q = ' '.join(lines[j].split()).split(' ')[:5]
-    customers.append(Customer(int(i), int(x), int(y), int(d), int(q)))
+    GUI_customers.append([int(x), int(y)])
+    customers_params.append([int(i), int(x), int(y), int(d), int(q)])
 
 
-
-  depots = []
+  GUI_depots = []
+  depots_params = []
   for j in range(num_customers + num_depots + 1, len(lines)):
     i, x, y = ' '.join(lines[j].split()).split(' ')[:3]
-    depots.append(Depot(int(x), int(y)))
+    GUI_depots.append([int(x), int(y)])
+    depots_params.append([int(x), int(y)])
 
 
-  max_x, max_y = find_max_coords(customers, depots)
+  max_x, max_y = find_max_coords(GUI_customers, GUI_depots)
 
   max_value = max(max_x, max_y)
-  scale_coordinates(customers, max_value)
-  scale_coordinates(depots, max_value)
+  scale_coordinates(GUI_customers, max_value)
+  scale_coordinates(GUI_depots, max_value)
 
 
-  return customers, depots
+  return GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration
 
 
 def find_max_coords(customers, depots):
   max_x = 0
   max_y = 0
-  for i in customers:
-    if(i.coords[0] > max_x):
-      max_x = i.coords[0]
-    if(i.coords[1] > max_y):
-      max_y = i.coords[1]
+  for coord in customers:
+    if(coord[0] > max_x):
+      max_x = coord[0]
+    if(coord[1] > max_y):
+      max_y = coord[1]
   for i in depots:
-    if(i.coords[0] > max_x):
-      max_x = i.coords[0]
-    if(i.coords[1] > max_y):
-      max_y = i.coords[1]
+    if(coord[0] > max_x):
+      max_x = coord[0]
+    if(coord[1] > max_y):
+      max_y = coord[1]
   return max_x, max_y
 
 
 def scale_coordinates(entities_to_scale, max_value):
-  for i in entities_to_scale:
-    i.scaled_coords[0] = (i.coords[0] / max_value) * SCREEN_SIZE[0]
-    i.scaled_coords[1] = (i.coords[1] / max_value) * SCREEN_SIZE[1]
+  for i in range(len(entities_to_scale)):
+    entities_to_scale[i][0] = (entities_to_scale[i][0] / max_value) * SCREEN_SIZE[0]
+    entities_to_scale[i][1] = (entities_to_scale[i][1] / max_value) * SCREEN_SIZE[1]
 
