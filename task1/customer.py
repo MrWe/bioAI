@@ -4,3 +4,4 @@ class Customer():
     self.coords = (x,y)
     self.service_duration = d
     self.demand = q
+    self.scaled_coords = [0,0]
