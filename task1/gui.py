@@ -4,18 +4,24 @@ from random import randint
 import sys
 import pygame
 from time import sleep
+from config import *
 
 
+class GUI(object):
+  def __init__(self):
+    pygame.init()
 
-pygame.init()
-screen = pygame.display.set_mode((400, 300))
-done = False
+  def run_MDVRP_pygame(self, vehicles, customers, depots):
+    self.screen = pygame.display.set_mode(SCREEN_SIZE)
 
-while not done:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-        done = True
+    for i in range(len(customers)):
+      c_coords = customers[i].scaled_coords
+      pygame.draw.rect(self.screen, CUSTOMER_COLOR , pygame.Rect(c_coords[0], c_coords[1], CUSTOMER_SIZE, CUSTOMER_SIZE))
 
-  pygame.draw.rect(screen, (0, 128, 255), pygame.Rect(30, 30, 60, 60))
+    for i in range(len(depots)):
+      c_coords = depots[i].scaled_coords
+      pygame.draw.rect(self.screen, DEPOT_COLOR , pygame.Rect(c_coords[0], c_coords[1], DEPOT_SIZE, DEPOT_SIZE))
 
-  pygame.display.flip()
+    pygame.display.update()
+    pygame.display.flip()
+
