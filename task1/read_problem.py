@@ -43,7 +43,7 @@ def read(f):
   scale_coordinates(GUI_depots, max_value)
 
 
-  return GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration
+  return GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles
 
 
 def find_max_coords(customers, depots):
@@ -64,6 +64,6 @@ def find_max_coords(customers, depots):
 
 def scale_coordinates(entities_to_scale, max_value):
   for i in range(len(entities_to_scale)):
-    entities_to_scale[i][0] = (entities_to_scale[i][0] / max_value) * SCREEN_SIZE[0]
-    entities_to_scale[i][1] = (entities_to_scale[i][1] / max_value) * SCREEN_SIZE[1]
+    entities_to_scale[i][0] = (entities_to_scale[i][0] / max_value) * (SCREEN_SIZE[0] - (SCREEN_SIZE[0] / 90))
+    entities_to_scale[i][1] = (entities_to_scale[i][1] / max_value) * (SCREEN_SIZE[1] - (SCREEN_SIZE[1] / 90))
 
