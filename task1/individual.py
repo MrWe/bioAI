@@ -33,7 +33,6 @@ class Individual():
         del customers_copy[rand_customer]
         depot_selector += 1
       vehicle_selector += 1
-    print(self.gene)
 
 
 
