@@ -8,7 +8,9 @@ class Individual():
     self.vehicle_max_duration = vehicle_max_duration
     self.num_vehicles = num_vehicles
     self.path_color = [(randint(10, 255),randint(10, 255),randint(10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
-    self.construct_random_gene()
+    self.gene = self.construct_random_gene()
+    self.path_length = self.get_path_length(self.gene)
+
 
 
   '''
@@ -33,6 +35,29 @@ class Individual():
         del customers_copy[rand_customer]
         depot_selector += 1
       vehicle_selector += 1
+    return self.gene
+
+  def get_path_length(self, gene):
+    path_length = 0
+    for i in range(len(gene)):
+      curr_depot_coords = (self.depots_params[i][0], self.depots_params[i][1])
+      for j in range(len(gene[i])):
+        for n in range(len(gene[i][j])-1):
+          curr_cust = self.customers_params[gene[i][j][n]]
+          next_cust = self.customers_params[gene[i][j][n+1]]
+
+          curr_customer_coords = (curr_cust[1], curr_cust[2])
+          next_customer_coords = (next_cust[1], next_cust[2])
+
+          if(n == 0):
+            path_length += self.euclideanDistance(curr_depot_coords, curr_customer_coords)
+          elif(n == len(gene[i][j])-2):
+            path_length += self.euclideanDistance(next_customer_coords, curr_depot_coords)
+          path_length += self.euclideanDistance(curr_customer_coords, next_customer_coords)
+    return path_length
+
+  def euclideanDistance(self, coordinate1, coordinate2):
+    return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
 
 
 
