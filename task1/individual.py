@@ -26,9 +26,36 @@ class Individual():
     Each [[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]] is the path of all the cars in one depot
   '''
 
-  def crossover_vehicles(len1, len2):
+  def crossover_vehicles(len1, len2): #len1 = [4, 3, 4, 0, 2, 4, 3, 0, ...]
     total_customers = len(self.customers_params)
+    customers = 0
+    result = []
 
+    pointer = 0
+    crossover_point = floor(len(len1) * self.crossover_rate)
+
+    while pointer < len(len1):
+        if pointer % crossover_point == 0:
+            if current_array == len1:
+                current_array = len2
+            else:
+                current_array = len1
+
+        result.append(current_array[pointer])
+        customers += current_array[pointer]
+        pointer += 1
+
+    while customers > total_customers:
+        mutation_point = random.randint(0, len(result))
+        result[mutation_point] -= 1
+        customers -= 1
+
+    while customers < total_customers:
+        mutation_point = random.randint(0, len(result))
+        result[mutation_point] += 1
+        customers += 1
+
+    return(result[i:i+num_vehicles] for i in xrange(0, len(result), num_vehicles))
 
   def construct_gene(parent1, parent2):
     customers_copy = self.customers_params[:]
