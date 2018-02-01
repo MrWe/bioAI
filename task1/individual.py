@@ -1,14 +1,19 @@
 from random import randint, random
 
 class Individual():
-  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles):
+  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, parent1=None, parent2=None, random=False):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.vehicle_max_load = vehicle_max_load
     self.vehicle_max_duration = vehicle_max_duration
     self.num_vehicles = num_vehicles
     self.path_color = [(randint(10, 255),randint(10, 255),randint(10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
-    self.gene = self.construct_random_gene()
+    self.parent1 = parent1
+    self.parent2 = parent2
+    if random:
+        self.gene = self.construct_random_gene()
+    else:
+        self.gene = self.construct_gene(self.parent1, self.parent2)
     self.path_length = self.get_path_length(self.gene)
 
 
@@ -16,10 +21,22 @@ class Individual():
   '''
     Gene where num_vehicles = 4, num_depots = 4, num_customers = 50:
     [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
-    Each number is an idnex of a customer
+    Each number is an index of a customer
     Each [36, 44, 14, 39] is the path of one car in a depot
     Each [[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]] is the path of all the cars in one depot
   '''
+
+  def crossover_vehicles(len1, len2):
+    total_customers = len(self.customers_params)
+
+
+  def construct_gene(parent1, parent2):
+    customers_copy = self.customers_params[:]
+    self.gene = [[[] for i in range(self.num_vehicles)] for x in range(len(self.depots_params))]
+
+
+
+
   def construct_random_gene(self):
     customers_copy = self.customers_params[:]
 
