@@ -15,9 +15,10 @@ def main(f):
   gui = GUI()
   population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles)
 
+
   current_iteration = 1
 
-  best_path_length = math.inf
+  best_path_length = float("Inf")
   best_individual = None
 
   while(True):
@@ -30,7 +31,8 @@ def main(f):
       print(current_iteration, best_path_length)
       best_individual = individual
 
-    population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles)
+    population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, population)
+
 
     current_iteration += 1
 
