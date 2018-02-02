@@ -1,7 +1,8 @@
 from random import randint, random
 
+
 class Individual():
-  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, parent1=None, parent2=None, random=False):
+  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, parent1=None, parent2=None, random_individual=True):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.vehicle_max_load = vehicle_max_load
@@ -10,7 +11,7 @@ class Individual():
     self.path_color = [(randint(10, 255),randint(10, 255),randint(10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
     self.parent1 = parent1
     self.parent2 = parent2
-    if random:
+    if random_individual:
         self.gene = self.construct_random_gene()
     else:
         self.gene = self.construct_gene(self.parent1, self.parent2)
@@ -102,8 +103,3 @@ class Individual():
 
   def euclideanDistance(self, coordinate1, coordinate2):
     return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
-
-
-
-
-

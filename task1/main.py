@@ -1,10 +1,14 @@
-import sys
 import math
-from read_problem import read
-from gui import GUI
+import sys
+
 import pygame
+
 from config import *
+from gui import GUI
+from helpers import *
 from population import Population
+from read_problem import read
+
 
 def main(f):
   GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles = read(f)
@@ -46,14 +50,7 @@ def update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, sh
 def should_update_gui(current_iteration):
   return current_iteration % GUI_UPDATE_INTERVAL == 0
 
-def get_best_individual(population):
-  path_length = math.inf
-  individual = None
-  for i in range(len(population.individuals)):
-    if(population.individuals[i].path_length < path_length):
-      path_length = population.individuals[i].path_length
-      individual = population.individuals[i]
-  return path_length, individual
+
 
 
 
