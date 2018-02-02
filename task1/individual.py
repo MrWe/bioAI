@@ -102,7 +102,7 @@ class Individual():
         child_gene = []
         current_array = gene1
         not_current_array = gene2
-        pointer = 0
+        pointer = 1
         while pointer < len(gene1):
             #print(pointer)
 
@@ -115,14 +115,14 @@ class Individual():
                     not_current_array = gene2
 
 
-            if current_array[pointer] not in child_gene:
-                child_gene.append(current_array[pointer])
+            if current_array[(len(current_array)-1) % pointer] not in child_gene:
+                child_gene.append(current_array[(len(current_array)-1) % pointer])
                 pointer += 1
                 continue
 
             else:
-                if not_current_array[pointer] not in child_gene:
-                    child_gene.append(not_current_array[pointer])
+                if not_current_array[(len(not_current_array)-1) % pointer] not in child_gene:
+                    child_gene.append(not_current_array[(len(not_current_array)-1) % pointer])
                     pointer += 1
                     continue
 
@@ -131,13 +131,16 @@ class Individual():
 
                     for i in range(1, len(current_array)):
                         if current_array[len(current_array)-1 % (pointer + i)] not in child_gene:
+                            print(pointer, (len(current_array)-1) % (pointer + i))
                             child_gene.append(current_array[len(current_array)-1 % (pointer + i)])
                             pointer += 1
                             break
 
                     if pointer == temp_pointer:
                         for i in range(1, len(not_current_array)):
+                            print(pointer, (len(not_current_array)-1) % (pointer + i))
                             if not_current_array[len(not_current_array)-1 % (pointer + i)] not in child_gene:
+
                                 child_gene.append(not_current_array[len(not_current_array)-1 % (pointer + i)])
                                 pointer += 1
                                 break
