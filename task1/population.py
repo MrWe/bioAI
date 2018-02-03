@@ -24,6 +24,18 @@ class Population():
         population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles))
 
       else: # Create population based on parent population
+        # rand = random.random()
+        # parent1 = None
+        # parent2 = None
+        # while(not parent1 or not parent2):
+        #   curr_rand = random.random()
+        #   for i in range(len(parent_population)):
+        #     if(curr_rand < rand):
+        #       parent1 = parent_population[i]
+        #   curr_rand = random.random()
+        #   for i in range(len(parent_population)):
+        #     if(curr_rand < rand):
+        #       parent2 = parent_population[i]
 
         parent1 = parent_population[random.randint(0,len(parent_population)-1)]
         parent2 = parent_population[random.randint(0,len(parent_population)-1)]
@@ -33,5 +45,5 @@ class Population():
 
 
   def get_surviving_population(self):
-      return sorted(self.individuals, key=lambda x: x.path_length)[:20] #20 is how many individuals we keep to perform crossover
+    return sorted(self.individuals, key=lambda x: x.path_length)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
 

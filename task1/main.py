@@ -39,6 +39,7 @@ def main(f):
 
 def update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, show_best_individual, best_individual):
   if(should_update_gui(current_iteration)):
+    print(current_iteration)
     gui.screen = pygame.display.set_mode(SCREEN_SIZE)
     gui.screen.fill((255,255,255))
     gui.show_C_D(GUI_customers, GUI_depots)

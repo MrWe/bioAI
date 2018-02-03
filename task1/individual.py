@@ -13,12 +13,16 @@ class Individual():
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
-        self.parent1 = parent1
-        self.parent2 = parent2
+
         if parent1 == None:
             self.gene = self.construct_random_gene()
         else:
+            self.parent1 = parent1[:]
+            self.parent2 = parent2[:]
             self.gene = self.construct_gene(self.parent1, self.parent2)
+            #self.gene = self.crossover_vehicle_lengths(self.get_vehicle_lengths(parent1), self.get_vehicle_lengths(parent2))
+
+
 
         self.path_length = self.get_path_length(self.gene)
 
@@ -41,13 +45,15 @@ class Individual():
         return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
 
     # len1 = [4, 3, 4, 0, 2, 4, 3, 0, ...]
-    def crossover_vehicle_lengths(len1, len2):
+    # Den funker også ikke
+    def crossover_vehicle_lengths(self, len1, len2):
         total_customers = len(self.customers_params)
         customers = 0
         result = []
+        current_array = len1
 
         pointer = 0
-        crossover_point = floor(len(len1) * self.crossover_rate)
+        crossover_point = math.floor(len(len1) * CROSSOVER_RATE)
 
         while pointer < len(len1):
             if pointer % crossover_point == 0:
@@ -70,7 +76,15 @@ class Individual():
             result[mutation_point] += 1
             customers += 1
 
-        return(result[i:i + num_vehicles] for i in xrange(0, len(result), num_vehicles))
+        gene = []
+        total_length = 0
+        for length in result:
+          gene.append(result[total_length:total_length + length])
+          total_length += length
+
+
+        return gene
+        #return(result[i:i + self.num_vehicles] for i in range(0, len(result), self.num_vehicles))
 
 #    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
 
@@ -83,89 +97,76 @@ class Individual():
         flat_list1 = [item for sublist in flat_p1.tolist() for item in sublist]
         flat_list2 = [item for sublist in flat_p2.tolist() for item in sublist]
 
-        print("PARENTS")
-        print(flat_list1)
-        print(flat_list2)
+        flat_child_gene = self.crossover(flat_list1, flat_list2)
 
-        child_gene = self.crossover(flat_list1, flat_list2)
-        print("CHILD")
-        print(child_gene)
 
+        flat_child_gene = self.mutate(flat_child_gene)
+
+
+
+
+        child_gene_vehicles = []
+
+        #TEMP!
+        vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
+        total_length = 0
+        for length in vehicle_lengths:
+          child_gene_vehicles.append(flat_child_gene[total_length:total_length + length])
+          total_length += length
+
+        child_gene_depots = []
+        total_length = 0
+
+        #print(child_gene_vehicles)
+
+        for i in range(len(self.depots_params)):
+          child_gene_depots.append(child_gene_vehicles[total_length:total_length + self.num_vehicles])
+          total_length += self.num_vehicles
+
+        #print(child_gene_depots)
+
+
+        return child_gene_depots
         customers_copy = self.customers_params[:]
         self.gene = [[[] for i in range(self.num_vehicles)]
                      for x in range(len(self.depots_params))]
 
     def crossover(self, gene1, gene2):
-        crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
-        print("Heisann", crossover_point)
-
+        #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
+        crossover_point = math.floor(randint(1, len(gene1)-1))
         child_gene = []
-        current_array = gene1
-        not_current_array = gene2
-        pointer = 1
-        while pointer < len(gene1):
-            #print(pointer)
+        gene1_copy = gene1[:]
+        current_array = gene1[:]
+        not_current_array = gene2[:]
+        pointer = 0
 
-            if pointer % crossover_point == 0:
-                if current_array == gene1:
-                    current_array = gene2
-                    not_current_array = gene1
-                else:
-                    current_array = gene1
-                    not_current_array = gene2
+        while(len(child_gene) != len(gene1)):
+
+          if pointer % crossover_point == 0:
+                temp = current_array[:]
+                current_array = not_current_array[:]
+                not_current_array = temp[:]
 
 
-            if current_array[(len(current_array)-1) % pointer] not in child_gene:
-                child_gene.append(current_array[(len(current_array)-1) % pointer])
-                pointer += 1
-                continue
-
+          if(len(current_array) != 0):
+            if(current_array[0] not in child_gene):
+              child_gene.append(current_array[0])
             else:
-                if not_current_array[(len(not_current_array)-1) % pointer] not in child_gene:
-                    child_gene.append(not_current_array[(len(not_current_array)-1) % pointer])
-                    pointer += 1
-                    continue
-
-                else:
-                    temp_pointer = pointer
-
-                    for i in range(1, len(current_array)):
-                        if current_array[len(current_array)-1 % (pointer + i)] not in child_gene:
-                            print(pointer, (len(current_array)-1) % (pointer + i))
-                            child_gene.append(current_array[len(current_array)-1 % (pointer + i)])
-                            pointer += 1
-                            break
-
-                    if pointer == temp_pointer:
-                        for i in range(1, len(not_current_array)):
-                            print(pointer, (len(not_current_array)-1) % (pointer + i))
-                            if not_current_array[len(not_current_array)-1 % (pointer + i)] not in child_gene:
-
-                                child_gene.append(not_current_array[len(not_current_array)-1 % (pointer + i)])
-                                pointer += 1
-                                break
-                            continue
-
-            print("Failed at", pointer, "with value", current_array[pointer], "for current and", not_current_array[pointer], "for not current")
-            print("Child is now", child_gene)
-            pointer += 1
+              pointer -= 1
+            del current_array[0]
+          pointer += 1
 
         return child_gene
-        '''
-     pointer = 0
-     crossover_point = floor(len(len1) * self.crossover_rate)
 
-     while pointer < len(len1):
-         if pointer % crossover_point == 0:
-             if current_array == len1:
-                 current_array = len2
-             else:
-                 current_array = len1
+    def mutate(self, flat_gene):
+      result = flat_gene[:]
+      for i in range(NUM_MUTATION_TRIES):
+        if(random() < MUTATION_RATE):
+          a = randint(0, len(flat_gene)-1)
+          b = randint(0, len(flat_gene)-1)
+          result[b], result[a] = result[a], result[b]
+      return result
 
-         result.append(current_array[pointer])
-         customers += current_array[pointer]
-         pointer += 1
-'''
 
     def construct_random_gene(self):
         customers_copy = self.customers_params[:]
