@@ -46,7 +46,7 @@ class Individual():
 
     # len1 = [4, 3, 4, 0, 2, 4, 3, 0, ...]
     # Den funker også ikke
-    def crossover_vehicle_lengths(self, len1, len2):
+    def crossover_vehicle_lengths_deprecated(self, len1, len2):
         total_customers = len(self.customers_params)
         customers = 0
         result = []
@@ -102,15 +102,20 @@ class Individual():
 
         flat_child_gene = self.mutate(flat_child_gene)
 
+        p1_vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
+        p2_vehicle_lengths = self.get_vehicle_lengths(parent_gene2)
 
 
+
+        child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
+        child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
 
         child_gene_vehicles = []
 
         #TEMP!
-        vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
+
         total_length = 0
-        for length in vehicle_lengths:
+        for length in p1_vehicle_lengths:
           child_gene_vehicles.append(flat_child_gene[total_length:total_length + length])
           total_length += length
 
@@ -123,13 +128,51 @@ class Individual():
           child_gene_depots.append(child_gene_vehicles[total_length:total_length + self.num_vehicles])
           total_length += self.num_vehicles
 
-        #print(child_gene_depots)
+        # if(random() < 0.001):
+        #   print(flat_list1)
+        #   print(p1_vehicle_lengths)
+        #   print(child_vehicle_lengths)
+        #   print(sum(child_vehicle_lengths))
+        #   print(sum(p1_vehicle_lengths))
+        #   print(child_gene_depots)
 
 
         return child_gene_depots
-        customers_copy = self.customers_params[:]
-        self.gene = [[[] for i in range(self.num_vehicles)]
-                     for x in range(len(self.depots_params))]
+
+    def crossover_vehicle_lengths(self, gene1, gene2):
+      #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
+      crossover_point = math.floor(randint(1, len(gene1)-1))
+      child_gene = []
+      gene1_copy = gene1[:]
+      current_array = gene1[:]
+      not_current_array = gene2[:]
+      pointer = 0
+
+      while(len(child_gene) != len(gene1)):
+
+        if pointer % crossover_point == 0:
+              temp = current_array[:]
+              current_array = not_current_array[:]
+              not_current_array = temp[:]
+
+
+        if(len(current_array) != 0):
+
+          child_gene.append(current_array[0])
+          del current_array[0]
+
+        pointer += 1
+
+      #Kind of mutation. This should change TODO
+
+      high_low = sum(gene1)-sum(child_gene)
+      direction = -1 if high_low < 0 else 1
+      while(sum(child_gene) != sum(gene1)):
+        rand = randint(0, len(child_gene)-1)
+        if(child_gene[rand] + direction >= 0): # and child_gene[rand] + direction <= self.num_vehicles <---- This should check max load TODO
+          child_gene[rand] += direction
+
+      return child_gene
 
     def crossover(self, gene1, gene2):
         #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
@@ -167,6 +210,16 @@ class Individual():
           result[b], result[a] = result[a], result[b]
       return result
 
+    def mutate_vehicle_lengths(self, lengths):
+      result = lengths[:]
+      for i in range(NUM_MUTATION_TRIES):
+        if(random() < MUTATION_RATE):
+          a = randint(0, len(lengths)-1)
+          b = randint(0, len(lengths)-1)
+          if(a != b and result[a] > 0):
+            result[b], result[a] = result[b] + 1, result[a] - 1
+      return result
+
 
     def construct_random_gene(self):
         customers_copy = self.customers_params[:]
@@ -189,27 +242,21 @@ class Individual():
         return self.gene
 
     def get_path_length(self, gene):
-        path_length = 0
-        for i in range(len(gene)):
-            curr_depot_coords = (
-                self.depots_params[i][0], self.depots_params[i][1])
-            for j in range(len(gene[i])):
-                for n in range(len(gene[i][j]) - 1):
-                    curr_cust = self.customers_params[gene[i][j][n]]
-                    next_cust = self.customers_params[gene[i][j][n + 1]]
+      path_length = 0
+      for i in range(len(gene)):
+        curr_depot_coords = (
+        self.depots_params[i][0], self.depots_params[i][1])
+        for j in range(len(gene[i])):
+          curr_vehicle = []
+          for n in range(len(gene[i][j])):
+            curr_vehicle.append((self.customers_params[gene[i][j][n]][1], self.customers_params[gene[i][j][n]][2]))
+          curr_vehicle.insert(0, curr_depot_coords)
+          curr_vehicle.append(curr_depot_coords)
+          for k in range(len(curr_vehicle)-1):
+            path_length += self.euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
 
-                    curr_customer_coords = (curr_cust[1], curr_cust[2])
-                    next_customer_coords = (next_cust[1], next_cust[2])
+      return path_length
 
-                    if(n == 0):
-                        path_length += self.euclideanDistance(
-                            curr_depot_coords, curr_customer_coords)
-                    elif(n == len(gene[i][j]) - 2):
-                        path_length += self.euclideanDistance(
-                            next_customer_coords, curr_depot_coords)
-                    path_length += self.euclideanDistance(
-                        curr_customer_coords, next_customer_coords)
-        return path_length
 
     def euclideanDistance(self, coordinate1, coordinate2):
-        return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
+      return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)

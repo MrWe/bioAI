@@ -24,7 +24,9 @@ def main(f):
   while(True):
     update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual)
 
-    path_length, individual = get_best_individual(population)
+    #path_length, individual = get_best_individual(population)
+    individual = population.surviving_population[0]
+    path_length = individual.path_length
 
     if(path_length < best_path_length):
       best_path_length = path_length
