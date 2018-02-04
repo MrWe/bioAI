@@ -4,12 +4,13 @@ from individual import Individual
 import random
 
 class Population():
-  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, parent=None):
+  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.vehicle_max_load = vehicle_max_load
     self.vehicle_max_duration = vehicle_max_duration
     self.num_vehicles = num_vehicles
+    self.mutation_rate = mutation_rate
     self.individuals = self.construct_population(parent)
     self.surviving_population = self.get_surviving_population()
 
@@ -19,27 +20,14 @@ class Population():
     if(parent != None):
         parent_population = parent.surviving_population
 
-    for i in range(POPULATION_SIZE):
+    for i in range(int(POPULATION_SIZE * 0.9)):
       if(parent==None): # Create random population
-        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles))
+        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate))
 
       else: # Create population based on parent population
-        # rand = random.random()
-        # parent1 = None
-        # parent2 = None
-        # while(not parent1 or not parent2):
-        #   curr_rand = random.random()
-        #   for i in range(len(parent_population)):
-        #     if(curr_rand < rand):
-        #       parent1 = parent_population[i]
-        #   curr_rand = random.random()
-        #   for i in range(len(parent_population)):
-        #     if(curr_rand < rand):
-        #       parent2 = parent_population[i]
-
         parent1 = parent_population[random.randint(0,len(parent_population)-1)]
         parent2 = parent_population[random.randint(0,len(parent_population)-1)]
-        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, parent1.gene, parent2.gene, False))
+        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1.gene, parent2.gene, False))
 
     return population
 

@@ -5,12 +5,13 @@ import math
 
 
 class Individual():
-    def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, parent1=None, parent2=None, random_individual=True):
+    def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1=None, parent2=None, random_individual=True):
         self.customers_params = customers_params
         self.depots_params = depots_params
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
+        self.mutation_rate = mutation_rate
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
 
@@ -190,7 +191,6 @@ class Individual():
                 current_array = not_current_array[:]
                 not_current_array = temp[:]
 
-
           if(len(current_array) != 0):
             if(current_array[0] not in child_gene):
               child_gene.append(current_array[0])
@@ -204,7 +204,7 @@ class Individual():
     def mutate(self, flat_gene):
       result = flat_gene[:]
       for i in range(NUM_MUTATION_TRIES):
-        if(random() < MUTATION_RATE):
+        if(random() < self.mutation_rate):
           a = randint(0, len(flat_gene)-1)
           b = randint(0, len(flat_gene)-1)
           result[b], result[a] = result[a], result[b]
@@ -213,12 +213,14 @@ class Individual():
     def mutate_vehicle_lengths(self, lengths):
       result = lengths[:]
       for i in range(NUM_MUTATION_TRIES):
-        if(random() < MUTATION_RATE):
+        if(random() < self.mutation_rate):
           a = randint(0, len(lengths)-1)
           b = randint(0, len(lengths)-1)
-          if(a != b and result[a] > 0):
+          if(result[a] > 0):
             result[b], result[a] = result[b] + 1, result[a] - 1
       return result
+
+
 
 
     def construct_random_gene(self):
