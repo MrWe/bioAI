@@ -1,4 +1,3 @@
-from sklearn.preprocessing import scale
 from customer import Customer
 from vehicle import Vehicle
 from depot import Depot
@@ -36,34 +35,58 @@ def read(f):
     depots_params.append([int(x), int(y)])
 
 
-  max_x, max_y = find_max_coords(GUI_customers, GUI_depots)
+  min_x, min_y, max_x, max_y = find_minmax_coords(GUI_customers, GUI_depots)
 
-  max_value = max(max_x, max_y)
-  scale_coordinates(GUI_customers, max_value)
-  scale_coordinates(GUI_depots, max_value)
+  scale = max(max_x - min_x,
+            max_y - min_y)
+  scale_coordinates(GUI_customers, scale, min_x, max_x, min_y, max_y)
+  scale_coordinates(GUI_depots, scale, min_x, max_x, min_y, max_y)
 
 
   return GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles
 
 
-def find_max_coords(customers, depots):
+def find_minmax_coords(customers, depots):
   max_x = 0
   max_y = 0
+  min_x = float("Inf")
+  min_y = float("Inf")
   for coord in customers:
     if(coord[0] > max_x):
       max_x = coord[0]
     if(coord[1] > max_y):
       max_y = coord[1]
-  for i in depots:
+    if(coord[0] < min_x):
+      min_x = coord[0]
+    if(coord[1] < min_y):
+      min_y = coord[1]
+  for coord in depots:
     if(coord[0] > max_x):
       max_x = coord[0]
     if(coord[1] > max_y):
       max_y = coord[1]
-  return max_x, max_y
+    if(coord[0] < min_x):
+      min_x = coord[0]
+    if(coord[1] < min_y):
+      min_y = coord[1]
+  return min_x, min_y, max_x, max_y
 
 
-def scale_coordinates(entities_to_scale, max_value):
+def scale_coordinates(entities_to_scale, scale, min_x, max_x, min_y, max_y):
   for i in range(len(entities_to_scale)):
-    entities_to_scale[i][0] = (entities_to_scale[i][0] / max_value) * (SCREEN_SIZE[0] - (SCREEN_SIZE[0] / 90))
-    entities_to_scale[i][1] = (entities_to_scale[i][1] / max_value) * (SCREEN_SIZE[1] - (SCREEN_SIZE[1] / 90))
+
+    entities_to_scale[i][0] -= (max_x + min_x) / 2
+    entities_to_scale[i][1] -= (max_y + min_y) / 2
+
+    entities_to_scale[i][0] /= scale
+    entities_to_scale[i][1] /= scale
+
+    entities_to_scale[i][0] += 0.5
+    entities_to_scale[i][1] += 0.5
+
+    entities_to_scale[i][0] *= SCREEN_SIZE[0] * 0.95
+    entities_to_scale[i][1] *= SCREEN_SIZE[1] * 0.95
+
+
+
 

@@ -14,21 +14,22 @@ class Population():
     self.individuals = self.construct_population(parent)
     self.surviving_population = self.get_surviving_population()
 
+
   def construct_population(self, parent):
     population = []
 
     if(parent != None):
-        parent_population = parent.surviving_population
+      parent_population = parent.surviving_population
+      parent1 = parent_population[random.randint(0,len(parent_population)-1)]
+      parent2 = parent_population[random.randint(0,len(parent_population)-1)]
+    
 
-    for i in range(int(POPULATION_SIZE * 0.9)):
+    for i in range(int(POPULATION_SIZE)):
       if(parent==None): # Create random population
         population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate))
 
       else: # Create population based on parent population
-        parent1 = parent_population[random.randint(0,len(parent_population)-1)]
-        parent2 = parent_population[random.randint(0,len(parent_population)-1)]
-        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1.gene, parent2.gene, False))
-
+        population.append(Individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2, False))
     return population
 
 

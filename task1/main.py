@@ -1,10 +1,10 @@
 import math
 import sys
 
-import pygame
+#import pygame
 
 from config import *
-from gui import GUI
+#from gui import GUI
 from helpers import *
 from population import Population
 from read_problem import read
@@ -12,7 +12,7 @@ from read_problem import read
 
 def main(f):
   GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles = read(f)
-  gui = GUI()
+  #gui = GUI()
 
   m_rate = MUTATION_RATE
 
@@ -26,7 +26,7 @@ def main(f):
   best_individual = None
 
   while(True):
-    update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
+    #update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
 
     #path_length, individual = get_best_individual(population)
     individual = population.surviving_population[0]
@@ -34,12 +34,10 @@ def main(f):
 
     if(path_length < best_path_length):
       best_path_length = path_length
-      print(current_iteration, best_path_length)
+      print(current_iteration, best_path_length, m_rate)
       best_individual = individual
 
-
     population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate, population)
-
 
     m_rate *= MUTATION_RATE_DECAY
     current_iteration += 1

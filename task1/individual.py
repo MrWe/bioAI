@@ -1,5 +1,5 @@
-from random import randint, random
-import numpy as np
+from random import randint, random, shuffle
+#import numpy as np
 from config import *
 import math
 
@@ -11,17 +11,19 @@ class Individual():
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
-        self.mutation_rate = mutation_rate
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+        self.mutation_rate = mutation_rate
 
         if parent1 == None:
-            self.gene = self.construct_random_gene()
+          self.gene = self.construct_random_gene()
         else:
-            self.parent1 = parent1[:]
-            self.parent2 = parent2[:]
-            self.gene = self.construct_gene(self.parent1, self.parent2)
-            #self.gene = self.crossover_vehicle_lengths(self.get_vehicle_lengths(parent1), self.get_vehicle_lengths(parent2))
+          self.parent1 = parent1.gene[:]
+          self.parent2 = parent2.gene[:]
+          # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
+          # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
+          self.gene = self.construct_gene(self.parent1, self.parent2)
+
 
 
 
@@ -39,11 +41,11 @@ class Individual():
   '''
 
     def get_vehicle_lengths(self, gene):
-        lengths = []
-        for depot in gene:
-            for vehicle in depot:
-                lengths.append(len(vehicle))
-        return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
+      lengths = []
+      for depot in gene:
+          for vehicle in depot:
+              lengths.append(len(vehicle))
+      return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
 
     # len1 = [4, 3, 4, 0, 2, 4, 3, 0, ...]
     # Den funker også ikke
@@ -90,13 +92,16 @@ class Individual():
 #    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
 
     def construct_gene(self, parent_gene1, parent_gene2):
-        flat_p1 = np.array(parent_gene1)
-        flat_p2 = np.array(parent_gene2)
-        flat_p1 = flat_p1.flatten()
-        flat_p2 = flat_p2.flatten()
+        # flat_p1 = np.array(parent_gene1)
+        # flat_p2 = np.array(parent_gene2)
+        # flat_p1 = flat_p1.flatten()
+        # flat_p2 = flat_p2.flatten()
 
-        flat_list1 = [item for sublist in flat_p1.tolist() for item in sublist]
-        flat_list2 = [item for sublist in flat_p2.tolist() for item in sublist]
+        flat_list1 = [item for sublist in parent_gene1 for item in sublist]
+        flat_list2 = [item for sublist in parent_gene2 for item in sublist]
+
+        flat_list1 = [item for sublist in flat_list1 for item in sublist]
+        flat_list2 = [item for sublist in flat_list2 for item in sublist]
 
         flat_child_gene = self.crossover(flat_list1, flat_list2)
 
@@ -106,14 +111,13 @@ class Individual():
         p1_vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
         p2_vehicle_lengths = self.get_vehicle_lengths(parent_gene2)
 
-
-
         child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
         child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
 
+
+
         child_gene_vehicles = []
 
-        #TEMP!
 
         total_length = 0
         for length in p1_vehicle_lengths:
@@ -140,6 +144,9 @@ class Individual():
 
         return child_gene_depots
 
+    def crossover_mutation_rate(self, p1, p2):
+      return (p1 + p2) / 2
+
     def crossover_vehicle_lengths(self, gene1, gene2):
       #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
       crossover_point = math.floor(randint(1, len(gene1)-1))
@@ -155,7 +162,6 @@ class Individual():
               temp = current_array[:]
               current_array = not_current_array[:]
               not_current_array = temp[:]
-
 
         if(len(current_array) != 0):
 
@@ -176,8 +182,8 @@ class Individual():
       return child_gene
 
     def crossover(self, gene1, gene2):
-        #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
-        crossover_point = math.floor(randint(1, len(gene1)-1))
+        crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
+        #crossover_point = math.floor(randint(1, len(gene1)-1))
         child_gene = []
         gene1_copy = gene1[:]
         current_array = gene1[:]
@@ -201,7 +207,7 @@ class Individual():
 
         return child_gene
 
-    def mutate(self, flat_gene):
+    def mutate_deprecated(self, flat_gene):
       result = flat_gene[:]
       for i in range(NUM_MUTATION_TRIES):
         if(random() < self.mutation_rate):
@@ -209,6 +215,30 @@ class Individual():
           b = randint(0, len(flat_gene)-1)
           result[b], result[a] = result[a], result[b]
       return result
+
+    def mutate_mutation_rate(self, mutation_rate):
+      if(random() < self.mutation_rate): #heh
+        if(random() < 0.5):
+          mutation_rate -= random()*0.001
+        else:
+          mutation_rate += random()*0.001
+      return mutation_rate
+
+    def mutate(self, flat_gene):
+      num = 5
+      if random() < MUTATION_RATE:
+        scramble_point = randint(0, len(flat_gene)-(num+1))
+        t = flat_gene[scramble_point:scramble_point+num][:]
+        shuffle(t)
+        flat_gene[scramble_point:scramble_point+num] = t
+
+
+      for i in range(len(flat_gene)):
+        if(random() < self.mutation_rate):
+          a = randint(0, len(flat_gene)-1)
+          flat_gene[i], flat_gene[a] = flat_gene[a], flat_gene[i]
+      return flat_gene
+
 
     def mutate_vehicle_lengths(self, lengths):
       result = lengths[:]
