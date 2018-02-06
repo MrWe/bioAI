@@ -9,10 +9,13 @@ from helpers import *
 from population import Population
 from read_problem import read
 
+if(ENABLE_GUI):
+  import pygame
+  from gui import GUI
+  gui = GUI()
 
 def main(f):
   GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles = read(f)
-  #gui = GUI()
 
   m_rate = MUTATION_RATE
 
@@ -26,7 +29,8 @@ def main(f):
   best_individual = None
 
   while(True):
-    #update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
+    if(ENABLE_GUI):
+      update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
 
     #path_length, individual = get_best_individual(population)
     individual = population.surviving_population[0]

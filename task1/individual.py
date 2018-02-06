@@ -18,10 +18,10 @@ class Individual():
         if parent1 == None:
           self.gene = self.construct_random_gene()
         else:
-          self.parent1 = parent1.gene[:]
-          self.parent2 = parent2.gene[:]
-          # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
-          # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
+          self.parent1 = parent1.gene
+          self.parent2 = parent2.gene
+          self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
+          self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
           self.gene = self.construct_gene(self.parent1, self.parent2)
 
 
@@ -225,18 +225,26 @@ class Individual():
       return mutation_rate
 
     def mutate(self, flat_gene):
-      num = 5
-      if random() < MUTATION_RATE:
-        scramble_point = randint(0, len(flat_gene)-(num+1))
-        t = flat_gene[scramble_point:scramble_point+num][:]
-        shuffle(t)
-        flat_gene[scramble_point:scramble_point+num] = t
+      num = 10
+      if random() < self.mutation_rate:
+      #   scramble_point = randint(0, len(flat_gene)-(num+1))
+      #   t = flat_gene[scramble_point:scramble_point+num][:]
+      #   shuffle(t)
+      #   flat_gene[scramble_point:scramble_point+num] = t
+      #   return flat_gene
+      #
+      # #if(random() < self.mutation_rate):
+      #   reverse_point = randint(0, len(flat_gene)-(num+1))
+      #   t = reversed(flat_gene[reverse_point:reverse_point+num][:])
+      #   flat_gene[reverse_point:reverse_point+num] = t
+      #   return flat_gene
 
-
-      for i in range(len(flat_gene)):
-        if(random() < self.mutation_rate):
-          a = randint(0, len(flat_gene)-1)
-          flat_gene[i], flat_gene[a] = flat_gene[a], flat_gene[i]
+      #if random() < self.mutation_rate:
+        for i in range(len(flat_gene)):
+          if(random() < self.mutation_rate):
+            a = randint(0, len(flat_gene)-1)
+            flat_gene[i], flat_gene[a] = flat_gene[a], flat_gene[i]
+        return flat_gene
       return flat_gene
 
 
@@ -249,8 +257,6 @@ class Individual():
           if(result[a] > 0):
             result[b], result[a] = result[b] + 1, result[a] - 1
       return result
-
-
 
 
     def construct_random_gene(self):
