@@ -2,6 +2,7 @@ from random import randint, random, shuffle
 #import numpy as np
 from config import *
 import math
+from helpers import *
 
 
 class Individual():
@@ -291,10 +292,7 @@ class Individual():
           curr_vehicle.insert(0, curr_depot_coords)
           curr_vehicle.append(curr_depot_coords)
           for k in range(len(curr_vehicle)-1):
-            path_length += self.euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
+            path_length += euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
 
       return path_length
 
-
-    def euclideanDistance(self, coordinate1, coordinate2):
-      return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
