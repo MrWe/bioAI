@@ -25,24 +25,15 @@ class GUI(object):
     for individual in population.individuals:
       for i in range(len(individual.gene)):
         curr_depot_coords = (depots[i][0], depots[i][1])
-
         for j in range(len(individual.gene[i])):
-          path_color = individual.path_color[i + j]
-          for n in range(len(individual.gene[i][j])-1):
+          curr_vehicle = []
+          for n in range(len(individual.gene[i][j])):
+            curr_vehicle.append((customers[individual.gene[i][j][n]][0], customers[individual.gene[i][j][n]][1]))
+          curr_vehicle.insert(0, curr_depot_coords)
+          curr_vehicle.append(curr_depot_coords)
+          for k in range(len(curr_vehicle)-1):
 
-            curr_cust = customers[individual.gene[i][j][n]]
-            next_cust = customers[individual.gene[i][j][n+1]]
-
-
-            curr_customer_coords = (curr_cust[0], curr_cust[1])
-            next_customer_coords = (next_cust[0], next_cust[1])
-
-
-            if(n == 0):
-              self.draw_line(path_color, curr_depot_coords, curr_customer_coords)
-            elif(n == len(individual.gene[i][j])-2):
-              self.draw_line(path_color, next_customer_coords, curr_depot_coords)
-            self.draw_line(path_color, curr_customer_coords, next_customer_coords)
+            self.draw_line(individual.path_color[i + j], curr_vehicle[k], curr_vehicle[k+1])
 
   def show_individual(self, individual, customers, depots):
     for i in range(len(individual.gene)):
