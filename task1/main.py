@@ -23,8 +23,6 @@ def main(f):
 
   population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate)
 
-
-
   current_iteration = 1
 
   best_path_length = float("Inf")

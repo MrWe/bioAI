@@ -6,7 +6,10 @@ from helpers import *
 
 
 class Individual():
-    def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
+    def __init__(self):
+      pass
+
+    def initial_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
         self.vehicle_max_load = vehicle_max_load
@@ -20,8 +23,10 @@ class Individual():
         self.gene = self.construct_initial_gene(self.nearest_customers)
 
         self.path_length = self.get_path_length(self.gene)
+        return self
 
-    def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1=None, parent2=None, random_individual=True):
+
+    def child_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1, parent2):
         self.customers_params = customers_params
         self.depots_params = depots_params
         self.vehicle_max_load = vehicle_max_load
@@ -33,11 +38,13 @@ class Individual():
 
         self.parent1 = parent1.gene
         self.parent2 = parent2.gene
-        self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
-        self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
+        # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
+        # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
         self.gene = self.construct_gene(self.parent1, self.parent2)
 
         self.path_length = self.get_path_length(self.gene)
+
+        return self
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
@@ -269,10 +276,18 @@ class Individual():
       return result
 
     def construct_initial_gene(self, nearest_customers):
-        self.gene = [[[] for i in range(self.num_vehicles)]
-                     for x in range(len(self.depots_params))]
+      customers_copy = nearest_customers[:]
 
+      gene = [[[] for i in range(self.num_vehicles)]
+                   for x in range(len(self.depots_params))]
 
+      for i in range(len(nearest_customers)):
+        for j in range(len(nearest_customers[i])):
+          rand = randint(0, len(nearest_customers[i])-1)
+          gene[i][j % self.num_vehicles].append(nearest_customers[i][rand])
+          del nearest_customers[i][rand]
+
+      return gene
 
 
     def construct_random_gene(self):
