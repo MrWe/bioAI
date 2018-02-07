@@ -19,9 +19,9 @@ def main(f):
 
   m_rate = MUTATION_RATE
 
+  nearest_customers, borderline = depot_cluster(depots_params, customers_params)
+
   population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate)
-
-
 
   current_iteration = 1
 
