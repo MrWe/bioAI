@@ -11,14 +11,14 @@ def get_best_individual(population):
 
 
 def depot_cluster(depots, customers, bound=2):
-    nearest_customers = [[] for _ in len(depots)]
-    borderline = [[] for _ in len(depots)]
+    nearest_customers = [[] for _ in depots]
+    borderline = [[] for _ in depots]
 
     for i in range(len(customers)):
         nearest_depot, nearest_depot_dist = get_nearest_depot(depots, customers[i]) # e.g. (1, 156.2)
         nearest_customers[nearest_depot].append(i)
 
-        borderline_depots = get_borderline_depots(depots, customers[i], nearest_depot, nearest_depot_dist) # e.g. [2, 4, 5]
+        borderline_depots = get_borderline_depots(depots, customers[i], nearest_depot, nearest_depot_dist, bound) # e.g. [2, 4, 5]
 
         for j in borderline_depots:
             borderline[j].append(i)
@@ -37,7 +37,7 @@ def get_nearest_depot(depots, customer):
 
     return nearest, nearest_dist
 
-def get_borderline_depots(depots, customer, nearest_depot, nearest_depot_dist):
+def get_borderline_depots(depots, customer, nearest_depot, nearest_depot_dist, bound):
     borderline_depots = []
 
     for i in range(len(depots)):

@@ -6,6 +6,21 @@ from helpers import *
 
 
 class Individual():
+    def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
+        self.customers_params = customers_params
+        self.depots_params = depots_params
+        self.vehicle_max_load = vehicle_max_load
+        self.vehicle_max_duration = vehicle_max_duration
+        self.num_vehicles = num_vehicles
+        self.path_color = [(randint(10, 255), randint(10, 255), randint(
+            10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+        self.mutation_rate = mutation_rate
+
+        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.gene = self.construct_initial_gene(self.nearest_customers)
+
+        self.path_length = self.get_path_length(self.gene)
+
     def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1=None, parent2=None, random_individual=True):
         self.customers_params = customers_params
         self.depots_params = depots_params
@@ -16,17 +31,11 @@ class Individual():
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
         self.mutation_rate = mutation_rate
 
-        if parent1 == None:
-          self.gene = self.construct_random_gene()
-        else:
-          self.parent1 = parent1.gene
-          self.parent2 = parent2.gene
-          self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
-          self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
-          self.gene = self.construct_gene(self.parent1, self.parent2)
-
-
-
+        self.parent1 = parent1.gene
+        self.parent2 = parent2.gene
+        self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
+        self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
+        self.gene = self.construct_gene(self.parent1, self.parent2)
 
         self.path_length = self.get_path_length(self.gene)
 
@@ -258,6 +267,12 @@ class Individual():
           if(result[a] > 0):
             result[b], result[a] = result[b] + 1, result[a] - 1
       return result
+
+    def construct_initial_gene(self, nearest_customers):
+        self.gene = [[[] for i in range(self.num_vehicles)]
+                     for x in range(len(self.depots_params))]
+
+
 
 
     def construct_random_gene(self):
