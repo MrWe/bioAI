@@ -36,8 +36,10 @@ class Population():
     parent1 = self.tournament_selection(parent_population)
     parent2 = self.tournament_selection(parent_population)
 
-    population.append(parent1)
-    population.append(parent2)
+    #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
+    population.append(parent_population[0])
+    population.append(parent_population[1])
+
 
     for i in range(int(POPULATION_SIZE - 2)):
       population.append(Individual().child_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2))
@@ -63,8 +65,6 @@ class Population():
     else:
       selected = p1 if random.random() < 0.5 else p2
     return selected
-
-
 
 
   def prioritize_population(self, population):

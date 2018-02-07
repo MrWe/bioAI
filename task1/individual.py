@@ -1,4 +1,5 @@
 from random import randint, random, shuffle
+from copy import deepcopy
 #import numpy as np
 from config import *
 import math
@@ -21,9 +22,12 @@ class Individual():
 
         self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.gene = self.construct_initial_gene(self.nearest_customers)
+        if(random() < 0.1):
+          self.gene = self.intra_depot_mutation(self.gene)
 
         self.path_length = self.get_path_length(self.gene)
         self.fitness = self.get_fitness()
+
         return self
 
 
@@ -42,6 +46,8 @@ class Individual():
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
         self.gene = self.construct_flat_gene(self.parent1, self.parent2)
+        if(random() < 0.1):
+          self.gene = self.intra_depot_mutation(self.gene)
 
         self.path_length = self.get_path_length(self.gene)
         self.fitness = self.get_fitness()
@@ -117,13 +123,13 @@ class Individual():
 
         flat_child_gene = self.crossover(flat_list1, flat_list2)
 
-        flat_child_gene = self.mutate(flat_child_gene)
+        #flat_child_gene = self.mutate(flat_child_gene)
 
         p1_vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
         p2_vehicle_lengths = self.get_vehicle_lengths(parent_gene2)
 
         child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
-        child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
+        #child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
 
         child_gene = self.construct_gene(flat_child_gene, child_vehicle_lengths)
 
@@ -132,24 +138,32 @@ class Individual():
     def flatten(self, gene):
       flat = [item for sublist in gene for item in sublist]
       flat = [item for sublist in flat for item in sublist]
+
       return flat
 
 
     def construct_gene(self, flat_gene, vehicle_lengths):
+      vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
+
+      depots = []
+      for i in range(len(self.depots_params)):
+        depots.append(self.construct_depot(vehicles, i)) #i = index of current depot
+      return depots
+
+
+    def construct_depot(self, vehicles, index):
+      # total_length = 0
+      # depots.append(vehicles[total_length:total_length + self.num_vehicles])
+      # total_length += self.num_vehicles
+      return vehicles[self.num_vehicles*index:(self.num_vehicles*index)+self.num_vehicles]
+
+    def construct_vehicles(self, flat_gene, vehicle_lengths):
       vehicles = []
       total_length = 0
       for length in vehicle_lengths:
         vehicles.append(flat_gene[total_length:total_length + length])
         total_length += length
-
-      depots = []
-      total_length = 0
-
-      for i in range(len(self.depots_params)):
-        depots.append(vehicles[total_length:total_length + self.num_vehicles])
-        total_length += self.num_vehicles
-      return depots
-
+      return vehicles
 
 
     def crossover_mutation_rate(self, p1, p2):
@@ -215,47 +229,61 @@ class Individual():
 
         return child_gene
 
-    #depot = [[0,1,2], [3,4,5]]
-    def intra_depot_mutation(self, depot, depot_index, gene):
-      flat = self.flatten(depot)
 
+    def intra_depot_mutation(self, gene):
+      rand_depot = randint(0, len(gene)-1)
+      depot = [item for sublist in gene[rand_depot] for item in sublist]
+      vehicle_lengths = self.get_vehicle_lengths(gene)
+
+      if(len(depot) < 2):
+        return gene
       r = random()
       if(r < 0.33):
-        self.swap(flat)
+        self.swap(depot)
       if(r > 0.66):
-        self.reverse(flat)
+        self.reverse(depot)
       else:
-        self.reroute(flat)
+        return self.reroute(depot, rand_depot, gene, vehicle_lengths)
+
+      new_depot = self.construct_vehicles(depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
+      gene[rand_depot] = new_depot
+
+      return gene
 
     def swap(self, depot):
       r1 = randint(0, len(depot)-1)
       r2 = randint(0, len(depot)-1)
+      while(r2 != r1):
+        r2 = randint(0, len(depot)-1)
       depot[r1], depot[r2] = depot[r2], depot[r1]
 
     def reverse(self, depot):
-      r1 = randint(0, len(depot)-1)
-      r2 = randint(r1, len(depot)-1)
+      if(len(depot) <= 2):
+        return reversed(depot)
+      r1 = randint(0, len(depot)-2)
+      r2 = randint(r1+1, len(depot)-1)
       t = reversed(depot[r1:r2][:])
       depot[r1:r2] = t
 
-    def reroute(self, depot, gene):
+    def reroute(self, depot, rand_depot, gene, vehicle_lengths):
       depot = depot[:]
       r = randint(0, len(depot)-1)
       best_fitness = float("Inf")
       best_gene = []
-
       cust = depot[r]
       del depot[r]
 
       for i in range(len(depot)):
+        curr_gene = deepcopy(gene)
         curr_depot = depot[:]
         curr_depot.insert(i, cust)
-
-
-
-
-
-
+        curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
+        curr_gene[rand_depot] = curr_depot
+        path_length = self.get_path_length(curr_gene)
+        if(path_length < best_fitness):
+          best_fitness = path_length
+          best_gene = curr_gene
+      return best_gene
 
 
 
