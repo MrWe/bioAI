@@ -23,6 +23,7 @@ class Individual():
         self.gene = self.construct_initial_gene(self.nearest_customers)
 
         self.path_length = self.get_path_length(self.gene)
+        self.fitness = self.get_fitness()
         return self
 
 
@@ -40,9 +41,10 @@ class Individual():
         self.parent2 = parent2.gene
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
-        self.gene = self.construct_gene(self.parent1, self.parent2)
+        self.gene = self.construct_flat_gene(self.parent1, self.parent2)
 
         self.path_length = self.get_path_length(self.gene)
+        self.fitness = self.get_fitness()
 
         return self
 
@@ -108,20 +110,12 @@ class Individual():
 
 #    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
 
-    def construct_gene(self, parent_gene1, parent_gene2):
-        # flat_p1 = np.array(parent_gene1)
-        # flat_p2 = np.array(parent_gene2)
-        # flat_p1 = flat_p1.flatten()
-        # flat_p2 = flat_p2.flatten()
+    def construct_flat_gene(self, parent_gene1, parent_gene2):
 
-        flat_list1 = [item for sublist in parent_gene1 for item in sublist]
-        flat_list2 = [item for sublist in parent_gene2 for item in sublist]
-
-        flat_list1 = [item for sublist in flat_list1 for item in sublist]
-        flat_list2 = [item for sublist in flat_list2 for item in sublist]
+        flat_list1 = self.flatten(parent_gene1)
+        flat_list2 = self.flatten(parent_gene2)
 
         flat_child_gene = self.crossover(flat_list1, flat_list2)
-
 
         flat_child_gene = self.mutate(flat_child_gene)
 
@@ -131,35 +125,32 @@ class Individual():
         child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
         child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
 
+        child_gene = self.construct_gene(flat_child_gene, child_vehicle_lengths)
+
+        return child_gene
+
+    def flatten(self, gene):
+      flat = [item for sublist in gene for item in sublist]
+      flat = [item for sublist in flat for item in sublist]
+      return flat
 
 
-        child_gene_vehicles = []
+    def construct_gene(self, flat_gene, vehicle_lengths):
+      vehicles = []
+      total_length = 0
+      for length in vehicle_lengths:
+        vehicles.append(flat_gene[total_length:total_length + length])
+        total_length += length
+
+      depots = []
+      total_length = 0
+
+      for i in range(len(self.depots_params)):
+        depots.append(vehicles[total_length:total_length + self.num_vehicles])
+        total_length += self.num_vehicles
+      return depots
 
 
-        total_length = 0
-        for length in p1_vehicle_lengths:
-          child_gene_vehicles.append(flat_child_gene[total_length:total_length + length])
-          total_length += length
-
-        child_gene_depots = []
-        total_length = 0
-
-        #print(child_gene_vehicles)
-
-        for i in range(len(self.depots_params)):
-          child_gene_depots.append(child_gene_vehicles[total_length:total_length + self.num_vehicles])
-          total_length += self.num_vehicles
-
-        # if(random() < 0.001):
-        #   print(flat_list1)
-        #   print(p1_vehicle_lengths)
-        #   print(child_vehicle_lengths)
-        #   print(sum(child_vehicle_lengths))
-        #   print(sum(p1_vehicle_lengths))
-        #   print(child_gene_depots)
-
-
-        return child_gene_depots
 
     def crossover_mutation_rate(self, p1, p2):
       return (p1 + p2) / 2
@@ -224,6 +215,51 @@ class Individual():
 
         return child_gene
 
+    #depot = [[0,1,2], [3,4,5]]
+    def intra_depot_mutation(self, depot, depot_index, gene):
+      flat = self.flatten(depot)
+
+      r = random()
+      if(r < 0.33):
+        self.swap(flat)
+      if(r > 0.66):
+        self.reverse(flat)
+      else:
+        self.reroute(flat)
+
+    def swap(self, depot):
+      r1 = randint(0, len(depot)-1)
+      r2 = randint(0, len(depot)-1)
+      depot[r1], depot[r2] = depot[r2], depot[r1]
+
+    def reverse(self, depot):
+      r1 = randint(0, len(depot)-1)
+      r2 = randint(r1, len(depot)-1)
+      t = reversed(depot[r1:r2][:])
+      depot[r1:r2] = t
+
+    def reroute(self, depot, gene):
+      depot = depot[:]
+      r = randint(0, len(depot)-1)
+      best_fitness = float("Inf")
+      best_gene = []
+
+      cust = depot[r]
+      del depot[r]
+
+      for i in range(len(depot)):
+        curr_depot = depot[:]
+        curr_depot.insert(i, cust)
+
+
+
+
+
+
+
+
+
+
     def mutate_deprecated(self, flat_gene):
       result = flat_gene[:]
       for i in range(NUM_MUTATION_TRIES):
@@ -244,23 +280,18 @@ class Individual():
     def mutate(self, flat_gene):
       num = 10
       if random() < self.mutation_rate:
-      #   scramble_point = randint(0, len(flat_gene)-(num+1))
-      #   t = flat_gene[scramble_point:scramble_point+num][:]
-      #   shuffle(t)
-      #   flat_gene[scramble_point:scramble_point+num] = t
-      #   return flat_gene
-      #
-      # #if(random() < self.mutation_rate):
-      #   reverse_point = randint(0, len(flat_gene)-(num+1))
-      #   t = reversed(flat_gene[reverse_point:reverse_point+num][:])
-      #   flat_gene[reverse_point:reverse_point+num] = t
-      #   return flat_gene
+        scramble_point = randint(0, len(flat_gene)-(num+1))
+        t = flat_gene[scramble_point:scramble_point+num][:]
+        shuffle(t)
+        flat_gene[scramble_point:scramble_point+num] = t
+        return flat_gene
 
-      #if random() < self.mutation_rate:
-        for i in range(len(flat_gene)):
-          if(random() < self.mutation_rate):
-            a = randint(0, len(flat_gene)-1)
-            flat_gene[i], flat_gene[a] = flat_gene[a], flat_gene[i]
+      if(random() < self.mutation_rate):
+
+        return flat_gene
+
+      if random() < self.mutation_rate:
+
         return flat_gene
       return flat_gene
 
@@ -326,3 +357,9 @@ class Individual():
 
       return path_length
 
+
+    def get_fitness(self):
+      a = 100
+      b = 0.001
+
+      return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
