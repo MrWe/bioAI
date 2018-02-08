@@ -12,6 +12,7 @@ class Individual():
     def initial_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
+        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
@@ -19,7 +20,6 @@ class Individual():
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
         self.mutation_rate = mutation_rate
 
-        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.gene = self.construct_initial_gene(self.nearest_customers)
 
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
@@ -29,6 +29,7 @@ class Individual():
     def child_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1, parent2):
         self.customers_params = customers_params
         self.depots_params = depots_params
+        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
@@ -77,11 +78,11 @@ class Individual():
         # flat_p1 = flat_p1.flatten()
         # flat_p2 = flat_p2.flatten()
 
-        flat_list1 = [item for sublist in parent_gene1 for item in sublist]
-        flat_list2 = [item for sublist in parent_gene2 for item in sublist]
+        flat_list1 = flatten(parent_gene1)
+        flat_list2 = flatten(parent_gene2)
 
-        flat_list1 = [item for sublist in flat_list1 for item in sublist]
-        flat_list2 = [item for sublist in flat_list2 for item in sublist]
+        flat_list1 = flatten(flat_list1)
+        flat_list2 = flatten(flat_list2)
 
         flat_child_gene = self.crossover_genes(flat_list1, flat_list2)
         flat_child_gene = self.mutate_gene(flat_child_gene)
@@ -171,6 +172,21 @@ class Individual():
     def crossover_mutation_rate(self, p1, p2):
       return (p1 + p2) / 2
 
+    def inter_depot_mutation(self, gene):
+      selected_depot = randint(0, len(self.borderline)-1)
+      selected_customer = randint(0, len(self.borderline[selected_depot])-1)
+      customer_to_move = self.borderline[selected_depot][selected_customer]
+
+      mutated_gene = gene[:]
+      #mutated_gene = flatten(mutated_gene)
+      #mutated_gene = flatten(mutated_gene)
+      borderline_customer = mutated_gene.index(customer_to_move)
+
+      mutated_gene[borderline_customer], self.borderline[selected_depot][selected_customer] = customer_to_move, borderline_customer
+
+      return mutated_gene
+
+
     def mutate_mutation_rate(self, mutation_rate):
       if(random() < self.mutation_rate): #heh
         if(random() < 0.5):
@@ -180,6 +196,8 @@ class Individual():
       return mutation_rate
 
     def mutate_gene(self, flat_gene):
+      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+          return self.inter_depot_mutation(flat_gene)
       num = 10
       if random() < self.mutation_rate:
          scramble_point = randint(0, len(flat_gene)-(num+1))

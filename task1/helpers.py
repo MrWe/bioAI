@@ -51,6 +51,8 @@ def get_borderline_depots(depots, customer, nearest_depot, nearest_depot_dist, b
 def euclideanDistance(coordinate1, coordinate2):
   return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
 
+def flatten(array):
+    return [item for sublist in array for item in sublist]
 
 def get_path_length(gene, depots_params, customers_params):
   path_length = 0
