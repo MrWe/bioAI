@@ -22,10 +22,8 @@ class Individual():
         self.mutation_rate = mutation_rate
 
         self.gene = self.construct_initial_gene(self.nearest_customers)
-        if(random() < 0.1):
-          self.gene = self.intra_depot_mutation(self.gene)
 
-        self.path_length = get_path_length(self.gene)
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
         return self
 
@@ -46,11 +44,12 @@ class Individual():
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
         self.gene = self.construct_flat_gene(self.parent1, self.parent2)
-        if(random() < 0.1):
-          self.gene = self.intra_depot_mutation(self.gene)
 
+        #print("GENE", self.gene)
+        #print("DEPOTS", self.depots_params)
+        #print("CUSTOMERS", self.customers_params)
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
-
+        self.fitness = self.get_fitness()
         return self
 
     def __cmp__(self, other):
@@ -86,7 +85,7 @@ class Individual():
         flat_list2 = flatten(flat_list2)
 
         flat_child_gene = self.crossover_genes(flat_list1, flat_list2)
-        flat_child_gene = self.mutate_gene(flat_child_gene)
+        flat_child_gene = self.mutate_gene(parent_gene1, flat_child_gene)
 
         p1_vehicle_lengths = get_vehicle_lengths(parent_gene1)
         p2_vehicle_lengths = get_vehicle_lengths(parent_gene2)
@@ -100,6 +99,10 @@ class Individual():
 
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
+      depots = []
+      for i in range(len(self.depots_params)):
+          depots.append(self.construct_depot(vehicles, i))
+      return depots
 
     def construct_depot(self, vehicles, index):
       # total_length = 0
@@ -178,9 +181,11 @@ class Individual():
     def intra_depot_mutation(self, gene):
       rand_depot = randint(0, len(gene)-1)
       depot = [item for sublist in gene[rand_depot] for item in sublist]
-      vehicle_lengths = self.get_vehicle_lengths(gene)
+      vehicle_lengths = get_vehicle_lengths(gene)
 
       if(len(depot) < 2):
+        gene = flatten(gene)
+        gene = flatten(gene)
         return gene
       r = random()
       if(r < 0.33):
@@ -192,6 +197,9 @@ class Individual():
 
       new_depot = self.construct_vehicles(depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
       gene[rand_depot] = new_depot
+
+      gene = flatten(gene)
+      gene = flatten(gene)
 
       return gene
 
@@ -225,26 +233,28 @@ class Individual():
         curr_depot.insert(i, cust)
         curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
         curr_gene[rand_depot] = curr_depot
-        path_length = get_path_length(curr_gene)
-        if(len(self.flatten(curr_gene)) != 50):
-          print(curr_gene)
+        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params)
+
         if(path_length < best_fitness):
           best_fitness = path_length
           best_gene = curr_gene
 
+      best_gene = flatten(best_gene)
+      best_gene = flatten(best_gene)
       return best_gene
 
     def crossover_mutation_rate(self, p1, p2):
       return (p1 + p2) / 2
 
     def inter_depot_mutation(self, gene):
+      lengths = get_vehicle_lengths(gene)
       selected_depot = randint(0, len(self.borderline)-1)
       selected_customer = randint(0, len(self.borderline[selected_depot])-1)
       customer_to_move = self.borderline[selected_depot][selected_customer]
 
       mutated_gene = gene[:]
-      #mutated_gene = flatten(mutated_gene)
-      #mutated_gene = flatten(mutated_gene)
+      mutated_gene = flatten(mutated_gene)
+      mutated_gene = flatten(mutated_gene)
       borderline_customer = mutated_gene.index(customer_to_move)
 
       mutated_gene[borderline_customer], self.borderline[selected_depot][selected_customer] = customer_to_move, borderline_customer
@@ -259,12 +269,12 @@ class Individual():
           mutation_rate += random()*0.001
       return mutation_rate
 
-    def mutate_gene(self, flat_gene):
+    def mutate_gene(self, gene, flat_gene):
       if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
-          return self.inter_depot_mutation(flat_gene)
+          return self.inter_depot_mutation(gene)
 
       if random() < self.mutation_rate:
-          return self.intra_depot_mutation(flat_gene)
+          return self.intra_depot_mutation(gene)
       return flat_gene
 
     def mutate_vehicle_lengths(self, lengths):
