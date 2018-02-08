@@ -25,8 +25,7 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      individual = Individual()
-      population.append(individual.initial_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate))
+      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate))
 
     return population
 
@@ -34,12 +33,16 @@ class Population():
     population = []
 
     parent_population = parent.surviving_population
-    parent1 = self.pick_parent(parent_population)
-    parent2 = self.pick_parent(parent_population)
+    parent1 = self.tournament_selection(parent_population)
+    parent2 = self.tournament_selection(parent_population)
 
-    for i in range(int(POPULATION_SIZE)):
-      individual = Individual()
-      population.append(individual.child_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2))
+    #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
+    population.append(parent_population[0])
+    population.append(parent_population[1])
+
+
+    for i in range(int(POPULATION_SIZE - 2)):
+      population.append(Individual().child_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2))
 
     return population      
 
@@ -52,6 +55,16 @@ class Population():
         best_parent = curr_option
     return best_parent
 
+  def tournament_selection(self, population):
+    p1 = population[random.randint(0, len(population)-1)]
+    p2 = population[random.randint(0, len(population)-1)]
+    r = random.random()
+    if(r < 0.8):
+      selected = p1 if p1.fitness < p2.fitness else p2
+    else:
+      selected = p1 if random.random() < 0.5 else p2
+    return selected
+
 
   def prioritize_population(self, population):
     priority_populaton = []
@@ -60,7 +73,6 @@ class Population():
       priority_populaton.append(population[i])
     return priority_populaton
 
-
   def get_surviving_population(self):
-    #return sorted(self.individuals, key=lambda x: x.path_length)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
-    return sorted(self.individuals, key=lambda x: x.path_length)
+    #return sorted(self.individuals, key=lambda x: x.fitness)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
+    return sorted(self.individuals, key=lambda x: x.fitness)
