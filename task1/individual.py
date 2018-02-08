@@ -274,18 +274,20 @@ class Individual():
       del depot[r]
 
       for i in range(len(depot)):
-        curr_gene = deepcopy(gene)
+        #curr_gene = deepcopy(gene) #TODO: Find alternative to deepcopy
+        curr_gene = self.copy_gene(gene) #This hopefully works
         curr_depot = depot[:]
         curr_depot.insert(i, cust)
         curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
         curr_gene[rand_depot] = curr_depot
         path_length = self.get_path_length(curr_gene)
+        if(len(self.flatten(curr_gene)) != 50):
+          print(curr_gene)
         if(path_length < best_fitness):
           best_fitness = path_length
           best_gene = curr_gene
+
       return best_gene
-
-
 
 
     def mutate_deprecated(self, flat_gene):
@@ -391,3 +393,12 @@ class Individual():
       b = 0.001
 
       return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
+
+    def copy_gene(self, gene):
+      new_gene = []
+      for depot in gene:
+        new_depot = []
+        for vehicle in depot:
+          new_depot.append(vehicle[:])
+        new_gene.append(new_depot)
+      return new_gene

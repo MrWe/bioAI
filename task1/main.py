@@ -38,8 +38,8 @@ def main(f):
 
     if(path_length < best_path_length):
       best_path_length = path_length
-      print(current_iteration, best_path_length, m_rate)
       best_individual = individual
+      print(current_iteration, best_path_length, m_rate)
 
     population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate, population)
 
@@ -49,7 +49,6 @@ def main(f):
 
 def update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, show_best_individual, best_individual, m_rate):
   if(should_update_gui(current_iteration)):
-    print(current_iteration, m_rate)
     gui.screen = pygame.display.set_mode(SCREEN_SIZE)
     gui.screen.fill((255,255,255))
     gui.show_C_D(GUI_customers, GUI_depots)
