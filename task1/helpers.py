@@ -9,7 +9,6 @@ def get_best_individual(population):
       individual = population.individuals[i]
   return path_length, individual
 
-
 def depot_cluster(depots, customers, bound=2):
     nearest_customers = [[] for _ in depots]
     borderline = [[] for _ in depots]
@@ -51,3 +50,29 @@ def get_borderline_depots(depots, customer, nearest_depot, nearest_depot_dist, b
 
 def euclideanDistance(coordinate1, coordinate2):
   return pow(pow(coordinate1[0] - coordinate2[0], 2) + pow(coordinate1[1] - coordinate2[1], 2), .5)
+
+def flatten(array):
+    return [item for sublist in array for item in sublist]
+
+def get_path_length(gene, depots_params, customers_params):
+  path_length = 0
+  for i in range(len(gene)):
+    curr_depot_coords = (
+    depots_params[i][0], depots_params[i][1])
+    for j in range(len(gene[i])):
+      curr_vehicle = []
+      for n in range(len(gene[i][j])):
+        curr_vehicle.append((customers_params[gene[i][j][n]][1], customers_params[gene[i][j][n]][2]))
+      curr_vehicle.insert(0, curr_depot_coords)
+      curr_vehicle.append(curr_depot_coords)
+      for k in range(len(curr_vehicle)-1):
+        path_length += euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
+
+  return path_length
+
+def get_vehicle_lengths(gene):
+  lengths = []
+  for depot in gene:
+      for vehicle in depot:
+          lengths.append(len(vehicle))
+  return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]

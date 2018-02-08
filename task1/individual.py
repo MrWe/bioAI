@@ -13,6 +13,7 @@ class Individual():
     def initial_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
+        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
@@ -20,20 +21,19 @@ class Individual():
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
         self.mutation_rate = mutation_rate
 
-        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.gene = self.construct_initial_gene(self.nearest_customers)
         if(random() < 0.1):
           self.gene = self.intra_depot_mutation(self.gene)
 
-        self.path_length = self.get_path_length(self.gene)
+        self.path_length = get_path_length(self.gene)
         self.fitness = self.get_fitness()
-
         return self
 
 
     def child_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1, parent2):
         self.customers_params = customers_params
         self.depots_params = depots_params
+        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
         self.vehicle_max_load = vehicle_max_load
         self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
@@ -49,8 +49,7 @@ class Individual():
         if(random() < 0.1):
           self.gene = self.intra_depot_mutation(self.gene)
 
-        self.path_length = self.get_path_length(self.gene)
-        self.fitness = self.get_fitness()
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
 
         return self
 
@@ -65,68 +64,32 @@ class Individual():
     Each [[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]] is the path of all the cars in one depot
   '''
 
-    def get_vehicle_lengths(self, gene):
-      lengths = []
-      for depot in gene:
-          for vehicle in depot:
-              lengths.append(len(vehicle))
-      return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
+    def construct_initial_gene(self, nearest_customers):
+      customers_copy = nearest_customers[:]
 
-    # len1 = [4, 3, 4, 0, 2, 4, 3, 0, ...]
-    # Den funker også ikke
-    def crossover_vehicle_lengths_deprecated(self, len1, len2):
-        total_customers = len(self.customers_params)
-        customers = 0
-        result = []
-        current_array = len1
+      gene = [[[] for i in range(self.num_vehicles)]
+                   for x in range(len(self.depots_params))]
 
-        pointer = 0
-        crossover_point = math.floor(len(len1) * CROSSOVER_RATE)
+      for i in range(len(nearest_customers)):
+        for j in range(len(nearest_customers[i])):
+          rand = randint(0, len(nearest_customers[i])-1)
+          gene[i][j % self.num_vehicles].append(nearest_customers[i][rand])
+          del nearest_customers[i][rand]
 
-        while pointer < len(len1):
-            if pointer % crossover_point == 0:
-                if current_array == len1:
-                    current_array = len2
-                else:
-                    current_array = len1
-
-            result.append(current_array[pointer])
-            customers += current_array[pointer]
-            pointer += 1
-
-        while customers > total_customers:
-            mutation_point = random.randint(0, len(result))
-            result[mutation_point] -= 1
-            customers -= 1
-
-        while customers < total_customers:
-            mutation_point = random.randint(0, len(result))
-            result[mutation_point] += 1
-            customers += 1
-
-        gene = []
-        total_length = 0
-        for length in result:
-          gene.append(result[total_length:total_length + length])
-          total_length += length
-
-
-        return gene
-        #return(result[i:i + self.num_vehicles] for i in range(0, len(result), self.num_vehicles))
-
-#    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
+      return gene
 
     def construct_flat_gene(self, parent_gene1, parent_gene2):
+        flat_list1 = flatten(parent_gene1)
+        flat_list2 = flatten(parent_gene2)
 
-        flat_list1 = self.flatten(parent_gene1)
-        flat_list2 = self.flatten(parent_gene2)
+        flat_list1 = flatten(flat_list1)
+        flat_list2 = flatten(flat_list2)
 
-        flat_child_gene = self.crossover(flat_list1, flat_list2)
+        flat_child_gene = self.crossover_genes(flat_list1, flat_list2)
+        flat_child_gene = self.mutate_gene(flat_child_gene)
 
-        #flat_child_gene = self.mutate(flat_child_gene)
-
-        p1_vehicle_lengths = self.get_vehicle_lengths(parent_gene1)
-        p2_vehicle_lengths = self.get_vehicle_lengths(parent_gene2)
+        p1_vehicle_lengths = get_vehicle_lengths(parent_gene1)
+        p2_vehicle_lengths = get_vehicle_lengths(parent_gene2)
 
         child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
         #child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
@@ -135,21 +98,8 @@ class Individual():
 
         return child_gene
 
-    def flatten(self, gene):
-      flat = [item for sublist in gene for item in sublist]
-      flat = [item for sublist in flat for item in sublist]
-
-      return flat
-
-
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
-
-      depots = []
-      for i in range(len(self.depots_params)):
-        depots.append(self.construct_depot(vehicles, i)) #i = index of current depot
-      return depots
-
 
     def construct_depot(self, vehicles, index):
       # total_length = 0
@@ -164,10 +114,6 @@ class Individual():
         vehicles.append(flat_gene[total_length:total_length + length])
         total_length += length
       return vehicles
-
-
-    def crossover_mutation_rate(self, p1, p2):
-      return (p1 + p2) / 2
 
     def crossover_vehicle_lengths(self, gene1, gene2):
       #crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
@@ -203,7 +149,7 @@ class Individual():
 
       return child_gene
 
-    def crossover(self, gene1, gene2):
+    def crossover_genes(self, gene1, gene2):
         crossover_point = math.floor(len(gene1) * CROSSOVER_RATE)
         #crossover_point = math.floor(randint(1, len(gene1)-1))
         child_gene = []
@@ -228,7 +174,6 @@ class Individual():
           pointer += 1
 
         return child_gene
-
 
     def intra_depot_mutation(self, gene):
       rand_depot = randint(0, len(gene)-1)
@@ -280,7 +225,7 @@ class Individual():
         curr_depot.insert(i, cust)
         curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
         curr_gene[rand_depot] = curr_depot
-        path_length = self.get_path_length(curr_gene)
+        path_length = get_path_length(curr_gene)
         if(len(self.flatten(curr_gene)) != 50):
           print(curr_gene)
         if(path_length < best_fitness):
@@ -289,15 +234,22 @@ class Individual():
 
       return best_gene
 
+    def crossover_mutation_rate(self, p1, p2):
+      return (p1 + p2) / 2
 
-    def mutate_deprecated(self, flat_gene):
-      result = flat_gene[:]
-      for i in range(NUM_MUTATION_TRIES):
-        if(random() < self.mutation_rate):
-          a = randint(0, len(flat_gene)-1)
-          b = randint(0, len(flat_gene)-1)
-          result[b], result[a] = result[a], result[b]
-      return result
+    def inter_depot_mutation(self, gene):
+      selected_depot = randint(0, len(self.borderline)-1)
+      selected_customer = randint(0, len(self.borderline[selected_depot])-1)
+      customer_to_move = self.borderline[selected_depot][selected_customer]
+
+      mutated_gene = gene[:]
+      #mutated_gene = flatten(mutated_gene)
+      #mutated_gene = flatten(mutated_gene)
+      borderline_customer = mutated_gene.index(customer_to_move)
+
+      mutated_gene[borderline_customer], self.borderline[selected_depot][selected_customer] = customer_to_move, borderline_customer
+
+      return mutated_gene
 
     def mutate_mutation_rate(self, mutation_rate):
       if(random() < self.mutation_rate): #heh
@@ -307,24 +259,13 @@ class Individual():
           mutation_rate += random()*0.001
       return mutation_rate
 
-    def mutate(self, flat_gene):
-      num = 10
-      if random() < self.mutation_rate:
-        scramble_point = randint(0, len(flat_gene)-(num+1))
-        t = flat_gene[scramble_point:scramble_point+num][:]
-        shuffle(t)
-        flat_gene[scramble_point:scramble_point+num] = t
-        return flat_gene
-
-      if(random() < self.mutation_rate):
-
-        return flat_gene
+    def mutate_gene(self, flat_gene):
+      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+          return self.inter_depot_mutation(flat_gene)
 
       if random() < self.mutation_rate:
-
-        return flat_gene
+          return self.intra_depot_mutation(flat_gene)
       return flat_gene
-
 
     def mutate_vehicle_lengths(self, lengths):
       result = lengths[:]
@@ -335,58 +276,6 @@ class Individual():
           if(result[a] > 0):
             result[b], result[a] = result[b] + 1, result[a] - 1
       return result
-
-    def construct_initial_gene(self, nearest_customers):
-      customers_copy = nearest_customers[:]
-
-      gene = [[[] for i in range(self.num_vehicles)]
-                   for x in range(len(self.depots_params))]
-
-      for i in range(len(nearest_customers)):
-        for j in range(len(nearest_customers[i])):
-          rand = randint(0, len(nearest_customers[i])-1)
-          gene[i][j % self.num_vehicles].append(nearest_customers[i][rand])
-          del nearest_customers[i][rand]
-
-      return gene
-
-
-    def construct_random_gene(self):
-        customers_copy = self.customers_params[:]
-
-        self.gene = [[[] for i in range(self.num_vehicles)]
-                     for x in range(len(self.depots_params))]
-
-        depot_selector = 0
-        vehicle_selector = 0
-        while(len(customers_copy) > 0):
-            for i in range(len(self.depots_params)):
-                if(len(customers_copy) == 0):
-                    break
-                rand_customer = randint(0, len(customers_copy) - 1)
-                self.gene[depot_selector % len(self.depots_params)][vehicle_selector % self.num_vehicles].append(
-                    self.customers_params.index(customers_copy[rand_customer]))
-                del customers_copy[rand_customer]
-                depot_selector += 1
-            vehicle_selector += 1
-        return self.gene
-
-    def get_path_length(self, gene):
-      path_length = 0
-      for i in range(len(gene)):
-        curr_depot_coords = (
-        self.depots_params[i][0], self.depots_params[i][1])
-        for j in range(len(gene[i])):
-          curr_vehicle = []
-          for n in range(len(gene[i][j])):
-            curr_vehicle.append((self.customers_params[gene[i][j][n]][1], self.customers_params[gene[i][j][n]][2]))
-          curr_vehicle.insert(0, curr_depot_coords)
-          curr_vehicle.append(curr_depot_coords)
-          for k in range(len(curr_vehicle)-1):
-            path_length += euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
-
-      return path_length
-
 
     def get_fitness(self):
       a = 100
@@ -402,3 +291,4 @@ class Individual():
           new_depot.append(vehicle[:])
         new_gene.append(new_depot)
       return new_gene
+

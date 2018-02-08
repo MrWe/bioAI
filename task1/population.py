@@ -44,8 +44,7 @@ class Population():
     for i in range(int(POPULATION_SIZE - 2)):
       population.append(Individual().child_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2))
 
-    return population
-
+    return population      
 
   def pick_parent(self, population):
     percent = math.floor(((len(population) / 100) * 10))
