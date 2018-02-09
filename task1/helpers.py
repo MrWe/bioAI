@@ -76,3 +76,9 @@ def get_vehicle_lengths(gene):
       for vehicle in depot:
           lengths.append(len(vehicle))
   return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
+
+
+#depot = depot index in gene
+#vehicle = vehicle index in depot
+def enhance_vehicle_path(gene, depot, vehicle, depots_params, customers_params):
+    pass

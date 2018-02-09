@@ -188,10 +188,13 @@ class Individual():
         gene = flatten(gene)
         return gene
       r = random()
-      if(r < 0.33):
+      if(r < 0.5):
         self.swap(depot)
-      if(r > 0.66):
-        self.reverse(depot)
+        pass
+      # elif(r > 0.66):
+      #
+      #   #self.reverse(depot)
+      #   pass
       else:
         return self.reroute(depot, rand_depot, gene, vehicle_lengths)
 
@@ -270,8 +273,9 @@ class Individual():
       return mutation_rate
 
     def mutate_gene(self, gene, flat_gene):
-      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+      if random() < 0.01: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene)
+          pass
 
       if random() < self.mutation_rate:
           return self.intra_depot_mutation(gene)
