@@ -188,10 +188,10 @@ class Individual():
         gene = flatten(gene)
         return gene
       r = random()
-      if(r < 0.33):
+      if(r < 0.5):
         self.swap(depot)
-      if(r > 0.66):
-        self.reverse(depot)
+      #if(r > 0.66):
+        #self.reverse(depot)
       else:
         return self.reroute(depot, rand_depot, gene, vehicle_lengths)
 
@@ -247,19 +247,40 @@ class Individual():
       return (p1 + p2) / 2
 
     def inter_depot_mutation(self, gene):
-      lengths = get_vehicle_lengths(gene)
+      #lengths = get_vehicle_lengths(gene)
       selected_depot = randint(0, len(self.borderline)-1)
-      selected_customer = randint(0, len(self.borderline[selected_depot])-1)
-      customer_to_move = self.borderline[selected_depot][selected_customer]
 
-      mutated_gene = gene[:]
+      if len(self.borderline[selected_depot]) == 0: #Nothing to mutate
+          gene = flatten(gene)
+          gene = flatten(gene)
+          return gene
+
+      selected_customer_index = randint(0, len(self.borderline[selected_depot])-1)
+      selected_customer = self.borderline[selected_depot][selected_customer_index]
+      del self.borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
+
+      customer_location = self.find(gene, selected_customer) #e.g. (2, 1, 0) -> depot 2, vehicle 1, index 0
+
+      mutated_gene = self.copy_gene(gene)
+
+      del mutated_gene[customer_location[0]][customer_location[1]][customer_location[2]] #best code thxbye
+
+      self.borderline[customer_location[0]].append(selected_customer)
+
+      vehicle_to_insert = randint(0, len(mutated_gene[selected_depot])-1)
+      mutated_gene[selected_depot][vehicle_to_insert].append(selected_customer)
+
       mutated_gene = flatten(mutated_gene)
       mutated_gene = flatten(mutated_gene)
-      borderline_customer = mutated_gene.index(customer_to_move)
-
-      mutated_gene[borderline_customer], self.borderline[selected_depot][selected_customer] = customer_to_move, borderline_customer
 
       return mutated_gene
+
+    def find(self, searchList, elem):
+        for i in range(len(searchList)):
+            for j in range(len(searchList[i])):
+                for k in range(len(searchList[i][j])):
+                    if searchList[i][j][k] == elem:
+                        return i,j,k
 
     def mutate_mutation_rate(self, mutation_rate):
       if(random() < self.mutation_rate): #heh
@@ -270,7 +291,7 @@ class Individual():
       return mutation_rate
 
     def mutate_gene(self, gene, flat_gene):
-      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+      if random() < 0.01: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene)
 
       if random() < self.mutation_rate:
