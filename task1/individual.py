@@ -42,7 +42,7 @@ class Individual():
 
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
-        self.gene = self.construct_child_gene(self.parent1, self.parent2)
+        self.gene = construct_child_gene(self.parent1, self.parent2, self.customers_params, self.depots_params, self.num_vehicles)
         self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
 
         #self.valid = self.is_valid()
@@ -50,6 +50,20 @@ class Individual():
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
         return self
+
+    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate):
+      self.customers_params = customers_params
+      self.depots_params = depots_params
+      self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+      self.num_vehicles = num_vehicles
+      self.path_color = [(randint(10, 255), randint(10, 255), randint(
+          10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+      self.gene = gene
+      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
+
+      self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+      self.fitness = self.get_fitness()
+      return self
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
@@ -64,81 +78,7 @@ class Individual():
         return False
 
 
-    def construct_child_gene(self, parent_gene1, parent_gene2):
 
-      copy_p1 = [x[:] for x in parent_gene1]
-      copy_p2 = [x[:] for x in parent_gene2]
-
-
-      rand_depot_p1 = randint(0, len(self.depots_params)-1)
-      #rand_depot_p2 = randint(0, len(self.depots_params)-1)
-      rand_depot_p2 = rand_depot_p1
-
-
-      routes_p1 = construct_route(parent_gene1[rand_depot_p1], rand_depot_p1, self.customers_params, self.depots_params, self.num_vehicles)
-      routes_p2 = construct_route(parent_gene2[rand_depot_p2], rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles)
-
-      if(len(routes_p1) == 0):
-        return parent_gene2
-      if(len(routes_p2) == 0):
-        return parent_gene1
-
-      rand_route_p1 = routes_p1[randint(0, len(routes_p1)-1)]
-      rand_route_p2 = routes_p2[randint(0, len(routes_p2)-1)]
-
-      for i in rand_route_p1:
-        for j in range(len(copy_p2)-1, -1, -1):
-          for k in range(len(copy_p2[j])-1, -1, -1):
-            if(copy_p2[j][k] == i):
-              del copy_p2[j][k]
-
-      for i in rand_route_p2:
-        for j in range(len(copy_p1)-1, -1, -1):
-          for k in range(len(copy_p1[j])-1, -1, -1):
-            if(copy_p1[j][k] == i):
-              del copy_p1[j][k]
-
-
-
-      child = self.crossover(copy_p2, rand_route_p1, rand_depot_p2)
-      #TODO: Move this function to helpers and return copy_p2 AND copy_p1
-      # for i in rand_route_p1:
-      #   copy_p2[rand_depot_p2].append(i)
-      #print(child)
-      #print(child)
-      # if(copy_p2 == None):
-      #   return parent_gene1
-      return child
-
-    def crossover(self, copy_p2, rand_route, rand_depot_p2):
-      if(random() < 0.8):
-        for i in rand_route:
-          for j in range(len(copy_p2[rand_depot_p2])):
-            temp_depot_copy = copy_p2[rand_depot_p2][:]
-            temp_depot_copy.insert(j, i)
-            if construct_route(temp_depot_copy, rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles) != None: #Route with customer i in location j was is_valid
-              copy_p2[rand_depot_p2] = temp_depot_copy[:]
-              break
-      else:
-        for i in rand_route:
-          valids = []
-          for j in range(len(copy_p2[rand_depot_p2])):
-            temp_depot_copy = copy_p2[rand_depot_p2][:]
-            temp_depot_copy.insert(j, i)
-            if construct_route(temp_depot_copy, rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles) != None: #Route with customer i in location j was is_valid
-              valids.append(temp_depot_copy)
-
-          best_depot_length = float("Inf")
-          best_depot_index = 0
-          for i in range(len(valids)):
-            curr_length = get_depot_path_length(valids[i], rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles)
-            if(curr_length < best_depot_length):
-              best_depot_length = curr_length
-              best_depot_index = i
-          if(len(valids) == 0):
-            return None #No valid options, returning default
-          copy_p2[rand_depot_p2] = valids[best_depot_index]
-      return copy_p2
 
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
@@ -286,8 +226,6 @@ class Individual():
       best_gene = flatten(best_gene)
       return best_gene
 
-    def crossover_mutation_rate(self, p1, p2):
-      return (p1 + p2) / 2
 
     def inter_depot_mutation(self, gene):
       #lengths = get_vehicle_lengths(gene)

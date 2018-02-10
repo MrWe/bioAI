@@ -36,6 +36,7 @@ class GUI(object):
             self.draw_line(individual.path_color[i + j], curr_vehicle[k], curr_vehicle[k+1])
 
   def show_individual(self, individual, customers, depots):
+    
     for i in range(len(individual.vehicles)):
       curr_depot_coords = (depots[i][0], depots[i][1])
       for j in range(len(individual.vehicles[i])):

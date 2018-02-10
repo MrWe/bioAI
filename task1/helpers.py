@@ -1,4 +1,5 @@
 import math
+from random import randint, random
 
 def get_best_individual(population):
   path_length = float("Inf")
@@ -145,7 +146,75 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles):
   return vehicles
 
 
+def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_params, num_vehicles):
 
+  copy_p1 = [x[:] for x in parent_gene1]
+  copy_p2 = [x[:] for x in parent_gene2]
+
+
+  rand_depot = randint(0, len(depots_params)-1)
+
+
+  routes_p1 = construct_route(parent_gene1[rand_depot], rand_depot, customers_params, depots_params, num_vehicles)
+  routes_p2 = construct_route(parent_gene2[rand_depot], rand_depot, customers_params, depots_params, num_vehicles)
+
+  if(len(routes_p1) == 0):
+    return parent_gene2
+  if(len(routes_p2) == 0):
+    return parent_gene1
+
+  rand_route_p1 = routes_p1[randint(0, len(routes_p1)-1)]
+  rand_route_p2 = routes_p2[randint(0, len(routes_p2)-1)]
+
+  for i in rand_route_p1:
+    for j in range(len(copy_p2)-1, -1, -1):
+      for k in range(len(copy_p2[j])-1, -1, -1):
+        if(copy_p2[j][k] == i):
+          del copy_p2[j][k]
+
+  for i in rand_route_p2:
+    for j in range(len(copy_p1)-1, -1, -1):
+      for k in range(len(copy_p1[j])-1, -1, -1):
+        if(copy_p1[j][k] == i):
+          del copy_p1[j][k]
+
+
+
+  child1 = crossover(copy_p2, rand_route_p1, rand_depot, customers_params, depots_params, num_vehicles)
+  child2 = crossover(copy_p1, rand_route_p2, rand_depot, customers_params, depots_params, num_vehicles)
+
+  return child1, child2
+
+def crossover(copy_p2, rand_route, rand_depot, customers_params, depots_params, num_vehicles):
+  if(random() < 0.8):
+    for i in rand_route:
+      for j in range(len(copy_p2[rand_depot])):
+        temp_depot_copy = copy_p2[rand_depot][:]
+        temp_depot_copy.insert(j, i)
+        if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles) != None: #Route with customer i in location j was is_valid
+          copy_p2[rand_depot] = temp_depot_copy[:]
+          break
+  else:
+    for i in rand_route:
+      valids = []
+      for j in range(len(copy_p2[rand_depot])):
+        temp_depot_copy = copy_p2[rand_depot][:]
+        temp_depot_copy.insert(j, i)
+        if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles) != None: #Route with customer i in location j was is_valid
+          valids.append(temp_depot_copy)
+
+      best_depot_length = float("Inf")
+      best_depot_index = 0
+      for i in range(len(valids)):
+        curr_length = get_depot_path_length(valids[i], rand_depot, customers_params, depots_params, num_vehicles)
+        if(curr_length < best_depot_length):
+          best_depot_length = curr_length
+          best_depot_index = i
+      if(len(valids) == 0):
+        return None #No valid options, returning default
+      copy_p2[rand_depot] = valids[best_depot_index]
+
+  return copy_p2
 
 
 

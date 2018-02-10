@@ -80,8 +80,8 @@ def scale_coordinates(entities_to_scale, scale, min_x, max_x, min_y, max_y):
     entities_to_scale[i][0] /= scale
     entities_to_scale[i][1] /= scale
 
-    entities_to_scale[i][0] += 0.5
-    entities_to_scale[i][1] += 0.5
+    entities_to_scale[i][0] += 0.51
+    entities_to_scale[i][1] += 0.51
 
     entities_to_scale[i][0] *= SCREEN_SIZE[0] * 0.95
     entities_to_scale[i][1] *= SCREEN_SIZE[1] * 0.95

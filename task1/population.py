@@ -31,16 +31,22 @@ class Population():
     population = []
 
     parent_population = parent.surviving_population
-    parent1 = self.tournament_selection(parent_population)
-    parent2 = self.tournament_selection(parent_population)
+
+    for i in range(int(POPULATION_SIZE / 2)):
+      parent1 = self.tournament_selection(parent_population)
+      parent2 = self.tournament_selection(parent_population)
+
+      c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles)
+      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate))
+      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate))
 
     #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
     population.append(parent_population[0])
     population.append(parent_population[1])
 
 
-    for i in range(int(POPULATION_SIZE - 2)):
-      population.append(Individual().child_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, parent1, parent2))
+    # for i in range(int(POPULATION_SIZE - 2)):
+    #   population.append(Individual().child_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, parent1, parent2))
 
     return population
 
