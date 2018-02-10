@@ -336,8 +336,6 @@ class Individual():
     def mutate_gene(self, gene, flat_gene):
       if random() < 0.01: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene)
-          pass
-
       if random() < self.mutation_rate:
           return self.intra_depot_mutation(gene)
       return flat_gene
