@@ -67,7 +67,7 @@ class Population():
     #return sorted(self.individuals, key=lambda x: x.fitness)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
     return sorted(self.individuals, key=lambda x: x.fitness)
 
-  def get_best_individual(self):
-    for individual in self.individuals:
-      if(individual.valid):
-        return individual
+  # def get_best_individual(self):
+  #   for individual in self.individuals:
+  #     if(individual.valid):
+  #       return individual

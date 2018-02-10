@@ -21,7 +21,7 @@ class Individual():
 
         self.mutation_rate = mutation_rate
 
-        self.valid = self.is_valid()
+        #self.valid = self.is_valid()
 
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
@@ -39,11 +39,13 @@ class Individual():
 
         self.parent1 = parent1.gene
         self.parent2 = parent2.gene
+
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
-        self.gene = self.construct_flat_gene(self.parent1, self.parent2)
+        self.gene = self.construct_child_gene(self.parent1, self.parent2)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
 
-        self.valid = self.is_valid()
+        #self.valid = self.is_valid()
 
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
@@ -62,25 +64,81 @@ class Individual():
         return False
 
 
-    def construct_flat_gene(self, parent_gene1, parent_gene2):
-        flat_list1 = flatten(parent_gene1)
-        flat_list2 = flatten(parent_gene2)
+    def construct_child_gene(self, parent_gene1, parent_gene2):
 
-        flat_list1 = flatten(flat_list1)
-        flat_list2 = flatten(flat_list2)
+      copy_p1 = [x[:] for x in parent_gene1]
+      copy_p2 = [x[:] for x in parent_gene2]
 
-        flat_child_gene = self.crossover_genes(flat_list1, flat_list2)
-        flat_child_gene = self.mutate_gene(parent_gene1, flat_child_gene)
 
-        p1_vehicle_lengths = get_vehicle_lengths(parent_gene1)
-        p2_vehicle_lengths = get_vehicle_lengths(parent_gene2)
+      rand_depot_p1 = randint(0, len(self.depots_params)-1)
+      #rand_depot_p2 = randint(0, len(self.depots_params)-1)
+      rand_depot_p2 = rand_depot_p1
 
-        child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
-        #child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
 
-        child_gene = self.construct_gene(flat_child_gene, child_vehicle_lengths)
+      routes_p1 = construct_route(parent_gene1[rand_depot_p1], rand_depot_p1, self.customers_params, self.depots_params, self.num_vehicles)
+      routes_p2 = construct_route(parent_gene2[rand_depot_p2], rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles)
 
-        return child_gene
+      if(len(routes_p1) == 0):
+        return parent_gene2
+      if(len(routes_p2) == 0):
+        return parent_gene1
+
+      rand_route_p1 = routes_p1[randint(0, len(routes_p1)-1)]
+      rand_route_p2 = routes_p2[randint(0, len(routes_p2)-1)]
+
+      for i in rand_route_p1:
+        for j in range(len(copy_p2)-1, -1, -1):
+          for k in range(len(copy_p2[j])-1, -1, -1):
+            if(copy_p2[j][k] == i):
+              del copy_p2[j][k]
+
+      for i in rand_route_p2:
+        for j in range(len(copy_p1)-1, -1, -1):
+          for k in range(len(copy_p1[j])-1, -1, -1):
+            if(copy_p1[j][k] == i):
+              del copy_p1[j][k]
+
+
+
+      child = self.crossover(copy_p2, rand_route_p1, rand_depot_p2)
+      #TODO: Move this function to helpers and return copy_p2 AND copy_p1
+      # for i in rand_route_p1:
+      #   copy_p2[rand_depot_p2].append(i)
+      #print(child)
+      #print(child)
+      # if(copy_p2 == None):
+      #   return parent_gene1
+      return child
+
+    def crossover(self, copy_p2, rand_route, rand_depot_p2):
+      if(random() < 0.8):
+        for i in rand_route:
+          for j in range(len(copy_p2[rand_depot_p2])):
+            temp_depot_copy = copy_p2[rand_depot_p2][:]
+            temp_depot_copy.insert(j, i)
+            if construct_route(temp_depot_copy, rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles) != None: #Route with customer i in location j was is_valid
+              copy_p2[rand_depot_p2] = temp_depot_copy[:]
+              break
+      else:
+        for i in rand_route:
+          valids = []
+          for j in range(len(copy_p2[rand_depot_p2])):
+            temp_depot_copy = copy_p2[rand_depot_p2][:]
+            temp_depot_copy.insert(j, i)
+            if construct_route(temp_depot_copy, rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles) != None: #Route with customer i in location j was is_valid
+              valids.append(temp_depot_copy)
+
+          best_depot_length = float("Inf")
+          best_depot_index = 0
+          for i in range(len(valids)):
+            curr_length = get_depot_path_length(valids[i], rand_depot_p2, self.customers_params, self.depots_params, self.num_vehicles)
+            if(curr_length < best_depot_length):
+              best_depot_length = curr_length
+              best_depot_index = i
+          if(len(valids) == 0):
+            return None #No valid options, returning default
+          copy_p2[rand_depot_p2] = valids[best_depot_index]
+      return copy_p2
 
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
@@ -297,19 +355,19 @@ class Individual():
     def get_fitness(self):
       a = 100
       b = 0.01
-      c = 100
+      #c = 100
 
-      depots_fitness = 0
-      for i in range(len(self.gene)):
-        depots_fitness += self.get_depot_fitness(self.gene[i], i)
+      # depots_fitness = 0
+      # for i in range(len(self.gene)):
+      #   depots_fitness += self.get_depot_fitness(self.gene[i], i)
 
       num_cars = 0
-      for depot in self.gene:
+      for depot in self.vehicles:
         for car in depot:
           if(len(car) != 0):
             num_cars += 1
 
-      return (a * num_cars) + (b * self.path_length) + (c * depots_fitness)
+      return (a * num_cars) + (b * self.path_length)
       #return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
 
     def get_depot_fitness(self, depot, i):

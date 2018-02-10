@@ -56,6 +56,7 @@ def flatten(array):
 
 #TODO: Combine both for-loops n and k into one
 def get_path_length(gene, depots_params, customers_params):
+  gene = construct_vehicles(gene, customers_params, depots_params)
   path_length = 0
   for i in range(len(gene)):
     curr_depot_coords = (
@@ -71,6 +72,19 @@ def get_path_length(gene, depots_params, customers_params):
 
   return path_length
 
+def get_depot_path_length(depot, depot_index, customers, depots, num_vehicles):
+  vehicles = construct_route(depot, depot_index, customers, depots, num_vehicles)
+  curr_depot_coords = (depots[depot_index][0], depots[depot_index][1])
+  path_length = 0
+
+  for j in range(len(vehicles)):
+    for k in range(len(vehicles[j])-1):
+      v = vehicles[j][k]
+      v_next = vehicles[j][k+1]
+      path_length += euclideanDistance((customers[v][1], customers[v][2]), (customers[v_next][1], customers[v_next][2]))
+    path_length += euclideanDistance(curr_depot_coords, (customers[vehicles[j][0]][1], customers[vehicles[j][0]][2]))
+    path_length += euclideanDistance((customers[vehicles[j][len(vehicles[j])-1]][1], customers[vehicles[j][len(vehicles[j])-1]][2]), curr_depot_coords)
+  return path_length
 
 def get_route_load(vehicle, depots_params, customers_params):
   total_load = 0
@@ -96,6 +110,7 @@ def construct_vehicles(gene, customers, depots):
     depot_vehicles = []
     for j in range(len(gene[i])):
       customer_index = gene[i][j]
+
       if(route_load_cost + customers[customer_index][4] <= depot_max_load):
         curr_route.append(customer_index)
         route_load_cost += customers[customer_index][4]
@@ -106,6 +121,30 @@ def construct_vehicles(gene, customers, depots):
     if(len(curr_route) != 0):
       depot_vehicles.append(curr_route)
     vehicles.append(depot_vehicles)
+  return vehicles
+
+def construct_route(depot, depot_index, customers, depots, num_vehicles):
+  vehicles = []
+  depot_max_load = depots[depot_index][3]
+  route_load_cost = 0
+  curr_route = []
+  for i in range(len(depot)):
+    if(route_load_cost + customers[depot[i]][4] <= depot_max_load):
+      curr_route.append(depot[i])
+      route_load_cost += customers[depot[i]][4]
+    else:
+      vehicles.append(curr_route)
+      curr_route = [depot[i]]
+      route_load_cost = customers[depot[i]][4]
+  if(len(curr_route) != 0):
+    vehicles.append(curr_route)
+
+  # if len(vehicles) > num_vehicles: #Too many vehicles were created
+  #   return None
+
+  return vehicles
+
+
 
 
 

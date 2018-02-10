@@ -33,7 +33,7 @@ def main(f):
       update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
 
     #path_length, individual = get_best_individual(population)
-    individual = population.get_best_individual()
+    individual = population.individuals[0]
     if(individual != None):
       path_length = individual.path_length
 
