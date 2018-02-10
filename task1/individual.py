@@ -13,13 +13,14 @@ class Individual():
     def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
-        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+
         self.mutation_rate = mutation_rate
 
-        self.gene = self.construct_initial_gene(self.nearest_customers)
         self.valid = self.is_valid()
 
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
@@ -60,27 +61,6 @@ class Individual():
       else:
         return False
 
-    '''
-    Gene where num_vehicles = 4, num_depots = 4, num_customers = 50:
-    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
-    Each number is an index of a customer
-    Each [36, 44, 14, 39] is the path of one car in a depot
-    Each [[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]] is the path of all the cars in one depot
-  '''
-
-    def construct_initial_gene(self, nearest_customers):
-      customers_copy = nearest_customers[:]
-
-      gene = [[[] for i in range(self.num_vehicles)]
-                   for x in range(len(self.depots_params))]
-
-      for i in range(len(nearest_customers)):
-        for j in range(len(nearest_customers[i])):
-          rand = randint(0, len(nearest_customers[i])-1)
-          gene[i][j % self.num_vehicles].append(nearest_customers[i][rand])
-          del nearest_customers[i][rand]
-
-      return gene
 
     def construct_flat_gene(self, parent_gene1, parent_gene2):
         flat_list1 = flatten(parent_gene1)

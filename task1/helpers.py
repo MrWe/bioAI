@@ -86,6 +86,30 @@ def get_vehicle_lengths(gene):
   return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
 
 
+#gene = [[1,2,3,4,5], [6,7,8,9], [10,11]]
+def construct_vehicles(gene, customers, depots):
+  vehicles = []
+  for i in range(len(gene)):
+    curr_route = []
+    route_load_cost = 0
+    depot_max_load = depots[i][3]
+    depot_vehicles = []
+    for j in range(len(gene[i])):
+      customer_index = gene[i][j]
+      if(route_load_cost + customers[customer_index][4] <= depot_max_load):
+        curr_route.append(customer_index)
+        route_load_cost += customers[customer_index][4]
+      else:
+        depot_vehicles.append(curr_route)
+        curr_route = [customer_index]
+        route_load_cost = customers[customer_index][4]
+    if(len(curr_route) != 0):
+      depot_vehicles.append(curr_route)
+    vehicles.append(depot_vehicles)
+
+
+
+
 
 #depot = depot index in gene
 #vehicle = vehicle index in depot
