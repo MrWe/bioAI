@@ -10,10 +10,12 @@ class Individual():
     def __init__(self):
       pass
 
-    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate): # Initial construction
+    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
-        self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        #self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.gene = nearest_customers
+        self.borderline = borderline
         self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
@@ -51,10 +53,12 @@ class Individual():
         self.fitness = self.get_fitness()
         return self
 
-    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate):
+    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline):
       self.customers_params = customers_params
       self.depots_params = depots_params
-      self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+      #self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+      self.nearest_customers = nearest_customers
+      self.borderline = borderline
       self.num_vehicles = num_vehicles
       self.path_color = [(randint(10, 255), randint(10, 255), randint(
           10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]

@@ -21,7 +21,7 @@ def main(f):
 
   nearest_customers, borderline = depot_cluster(depots_params, customers_params)
 
-  population = Population(customers_params, depots_params, num_vehicles, m_rate)
+  population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline)
 
   current_iteration = 1
 
@@ -42,7 +42,7 @@ def main(f):
       best_individual = individual
       print(current_iteration, best_path_length, m_rate)
 
-    population = Population(customers_params, depots_params, num_vehicles, m_rate, population)
+    population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
 
     m_rate *= MUTATION_RATE_DECAY
     current_iteration += 1
