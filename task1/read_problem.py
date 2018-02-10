@@ -11,13 +11,6 @@ def read(f):
   t = lines[0].split(' ')
   num_vehicles, num_customers, num_depots = int(t[0]), int(t[1]), int(t[2])
 
-  vehicle_max_duration = []
-  vehicle_max_load = []
-
-  for j in range(1, num_depots+1):
-    d, l = lines[j].split(' ')
-    vehicle_max_duration.append(int(d))
-    vehicle_max_load.append(int(l))
 
   GUI_customers = []
   customers_params = []
@@ -34,6 +27,12 @@ def read(f):
     GUI_depots.append([int(x), int(y)])
     depots_params.append([int(x), int(y)])
 
+  counter = 0
+  for j in range(1, num_depots+1):
+    d, l = lines[j].split(' ')
+    depots_params[counter].append(int(d))
+    depots_params[counter].append(int(l))
+    counter += 1
 
   min_x, min_y, max_x, max_y = find_minmax_coords(GUI_customers, GUI_depots)
 
@@ -43,7 +42,7 @@ def read(f):
   scale_coordinates(GUI_depots, scale, min_x, max_x, min_y, max_y)
 
 
-  return GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles
+  return GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles
 
 
 def find_minmax_coords(customers, depots):

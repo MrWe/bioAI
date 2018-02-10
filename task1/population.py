@@ -6,11 +6,9 @@ import math
 
 class Population():
 
-  def __init__(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent=None):
+  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
-    self.vehicle_max_load = vehicle_max_load
-    self.vehicle_max_duration = vehicle_max_duration
     self.num_vehicles = num_vehicles
     self.mutation_rate = mutation_rate
 
@@ -25,7 +23,7 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate))
+      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate))
 
     return population
 
@@ -42,9 +40,9 @@ class Population():
 
 
     for i in range(int(POPULATION_SIZE - 2)):
-      population.append(Individual().child_individual(self.customers_params, self.depots_params, self.vehicle_max_load, self.vehicle_max_duration, self.num_vehicles, self.mutation_rate, parent1, parent2))
+      population.append(Individual().child_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, parent1, parent2))
 
-    return population      
+    return population
 
   def pick_parent(self, population):
     percent = math.floor(((len(population) / 100) * 10))
@@ -65,14 +63,11 @@ class Population():
       selected = p1 if random.random() < 0.5 else p2
     return selected
 
-
-  def prioritize_population(self, population):
-    priority_populaton = []
-    percent = math.floor(((len(population) / 100) * 10))
-    for i in range(percent):
-      priority_populaton.append(population[i])
-    return priority_populaton
-
   def get_surviving_population(self):
     #return sorted(self.individuals, key=lambda x: x.fitness)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
     return sorted(self.individuals, key=lambda x: x.fitness)
+
+  def get_best_individual(self):
+    for individual in self.individuals:
+      if(individual.valid):
+        return individual

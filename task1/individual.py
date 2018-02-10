@@ -10,30 +10,27 @@ class Individual():
     def __init__(self):
       pass
 
-    def initial_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate): # Initial construction
+    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
         self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
-        self.vehicle_max_load = vehicle_max_load
-        self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
         self.mutation_rate = mutation_rate
 
         self.gene = self.construct_initial_gene(self.nearest_customers)
+        self.valid = self.is_valid()
 
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
         return self
 
 
-    def child_individual(self, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, mutation_rate, parent1, parent2):
+    def child_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, parent1, parent2):
         self.customers_params = customers_params
         self.depots_params = depots_params
         self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
-        self.vehicle_max_load = vehicle_max_load
-        self.vehicle_max_duration = vehicle_max_duration
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
@@ -45,15 +42,23 @@ class Individual():
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
         self.gene = self.construct_flat_gene(self.parent1, self.parent2)
 
-        #print("GENE", self.gene)
-        #print("DEPOTS", self.depots_params)
-        #print("CUSTOMERS", self.customers_params)
+        self.valid = self.is_valid()
+
         self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
         self.fitness = self.get_fitness()
         return self
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
+
+    def is_valid(self):
+      depots_fitness = 0
+      for i in range(len(self.gene)):
+        depots_fitness += self.get_depot_fitness(self.gene[i], i)
+      if(depots_fitness > 0):
+        return True
+      else:
+        return False
 
     '''
     Gene where num_vehicles = 4, num_depots = 4, num_customers = 50:
@@ -190,11 +195,8 @@ class Individual():
       r = random()
       if(r < 0.5):
         self.swap(depot)
-        pass
-      # elif(r > 0.66):
-      #
-      #   #self.reverse(depot)
-      #   pass
+      #if(r > 0.66):
+        #self.reverse(depot)
       else:
         return self.reroute(depot, rand_depot, gene, vehicle_lengths)
 
@@ -250,19 +252,40 @@ class Individual():
       return (p1 + p2) / 2
 
     def inter_depot_mutation(self, gene):
-      lengths = get_vehicle_lengths(gene)
+      #lengths = get_vehicle_lengths(gene)
       selected_depot = randint(0, len(self.borderline)-1)
-      selected_customer = randint(0, len(self.borderline[selected_depot])-1)
-      customer_to_move = self.borderline[selected_depot][selected_customer]
 
-      mutated_gene = gene[:]
+      if len(self.borderline[selected_depot]) == 0: #Nothing to mutate
+          gene = flatten(gene)
+          gene = flatten(gene)
+          return gene
+
+      selected_customer_index = randint(0, len(self.borderline[selected_depot])-1)
+      selected_customer = self.borderline[selected_depot][selected_customer_index]
+      del self.borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
+
+      customer_location = self.find(gene, selected_customer) #e.g. (2, 1, 0) -> depot 2, vehicle 1, index 0
+
+      mutated_gene = self.copy_gene(gene)
+
+      del mutated_gene[customer_location[0]][customer_location[1]][customer_location[2]] #best code thxbye
+
+      self.borderline[customer_location[0]].append(selected_customer)
+
+      vehicle_to_insert = randint(0, len(mutated_gene[selected_depot])-1)
+      mutated_gene[selected_depot][vehicle_to_insert].append(selected_customer)
+
       mutated_gene = flatten(mutated_gene)
       mutated_gene = flatten(mutated_gene)
-      borderline_customer = mutated_gene.index(customer_to_move)
-
-      mutated_gene[borderline_customer], self.borderline[selected_depot][selected_customer] = customer_to_move, borderline_customer
 
       return mutated_gene
+
+    def find(self, searchList, elem):
+        for i in range(len(searchList)):
+            for j in range(len(searchList[i])):
+                for k in range(len(searchList[i][j])):
+                    if searchList[i][j][k] == elem:
+                        return i,j,k
 
     def mutate_mutation_rate(self, mutation_rate):
       if(random() < self.mutation_rate): #heh
@@ -293,9 +316,29 @@ class Individual():
 
     def get_fitness(self):
       a = 100
-      b = 0.001
+      b = 0.01
+      c = 100
 
-      return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
+      depots_fitness = 0
+      for i in range(len(self.gene)):
+        depots_fitness += self.get_depot_fitness(self.gene[i], i)
+
+      num_cars = 0
+      for depot in self.gene:
+        for car in depot:
+          if(len(car) != 0):
+            num_cars += 1
+
+      return (a * num_cars) + (b * self.path_length) + (c * depots_fitness)
+      #return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
+
+    def get_depot_fitness(self, depot, i):
+      load_over_max = 0
+      for car in depot:
+        car_load = get_route_load(car, self.depots_params, self.customers_params)
+        load_over_max += car_load-self.depots_params[i][3] if car_load-self.depots_params[i][3] > 0 else 0
+      return load_over_max
+
 
     def copy_gene(self, gene):
       new_gene = []

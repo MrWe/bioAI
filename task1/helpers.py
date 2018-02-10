@@ -54,6 +54,7 @@ def euclideanDistance(coordinate1, coordinate2):
 def flatten(array):
     return [item for sublist in array for item in sublist]
 
+#TODO: Combine both for-loops n and k into one
 def get_path_length(gene, depots_params, customers_params):
   path_length = 0
   for i in range(len(gene)):
@@ -70,12 +71,20 @@ def get_path_length(gene, depots_params, customers_params):
 
   return path_length
 
+
+def get_route_load(vehicle, depots_params, customers_params):
+  total_load = 0
+  for n in range(len(vehicle)):
+    total_load += customers_params[vehicle[n]][4]
+  return total_load
+
 def get_vehicle_lengths(gene):
   lengths = []
   for depot in gene:
       for vehicle in depot:
           lengths.append(len(vehicle))
   return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
+
 
 
 #depot = depot index in gene

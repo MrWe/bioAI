@@ -15,13 +15,13 @@ if(ENABLE_GUI):
   gui = GUI()
 
 def main(f):
-  GUI_customers, GUI_depots, customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles = read(f)
+  GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles = read(f)
 
   m_rate = MUTATION_RATE
 
   nearest_customers, borderline = depot_cluster(depots_params, customers_params)
 
-  population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate)
+  population = Population(customers_params, depots_params, num_vehicles, m_rate)
 
   current_iteration = 1
 
@@ -33,15 +33,16 @@ def main(f):
       update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, m_rate)
 
     #path_length, individual = get_best_individual(population)
-    individual = population.surviving_population[0]
-    path_length = individual.path_length
+    individual = population.get_best_individual()
+    if(individual != None):
+      path_length = individual.path_length
 
     if(path_length < best_path_length):
       best_path_length = path_length
       best_individual = individual
       print(current_iteration, best_path_length, m_rate)
 
-    population = Population(customers_params, depots_params, vehicle_max_load, vehicle_max_duration, num_vehicles, m_rate, population)
+    population = Population(customers_params, depots_params, num_vehicles, m_rate, population)
 
     m_rate *= MUTATION_RATE_DECAY
     current_iteration += 1
