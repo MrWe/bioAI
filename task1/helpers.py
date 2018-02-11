@@ -57,12 +57,12 @@ def flatten(array):
 
 
 def get_path_length(gene, depots_params, customers_params, num_vehicles):
-  gene = construct_vehicles(gene, customers_params, depots_params)
+
   path_length = 0
-  for i in range(len(gene)):
+  for i, depot in enumerate(gene):
     curr_depot_coords = (
     depots_params[i][0], depots_params[i][1])
-    path_length += get_depot_path_length(flatten(gene[i]), i, customers_params, depots_params, num_vehicles)
+    path_length += get_depot_path_length(depot, i, customers_params, depots_params, num_vehicles)
 
   return path_length
 
@@ -71,13 +71,13 @@ def get_depot_path_length(depot, depot_index, customers, depots, num_vehicles):
   curr_depot_coords = (depots[depot_index][0], depots[depot_index][1])
   path_length = 0
 
-  for j in range(len(vehicles)):
-    for k in range(len(vehicles[j])-1):
-      v = vehicles[j][k]
-      v_next = vehicles[j][k+1]
+  for vehicle in vehicles:
+    for k, v in enumerate(vehicle[:-1]):
+      v = vehicle[k]
+      v_next = vehicle[k+1]
       path_length += euclideanDistance((customers[v][1], customers[v][2]), (customers[v_next][1], customers[v_next][2]))
-    path_length += euclideanDistance(curr_depot_coords, (customers[vehicles[j][0]][1], customers[vehicles[j][0]][2]))
-    path_length += euclideanDistance((customers[vehicles[j][len(vehicles[j])-1]][1], customers[vehicles[j][len(vehicles[j])-1]][2]), curr_depot_coords)
+    path_length += euclideanDistance(curr_depot_coords, (customers[vehicle[0]][1], customers[vehicle[0]][2]))
+    path_length += euclideanDistance((customers[vehicle[len(vehicle)-1]][1], customers[vehicle[len(vehicle)-1]][2]), curr_depot_coords)
   return path_length
 
 def get_route_load(vehicle, depots_params, customers_params):
@@ -97,13 +97,12 @@ def get_route_load(vehicle, depots_params, customers_params):
 #gene = [[1,2,3,4,5], [6,7,8,9], [10,11]]
 def construct_vehicles(gene, customers, depots):
   vehicles = []
-  for i in range(len(gene)):
+  for i, depot in enumerate(gene):
     curr_route = []
     route_load_cost = 0
     depot_max_load = depots[i][3]
     depot_vehicles = []
-    for j in range(len(gene[i])):
-      customer_index = gene[i][j]
+    for j, customer_index in enumerate(depot):
       if(route_load_cost + customers[customer_index][4] <= depot_max_load):
         curr_route.append(customer_index)
         route_load_cost += customers[customer_index][4]
@@ -121,14 +120,14 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles):
   depot_max_load = depots[depot_index][3]
   route_load_cost = 0
   curr_route = []
-  for i in range(len(depot)):
-    if(route_load_cost + customers[depot[i]][4] <= depot_max_load):
-      curr_route.append(depot[i])
-      route_load_cost += customers[depot[i]][4]
+  for customer_index in depot:
+    if(route_load_cost + customers[customer_index][4] <= depot_max_load):
+      curr_route.append(customer_index)
+      route_load_cost += customers[customer_index][4]
     else:
       vehicles.append(curr_route)
-      curr_route = [depot[i]]
-      route_load_cost = customers[depot[i]][4]
+      curr_route = [customer_index]
+      route_load_cost = customers[customer_index][4]
   if(len(curr_route) != 0):
     vehicles.append(curr_route)
 
@@ -177,7 +176,7 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
 def crossover(parent, rand_route, rand_depot, customers_params, depots_params, num_vehicles):
   if(random() < 0.8):
     for i in rand_route:
-      for j in range(len(parent[rand_depot])):
+      for j, _ in enumerate(parent[rand_depot]):
         temp_depot_copy = parent[rand_depot][:]
         temp_depot_copy.insert(j, i)
         if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles) != None: #Route with customer i in location j was is_valid
@@ -186,7 +185,7 @@ def crossover(parent, rand_route, rand_depot, customers_params, depots_params, n
   else:
     for i in rand_route:
       valids = []
-      for j in range(len(parent[rand_depot])):
+      for j, _ in enumerate(parent[rand_depot]):
         temp_depot_copy = parent[rand_depot][:]
         temp_depot_copy.insert(j, i)
         if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles) != None: #Route with customer i in location j was is_valid
@@ -194,8 +193,8 @@ def crossover(parent, rand_route, rand_depot, customers_params, depots_params, n
 
       best_depot_length = float("Inf")
       best_depot_index = 0
-      for i in range(len(valids)):
-        curr_length = get_depot_path_length(valids[i], rand_depot, customers_params, depots_params, num_vehicles)
+      for i, v in enumerate(valids):
+        curr_length = get_depot_path_length(v, rand_depot, customers_params, depots_params, num_vehicles)
         if(curr_length < best_depot_length):
           best_depot_length = curr_length
           best_depot_index = i
