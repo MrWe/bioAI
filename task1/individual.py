@@ -4,6 +4,7 @@ from copy import deepcopy
 from config import *
 import math
 from helpers import *
+import time
 
 
 class Individual():
@@ -18,14 +19,13 @@ class Individual():
         self.borderline = borderline
         self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
         self.num_vehicles = num_vehicles
-        self.path_color = [(randint(10, 255), randint(10, 255), randint(
-            10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+
 
         self.mutation_rate = mutation_rate
 
         #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
+        self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self
 
@@ -36,13 +36,12 @@ class Individual():
       self.nearest_customers = nearest_customers
       self.borderline = borderline
       self.num_vehicles = num_vehicles
-      self.path_color = [(randint(10, 255), randint(10, 255), randint(
-          10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
       self.gene = gene
       self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
 
-      self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
+      self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
+
       return self
 
     def __cmp__(self, other):

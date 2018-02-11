@@ -56,18 +56,19 @@ def flatten(array):
     return [item for sublist in array for item in sublist]
 
 
-def get_path_length(gene, depots_params, customers_params, num_vehicles):
+def get_path_length(vehicles, depots_params, customers_params, num_vehicles):
+
 
   path_length = 0
-  for i, depot in enumerate(gene):
+  for i, depot in enumerate(vehicles):
     curr_depot_coords = (
     depots_params[i][0], depots_params[i][1])
     path_length += get_depot_path_length(depot, i, customers_params, depots_params, num_vehicles)
 
   return path_length
 
-def get_depot_path_length(depot, depot_index, customers, depots, num_vehicles):
-  vehicles = construct_route(depot, depot_index, customers, depots, num_vehicles)
+def get_depot_path_length(vehicles, depot_index, customers, depots, num_vehicles):
+  #vehicles = construct_route(depot, depot_index, customers, depots, num_vehicles)
   curr_depot_coords = (depots[depot_index][0], depots[depot_index][1])
   path_length = 0
 
@@ -116,6 +117,7 @@ def construct_vehicles(gene, customers, depots):
   return vehicles
 
 def construct_route(depot, depot_index, customers, depots, num_vehicles):
+
   vehicles = []
   depot_max_load = depots[depot_index][3]
   route_load_cost = 0
@@ -194,7 +196,8 @@ def crossover(parent, rand_route, rand_depot, customers_params, depots_params, n
       best_depot_length = float("Inf")
       best_depot_index = 0
       for i, v in enumerate(valids):
-        curr_length = get_depot_path_length(v, rand_depot, customers_params, depots_params, num_vehicles)
+        vehicles = construct_route(v, rand_depot, customers_params, depots_params, num_vehicles)
+        curr_length = get_depot_path_length(vehicles, rand_depot, customers_params, depots_params, num_vehicles)
         if(curr_length < best_depot_length):
           best_depot_length = curr_length
           best_depot_index = i
