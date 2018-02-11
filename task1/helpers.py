@@ -56,20 +56,13 @@ def flatten(array):
     return [item for sublist in array for item in sublist]
 
 #TODO: Combine both for-loops n and k into one
-def get_path_length(gene, depots_params, customers_params):
+def get_path_length(gene, depots_params, customers_params, num_vehicles):
   gene = construct_vehicles(gene, customers_params, depots_params)
   path_length = 0
   for i in range(len(gene)):
     curr_depot_coords = (
     depots_params[i][0], depots_params[i][1])
-    for j in range(len(gene[i])):
-      curr_vehicle = []
-      for n in range(len(gene[i][j])):
-        curr_vehicle.append((customers_params[gene[i][j][n]][1], customers_params[gene[i][j][n]][2]))
-      curr_vehicle.insert(0, curr_depot_coords)
-      curr_vehicle.append(curr_depot_coords)
-      for k in range(len(curr_vehicle)-1):
-        path_length += euclideanDistance(curr_vehicle[k], curr_vehicle[k+1])
+    path_length += get_depot_path_length(flatten(gene[i]), i, customers_params, depots_params, num_vehicles)
 
   return path_length
 

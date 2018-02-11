@@ -48,6 +48,7 @@ def main(f):
     current_iteration += 1
 
 
+
 def update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, show_best_individual, best_individual, m_rate):
   if(should_update_gui(current_iteration)):
     gui.screen = pygame.display.set_mode(SCREEN_SIZE)

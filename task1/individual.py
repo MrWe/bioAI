@@ -25,7 +25,7 @@ class Individual():
 
         #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self
 
@@ -49,7 +49,7 @@ class Individual():
 
         #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self
 
@@ -65,7 +65,7 @@ class Individual():
       self.gene = gene
       self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
 
-      self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+      self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
       return self
 
@@ -220,7 +220,7 @@ class Individual():
         curr_depot.insert(i, cust)
         curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
         curr_gene[rand_depot] = curr_depot
-        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params)
+        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params, self.num_vehicles)
 
         if(path_length < best_fitness):
           best_fitness = path_length
