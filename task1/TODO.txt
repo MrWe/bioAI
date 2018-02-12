@@ -1,0 +1,30 @@
+# Route scheduler
+
+#### Phase 1
+  - Do for each depot: ([[d1: 1,2,3,4], [d2: 5,6,7,8,9]])
+    - curr_route = []
+    - Do for each customer in depot:
+      - if(sum(load(curr_route)) < max load):
+        - add customer to route
+      - else: start new curr_route and add customers from this point
+
+#### Phase 2
+
+In Phase 2, the last customer of each route ri, is relocated to become the first customer
+to route ri+1 . If this removal and insertion maintains feasibility for route ri+1,
+and the sum of costs of ri and ri+1 at Phase 2 is less than the sum of costs of ri + ri+1
+at Phase 1, the routing configuration at Phase 2 is accepted, otherwise the route network
+before Phase 2 (that is, at Phase 1) is maintained.
+
+
+# Crossover
+
+Does not currently preserve valid solution.
+
+Book page 87
+
+#### TODO:
+- Check if depot has to many cars
+- Move calculation of depot cluster to main
+- get_path_length should take vehicles to avoid making vehicles twice
+

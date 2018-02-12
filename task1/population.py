@@ -6,11 +6,13 @@ import math
 
 class Population():
 
-  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, parent=None):
+  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.num_vehicles = num_vehicles
     self.mutation_rate = mutation_rate
+    self.nearest_customers = nearest_customers
+    self.borderline = nearest_customers
 
     if(parent):
       self.individuals = self.construct_population(parent)
@@ -23,7 +25,7 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate))
+      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline))
 
     return population
 
@@ -31,16 +33,22 @@ class Population():
     population = []
 
     parent_population = parent.surviving_population
-    parent1 = self.tournament_selection(parent_population)
-    parent2 = self.tournament_selection(parent_population)
+
+    for i in range(int(POPULATION_SIZE / 2)):
+      parent1 = self.tournament_selection(parent_population)
+      parent2 = self.tournament_selection(parent_population)
+
+      c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles)
+      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline))
+      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline))
 
     #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
     population.append(parent_population[0])
     population.append(parent_population[1])
 
 
-    for i in range(int(POPULATION_SIZE - 2)):
-      population.append(Individual().child_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, parent1, parent2))
+    # for i in range(int(POPULATION_SIZE - 2)):
+    #   population.append(Individual().child_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, parent1, parent2))
 
     return population
 
@@ -67,7 +75,7 @@ class Population():
     #return sorted(self.individuals, key=lambda x: x.fitness)[:POPULATION_SURVIVORS] #POPULATION_SURVIVORS is how many individuals we keep to perform crossover
     return sorted(self.individuals, key=lambda x: x.fitness)
 
-  def get_best_individual(self):
-    for individual in self.individuals:
-      if(individual.valid):
-        return individual
+  # def get_best_individual(self):
+  #   for individual in self.individuals:
+  #     if(individual.valid):
+  #       return individual

@@ -10,19 +10,22 @@ class Individual():
     def __init__(self):
       pass
 
-    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate): # Initial construction
+    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline): # Initial construction
         self.customers_params = customers_params
         self.depots_params = depots_params
-        self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        #self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.gene = nearest_customers
+        self.borderline = borderline
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
         self.num_vehicles = num_vehicles
         self.path_color = [(randint(10, 255), randint(10, 255), randint(
             10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+
         self.mutation_rate = mutation_rate
 
-        self.gene = self.construct_initial_gene(self.nearest_customers)
-        self.valid = self.is_valid()
+        #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self
 
@@ -38,15 +41,33 @@ class Individual():
 
         self.parent1 = parent1.gene
         self.parent2 = parent2.gene
+
         # self.mutation_rate = self.crossover_mutation_rate(parent1.mutation_rate, parent2.mutation_rate)
         # self.mutation_rate = self.mutate_mutation_rate(self.mutation_rate)
-        self.gene = self.construct_flat_gene(self.parent1, self.parent2)
+        self.gene = construct_child_gene(self.parent1, self.parent2, self.customers_params, self.depots_params, self.num_vehicles)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
 
-        self.valid = self.is_valid()
+        #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params)
+        self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self
+
+    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline):
+      self.customers_params = customers_params
+      self.depots_params = depots_params
+      #self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+      self.nearest_customers = nearest_customers
+      self.borderline = borderline
+      self.num_vehicles = num_vehicles
+      self.path_color = [(randint(10, 255), randint(10, 255), randint(
+          10, 255)) for x in range(len(self.depots_params) + self.num_vehicles)]
+      self.gene = gene
+      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
+
+      self.path_length = get_path_length(self.gene, self.depots_params, self.customers_params, self.num_vehicles)
+      self.fitness = self.get_fitness()
+      return self
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
@@ -60,47 +81,8 @@ class Individual():
       else:
         return False
 
-    '''
-    Gene where num_vehicles = 4, num_depots = 4, num_customers = 50:
-    [[[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]], [[45, 34, 15, 27], [40, 19, 16], [37, 9, 49], [35, 28, 38]], [[1, 31, 17], [23, 43, 5], [4, 12, 26], [8, 10, 30]], [[11, 41, 25], [6, 21, 18], [2, 46, 24], [33, 22, 0]]]
-    Each number is an index of a customer
-    Each [36, 44, 14, 39] is the path of one car in a depot
-    Each [[36, 44, 14, 39], [20, 7, 3], [13, 47, 29], [32, 48, 42]] is the path of all the cars in one depot
-  '''
 
-    def construct_initial_gene(self, nearest_customers):
-      customers_copy = nearest_customers[:]
 
-      gene = [[[] for i in range(self.num_vehicles)]
-                   for x in range(len(self.depots_params))]
-
-      for i in range(len(nearest_customers)):
-        for j in range(len(nearest_customers[i])):
-          rand = randint(0, len(nearest_customers[i])-1)
-          gene[i][j % self.num_vehicles].append(nearest_customers[i][rand])
-          del nearest_customers[i][rand]
-
-      return gene
-
-    def construct_flat_gene(self, parent_gene1, parent_gene2):
-        flat_list1 = flatten(parent_gene1)
-        flat_list2 = flatten(parent_gene2)
-
-        flat_list1 = flatten(flat_list1)
-        flat_list2 = flatten(flat_list2)
-
-        flat_child_gene = self.crossover_genes(flat_list1, flat_list2)
-        flat_child_gene = self.mutate_gene(parent_gene1, flat_child_gene)
-
-        p1_vehicle_lengths = get_vehicle_lengths(parent_gene1)
-        p2_vehicle_lengths = get_vehicle_lengths(parent_gene2)
-
-        child_vehicle_lengths = self.crossover_vehicle_lengths(p1_vehicle_lengths, p2_vehicle_lengths)
-        #child_vehicle_lengths = self.mutate_vehicle_lengths(child_vehicle_lengths)
-
-        child_gene = self.construct_gene(flat_child_gene, child_vehicle_lengths)
-
-        return child_gene
 
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
@@ -238,7 +220,7 @@ class Individual():
         curr_depot.insert(i, cust)
         curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
         curr_gene[rand_depot] = curr_depot
-        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params)
+        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params, self.num_vehicles)
 
         if(path_length < best_fitness):
           best_fitness = path_length
@@ -248,8 +230,6 @@ class Individual():
       best_gene = flatten(best_gene)
       return best_gene
 
-    def crossover_mutation_rate(self, p1, p2):
-      return (p1 + p2) / 2
 
     def inter_depot_mutation(self, gene):
       #lengths = get_vehicle_lengths(gene)
@@ -298,8 +278,6 @@ class Individual():
     def mutate_gene(self, gene, flat_gene):
       if random() < 0.01: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene)
-          pass
-
       if random() < self.mutation_rate:
           return self.intra_depot_mutation(gene)
       return flat_gene
@@ -317,19 +295,19 @@ class Individual():
     def get_fitness(self):
       a = 100
       b = 0.01
-      c = 100
+      #c = 100
 
-      depots_fitness = 0
-      for i in range(len(self.gene)):
-        depots_fitness += self.get_depot_fitness(self.gene[i], i)
+      # depots_fitness = 0
+      # for i in range(len(self.gene)):
+      #   depots_fitness += self.get_depot_fitness(self.gene[i], i)
 
       num_cars = 0
-      for depot in self.gene:
+      for depot in self.vehicles:
         for car in depot:
           if(len(car) != 0):
             num_cars += 1
 
-      return (a * num_cars) + (b * self.path_length) + (c * depots_fitness)
+      return (a * num_cars) + (b * self.path_length)
       #return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
 
     def get_depot_fitness(self, depot, i):
