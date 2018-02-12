@@ -17,10 +17,10 @@ class GUI(object):
 
   def show_C_D(self, customers, depots):
     for coord in customers:
-      pygame.draw.rect(self.screen, CUSTOMER_COLOR , pygame.Rect(coord[0], coord[1], CUSTOMER_SIZE, CUSTOMER_SIZE))
+      pygame.draw.rect(self.screen, CUSTOMER_COLOR , pygame.Rect(coord[0] - (CUSTOMER_SIZE/2), coord[1]- (CUSTOMER_SIZE/2), CUSTOMER_SIZE, CUSTOMER_SIZE))
 
     for coord in depots:
-      pygame.draw.rect(self.screen, DEPOT_COLOR , pygame.Rect(coord[0], coord[1], DEPOT_SIZE, DEPOT_SIZE))
+      pygame.draw.rect(self.screen, DEPOT_COLOR , pygame.Rect(coord[0] - (DEPOT_SIZE/2), coord[1] - (DEPOT_SIZE/2), DEPOT_SIZE, DEPOT_SIZE))
 
 
   def show_population(self, population, customers, depots):
