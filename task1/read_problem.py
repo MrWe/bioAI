@@ -1,6 +1,3 @@
-from customer import Customer
-from vehicle import Vehicle
-from depot import Depot
 from config import *
 
 
