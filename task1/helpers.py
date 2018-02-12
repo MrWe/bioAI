@@ -121,15 +121,35 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles):
   vehicles = []
   depot_max_load = depots[depot_index][3]
   route_load_cost = 0
+  route_max_duration = depots[depot_index][2] if depots[depot_index][2] != 0 else float("Inf")
+  route_duration = 0
   curr_route = []
+
+  distance_from_depot_to_first = euclideanDistance((depots[depot_index][0], depots[depot_index][1]), (customers[depot[0]][1], customers[depot[0]][2]))
+  route_duration += distance_from_depot_to_first
+
   for customer_index in depot:
-    if(route_load_cost + customers[customer_index][4] <= depot_max_load):
+    can_carry_load = route_load_cost + customers[customer_index][4] <= depot_max_load
+    distance_from_last_to_curr = 0
+    if(len(curr_route) > 1):
+      last_customer = curr_route[len(curr_route)-1]
+      distance_from_last_to_curr = euclideanDistance((customers[customer_index][1], customers[customer_index][2]), (customers[last_customer][1], customers[last_customer][2]))
+
+    can_travel_to_point = (route_duration + distance_from_last_to_curr) <= route_max_duration
+    can_get_back_to_depot = route_duration + distance_from_last_to_curr + euclideanDistance((customers[customer_index][1], customers[customer_index][2]), (depots[depot_index][0], depots[depot_index][1])) <= route_max_duration
+
+    if(can_carry_load and can_travel_to_point and can_get_back_to_depot):
       curr_route.append(customer_index)
       route_load_cost += customers[customer_index][4]
+      route_duration += distance_from_last_to_curr
+
     else:
       vehicles.append(curr_route)
       curr_route = [customer_index]
       route_load_cost = customers[customer_index][4]
+      distance_from_depot_to_first = euclideanDistance((depots[depot_index][0], depots[depot_index][1]), (customers[customer_index][1], customers[customer_index][2]))
+      route_duration = distance_from_depot_to_first
+
   if(len(curr_route) != 0):
     vehicles.append(curr_route)
 
