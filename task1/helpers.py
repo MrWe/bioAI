@@ -10,7 +10,7 @@ def get_best_individual(population):
       individual = population.individuals[i]
   return path_length, individual
 
-def depot_cluster(depots, customers, bound=2):
+def depot_cluster(depots, customers, bound=0.1):
     nearest_customers = [[] for _ in depots]
     borderline = [[] for _ in depots]
 

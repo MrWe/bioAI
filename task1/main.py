@@ -26,7 +26,7 @@ def main(f):
 
   current_iteration = 1
 
-  
+
 
   best_path_length = float("Inf")
   best_individual = None
