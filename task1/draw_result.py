@@ -12,10 +12,9 @@ DURATION = 2
 LOAD = 3
 ROUTE_START = 4
 
-def main(f):
-  GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles = read(f)
-  result_lines = read_result_file(f)
-
+def main(f, optimal):
+  GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles, _ = read(f)
+  result_lines = read_result_file(f, optimal)
 
   vehicles = build_gene_from_result(result_lines, customers_params, depots_params, num_vehicles)
 
@@ -49,5 +48,6 @@ def update_GUI(gui, GUI_customers, GUI_depots, vehicles, num_vehicles):
 
 
 if __name__ == '__main__':
-  f = sys.argv[1] if len(sys.argv) > 1 else 'p01'
-  main(f)
+  f = sys.argv[1]
+  optimal = sys.argv[2] #True = optimal solution false = our solution
+  main(f, optimal)
