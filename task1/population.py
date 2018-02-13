@@ -12,7 +12,7 @@ class Population():
     self.num_vehicles = num_vehicles
     self.mutation_rate = mutation_rate
     self.nearest_customers = nearest_customers
-    self.borderline = nearest_customers
+    self.borderline = borderline
 
     if(parent):
       self.individuals = self.construct_population(parent)
@@ -25,7 +25,8 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      population.append(Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline))
+      individual, self.borderline = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline)
+      population.append(individual)
 
     return population
 
@@ -39,8 +40,11 @@ class Population():
       parent2 = self.tournament_selection(parent_population)
 
       c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles)
-      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline))
-      population.append(Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline))
+      i1, borderline1 = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline)
+      i2, borderline2 = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline)
+
+      population.append(i1)
+      population.append(i2)
 
     #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
     population.append(parent_population[0])

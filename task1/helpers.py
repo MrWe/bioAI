@@ -10,7 +10,7 @@ def get_best_individual(population):
       individual = population.individuals[i]
   return path_length, individual
 
-def depot_cluster(depots, customers, bound=2):
+def depot_cluster(depots, customers, bound=0.1):
     nearest_customers = [[] for _ in depots]
     borderline = [[] for _ in depots]
 
@@ -57,8 +57,6 @@ def flatten(array):
 
 
 def get_path_length(vehicles, depots_params, customers_params, num_vehicles):
-
-
   path_length = 0
   for i, depot in enumerate(vehicles):
     curr_depot_coords = (
@@ -73,12 +71,17 @@ def get_depot_path_length(vehicles, depot_index, customers, depots, num_vehicles
   path_length = 0
 
   for vehicle in vehicles:
-    for k, v in enumerate(vehicle[:-1]):
-      v = vehicle[k]
-      v_next = vehicle[k+1]
-      path_length += euclideanDistance((customers[v][1], customers[v][2]), (customers[v_next][1], customers[v_next][2]))
-    path_length += euclideanDistance(curr_depot_coords, (customers[vehicle[0]][1], customers[vehicle[0]][2]))
-    path_length += euclideanDistance((customers[vehicle[len(vehicle)-1]][1], customers[vehicle[len(vehicle)-1]][2]), curr_depot_coords)
+    if(len(vehicle) != 0):
+      for k, v in enumerate(vehicle[:-1]):
+
+        v_next = vehicle[k+1]
+        path_length += euclideanDistance((customers[v][1], customers[v][2]), (customers[v_next][1], customers[v_next][2]))
+      path_length += euclideanDistance(curr_depot_coords, (customers[vehicle[0]][1], customers[vehicle[0]][2]))
+      path_length += euclideanDistance((customers[vehicle[len(vehicle)-1]][1], customers[vehicle[len(vehicle)-1]][2]), curr_depot_coords)
+    # else:
+    #   print(vehicle)
+    #   path_length += euclideanDistance(curr_depot_coords, (customers[vehicle[0]][1], customers[vehicle[0]][2])) * 2 #If car has only one customer, path_length = 2* distance from depot to customer
+
   return path_length
 
 def get_route_load(vehicle, depots_params, customers_params):
@@ -96,25 +99,38 @@ def get_route_load(vehicle, depots_params, customers_params):
 
 
 #gene = [[1,2,3,4,5], [6,7,8,9], [10,11]]
-def construct_vehicles(gene, customers, depots):
+# def construct_vehicles(gene, customers, depots, num_vehicles):
+#   vehicles = []
+#   for i, depot in enumerate(gene):
+#     curr_route = []
+#     route_load_cost = 0
+#     depot_max_load = depots[i][3]
+#     depot_vehicles = []
+#     for j, customer_index in enumerate(depot):
+#       if(route_load_cost + customers[customer_index][4] <= depot_max_load):
+#         curr_route.append(customer_index)
+#         route_load_cost += customers[customer_index][4]
+#       else:
+#         depot_vehicles.append(curr_route)
+#         curr_route = [customer_index]
+#         route_load_cost = customers[customer_index][4]
+#     if(len(curr_route) != 0):
+#       depot_vehicles.append(curr_route)
+#     vehicles.append(depot_vehicles)
+#
+#   return vehicles
+def construct_vehicles(gene, customers, depots, num_vehicles):
   vehicles = []
   for i, depot in enumerate(gene):
     curr_route = []
     route_load_cost = 0
     depot_max_load = depots[i][3]
     depot_vehicles = []
-    for j, customer_index in enumerate(depot):
-      if(route_load_cost + customers[customer_index][4] <= depot_max_load):
-        curr_route.append(customer_index)
-        route_load_cost += customers[customer_index][4]
-      else:
-        depot_vehicles.append(curr_route)
-        curr_route = [customer_index]
-        route_load_cost = customers[customer_index][4]
-    if(len(curr_route) != 0):
-      depot_vehicles.append(curr_route)
-    vehicles.append(depot_vehicles)
+    vehicles.append(construct_route(depot, i, customers,depots, num_vehicles))
+
   return vehicles
+
+
 
 def construct_route(depot, depot_index, customers, depots, num_vehicles):
 
@@ -122,33 +138,28 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles):
   depot_max_load = depots[depot_index][3]
   route_load_cost = 0
   route_max_duration = depots[depot_index][2] if depots[depot_index][2] != 0 else float("Inf")
-  route_duration = 0
-  curr_route = []
 
-  distance_from_depot_to_first = euclideanDistance((depots[depot_index][0], depots[depot_index][1]), (customers[depot[0]][1], customers[depot[0]][2]))
-  route_duration += distance_from_depot_to_first
+  curr_route = []
 
   for customer_index in depot:
     can_carry_load = route_load_cost + customers[customer_index][4] <= depot_max_load
-    distance_from_last_to_curr = 0
-    if(len(curr_route) > 1):
-      last_customer = curr_route[len(curr_route)-1]
-      distance_from_last_to_curr = euclideanDistance((customers[customer_index][1], customers[customer_index][2]), (customers[last_customer][1], customers[last_customer][2]))
 
-    can_travel_to_point = (route_duration + distance_from_last_to_curr) <= route_max_duration
-    can_get_back_to_depot = route_duration + distance_from_last_to_curr + euclideanDistance((customers[customer_index][1], customers[customer_index][2]), (depots[depot_index][0], depots[depot_index][1])) <= route_max_duration
-
-    if(can_carry_load and can_travel_to_point and can_get_back_to_depot):
+    if(can_carry_load):
       curr_route.append(customer_index)
       route_load_cost += customers[customer_index][4]
-      route_duration += distance_from_last_to_curr
+
+      if(get_depot_path_length([curr_route], depot_index, customers, depots, num_vehicles) > route_max_duration):
+        last_customer = curr_route.pop()
+        vehicles.append(curr_route)
+        curr_route = [last_customer]
+        route_load_cost = customers[last_customer][4]
+
+
 
     else:
       vehicles.append(curr_route)
       curr_route = [customer_index]
       route_load_cost = customers[customer_index][4]
-      distance_from_depot_to_first = euclideanDistance((depots[depot_index][0], depots[depot_index][1]), (customers[customer_index][1], customers[customer_index][2]))
-      route_duration = distance_from_depot_to_first
 
   if(len(curr_route) != 0):
     vehicles.append(curr_route)

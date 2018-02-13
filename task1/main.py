@@ -26,7 +26,7 @@ def main(f):
 
   current_iteration = 1
 
-  
+
 
   best_path_length = float("Inf")
   best_individual = None
@@ -45,10 +45,14 @@ def main(f):
       best_individual = individual
       print(current_iteration, best_path_length, m_rate)
 
+
     population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
 
     m_rate *= MUTATION_RATE_DECAY
     current_iteration += 1
+    #if(current_iteration % 1000 == 0):
+      #print(flatten(best_individual.gene))
+      #print(len(flatten(best_individual.gene)))
 
 
 

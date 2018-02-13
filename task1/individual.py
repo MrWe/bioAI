@@ -15,19 +15,18 @@ class Individual():
         self.customers_params = customers_params
         self.depots_params = depots_params
         #self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
+        self.num_vehicles = num_vehicles
         self.gene = nearest_customers
         self.borderline = borderline
-        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
-        self.num_vehicles = num_vehicles
-
-
         self.mutation_rate = mutation_rate
+        self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
         #self.valid = self.is_valid()
 
         self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
-        return self
+        return self, self.borderline
 
     def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline):
       self.customers_params = customers_params
@@ -37,12 +36,14 @@ class Individual():
       self.borderline = borderline
       self.num_vehicles = num_vehicles
       self.gene = gene
-      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
+      self.mutation_rate = mutation_rate
+      self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
+      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
       self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
 
-      return self
+      return self, self.borderline
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
@@ -74,28 +75,29 @@ class Individual():
         total_length += length
       return vehicles
 
+    def mutate_gene(self, gene, borderline):
+      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+          return self.inter_depot_mutation(gene, borderline)
+      if random() < self.mutation_rate:
+         return self.intra_depot_mutation(gene), borderline
+      return gene, borderline
+
     def intra_depot_mutation(self, gene):
       rand_depot = randint(0, len(gene)-1)
-      depot = [item for sublist in gene[rand_depot] for item in sublist]
-      vehicle_lengths = get_vehicle_lengths(gene)
+      depot = gene[rand_depot]
 
       if(len(depot) < 2):
-        gene = flatten(gene)
-        gene = flatten(gene)
         return gene
+
       r = random()
-      if(r < 0.5):
-        self.swap(depot)
-      #if(r > 0.66):
-        #self.reverse(depot)
+      if(r < 0.33):
+        mutated_depot = self.swap(depot)
+      if(r > 0.66):
+        mutated_depot = self.reverse(depot)
       else:
-        return self.reroute(depot, rand_depot, gene, vehicle_lengths)
+        return self.reroute(depot, rand_depot, gene)
 
-      new_depot = self.construct_vehicles(depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
-      gene[rand_depot] = new_depot
-
-      gene = flatten(gene)
-      gene = flatten(gene)
+      gene[rand_depot] = mutated_depot
 
       return gene
 
@@ -105,6 +107,7 @@ class Individual():
       while(r2 != r1):
         r2 = randint(0, len(depot)-1)
       depot[r1], depot[r2] = depot[r2], depot[r1]
+      return depot
 
     def reverse(self, depot):
       if(len(depot) <= 2):
@@ -113,67 +116,56 @@ class Individual():
       r2 = randint(r1+1, len(depot)-1)
       t = reversed(depot[r1:r2][:])
       depot[r1:r2] = t
+      return depot
 
-    def reroute(self, depot, rand_depot, gene, vehicle_lengths):
+    def reroute(self, depot, rand_depot, gene):
       depot = depot[:]
-      r = randint(0, len(depot)-1)
-      best_fitness = float("Inf")
-      best_gene = []
-      cust = depot[r]
-      del depot[r]
+      copy_gene = self.copy_gene(gene)
+      customer_to_move_index = randint(0, len(depot)-1)
+      customer_to_move = depot[customer_to_move_index]
+      del depot[customer_to_move_index]
+      copy_gene[rand_depot] = depot
 
-      for i in range(len(depot)):
-        curr_gene = self.copy_gene(gene) #This hopefully works
-        curr_depot = depot[:]
-        curr_depot.insert(i, cust)
-        curr_depot = self.construct_vehicles(curr_depot, vehicle_lengths[self.num_vehicles*rand_depot:(self.num_vehicles*rand_depot)+self.num_vehicles])
-        curr_gene[rand_depot] = curr_depot
-        path_length = get_path_length(curr_gene, self.depots_params, self.customers_params, self.num_vehicles)
+      best_location = (0, 0) #(depot, index) e.g. (1, 3)
+      best_path_length = float("Inf")
+      for i in range(len(copy_gene)):
+          for index in range(len(copy_gene[i])):
+              copy_gene[i].insert(index, customer_to_move)
 
-        if(path_length < best_fitness):
-          best_fitness = path_length
-          best_gene = curr_gene
+              vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
+              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)
 
-      best_gene = flatten(best_gene)
-      best_gene = flatten(best_gene)
-      return best_gene
+              if curr_path_length < best_path_length:
+                  best_path_length = curr_path_length
+                  best_location = (i, index)
+              copy_gene[i].remove(customer_to_move)
+      copy_gene[best_location[0]].insert(best_location[1], customer_to_move)
+      return copy_gene
 
-
-    def inter_depot_mutation(self, gene):
+    def inter_depot_mutation(self, gene, borderline):
       #lengths = get_vehicle_lengths(gene)
-      selected_depot = randint(0, len(self.borderline)-1)
+      selected_depot = randint(0, len(borderline)-1) #the depot we want to move something into
 
-      if len(self.borderline[selected_depot]) == 0: #Nothing to mutate
-          gene = flatten(gene)
-          gene = flatten(gene)
-          return gene
+      if len(borderline[selected_depot]) == 0: #Nothing to mutate
+          return gene, borderline
 
-      selected_customer_index = randint(0, len(self.borderline[selected_depot])-1)
-      selected_customer = self.borderline[selected_depot][selected_customer_index]
-      del self.borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
+      selected_customer_index = randint(0, len(borderline[selected_depot])-1)
+      selected_customer = borderline[selected_depot][selected_customer_index] #e.g. 5
+      del borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
 
-      customer_location = self.find(gene, selected_customer) #e.g. (2, 1, 0) -> depot 2, vehicle 1, index 0
+      customer_location = self.find(gene, selected_customer) # returns depot index
 
-      mutated_gene = self.copy_gene(gene)
+      gene[customer_location].remove(selected_customer)
+      borderline[customer_location].append(selected_customer)
 
-      del mutated_gene[customer_location[0]][customer_location[1]][customer_location[2]] #best code thxbye
+      gene[selected_depot].append(selected_customer)
 
-      self.borderline[customer_location[0]].append(selected_customer)
-
-      vehicle_to_insert = randint(0, len(mutated_gene[selected_depot])-1)
-      mutated_gene[selected_depot][vehicle_to_insert].append(selected_customer)
-
-      mutated_gene = flatten(mutated_gene)
-      mutated_gene = flatten(mutated_gene)
-
-      return mutated_gene
+      return gene, borderline
 
     def find(self, searchList, elem):
-        for i in range(len(searchList)):
-            for j in range(len(searchList[i])):
-                for k in range(len(searchList[i][j])):
-                    if searchList[i][j][k] == elem:
-                        return i,j,k
+        for depot in range(len(searchList)):
+            if elem in searchList[depot]:
+                return depot
 
     def get_fitness(self):
       a = 100
@@ -204,9 +196,6 @@ class Individual():
     def copy_gene(self, gene):
       new_gene = []
       for depot in gene:
-        new_depot = []
-        for vehicle in depot:
-          new_depot.append(vehicle[:])
-        new_gene.append(new_depot)
+          new_gene.append(depot[:])
       return new_gene
 
