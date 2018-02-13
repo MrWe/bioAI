@@ -50,8 +50,9 @@ def main(f):
           print("Yay found great path wow")
           results = best_individual.get_results()
 
-          print(results)
-          return results
+          with open('OurSolutions/' + f + '.res','w') as result_file:
+            result_file.write(results)
+            exit()
 
 
     population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
