@@ -24,7 +24,7 @@ class Individual():
 
         #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self, self.borderline
 
@@ -40,7 +40,7 @@ class Individual():
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
-      self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+      self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
 
       return self, self.borderline
@@ -56,6 +56,42 @@ class Individual():
         return True
       else:
         return False
+
+    def get_results(self):
+        results_array = ""
+        results_array += str(self.path_length) + "\n"
+        for i in range(len(self.vehicles)):
+            for j in range(len(self.vehicles[i])):
+                results_array += str(i+1) + " "
+
+                results_array += str(j+1) + " "
+
+                results_array += str(round(self.lengths[i][j],3)) + " "
+
+                results_array += str(get_route_load(self.vehicles[i][j], self.depots_params, self.customers_params)) + " "
+
+                results_array += "0 "
+
+                for v in range(len(self.vehicles[i][j])):
+                    results_array += str(self.vehicles[i][j][v]+1) + " "
+
+                results_array += "0"
+                results_array += "\n"
+        return results_array
+
+    '''
+        1   1   60.06   71   0 44 45 33 15 37 17 0
+        1   2   66.55   79   0 42 19 40 41 13 0
+        1   3   47.00   78   0 25 18 4 0
+        2   1   53.44   73   0 6 27 1 32 11 46 0
+        2   2   79.47   80   0 48 8 26 31 28 22 0
+        2   3   81.40   77   0 23 7 43 24 14 0
+        2   4   23.50   54   0 12 47 0
+        3   1   50.41   75   0 9 34 30 39 10 0
+        3   2   25.22   54   0 49 5 38 0
+        4   1   47.67   67   0 35 36 3 20 0
+        4   2   42.14   69   0 21 50 16 2 29 0
+    '''
 
     def construct_gene(self, flat_gene, vehicle_lengths):
       vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
@@ -133,7 +169,7 @@ class Individual():
               copy_gene[i].insert(index, customer_to_move)
 
               vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
-              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)[0]
 
               if curr_path_length < best_path_length:
                   best_path_length = curr_path_length
