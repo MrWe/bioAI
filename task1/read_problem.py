@@ -5,6 +5,9 @@ def read(f):
   file_object = open('DataFiles/' + f, 'r')
   lines = file_object.readlines()
 
+  solution_object = open('SolutionFiles/' + f + '.res', 'r')
+  solution_lines = solution_object.readlines()
+
   t = lines[0].split(' ')
   num_vehicles, num_customers, num_depots = int(t[0]), int(t[1]), int(t[2])
 
@@ -38,8 +41,9 @@ def read(f):
   scale_coordinates(GUI_customers, scale, min_x, max_x, min_y, max_y)
   scale_coordinates(GUI_depots, scale, min_x, max_x, min_y, max_y)
 
+  optimal_path_length = solution_lines.pop(0)
 
-  return GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles
+  return GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles, optimal_path_length
 
 
 def find_minmax_coords(customers, depots):

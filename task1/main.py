@@ -15,7 +15,7 @@ if(ENABLE_GUI):
 
 
 def main(f):
-  GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles = read(f)
+  GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles, optimal_path_length = read(f)
   if(ENABLE_GUI):
     gui = GUI(depots_params, num_vehicles)
   m_rate = MUTATION_RATE
@@ -43,7 +43,12 @@ def main(f):
     if(path_length < best_path_length):
       best_path_length = path_length
       best_individual = individual
-      print(current_iteration, best_path_length, m_rate)
+      percentile = 1-float(optimal_path_length) / best_path_length
+      print("Iteration", current_iteration, "  Path length", best_path_length, "  Mutation rate", m_rate, "  Percentile:", 100*round(percentile,3), "%")
+
+      if percentile < 0.05:
+          print("Yay found great path wow")
+          exit()
 
 
     population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
