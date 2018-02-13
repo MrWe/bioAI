@@ -22,11 +22,12 @@ def main(f):
 
   nearest_customers, borderline = depot_cluster(depots_params, customers_params)
 
-  population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline)
+  mem_keys = set()
+  mem_vals = dict()
+
+  population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals)
 
   current_iteration = 1
-
-
 
   best_path_length = float("Inf")
   best_individual = None
@@ -54,14 +55,14 @@ def main(f):
             result_file.write(results)
             exit()
 
+    population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals, population)
 
-    population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
+    mem_keys = population.mem_keys
+    mem_vals = population.mem_vals
 
     m_rate *= MUTATION_RATE_DECAY
     current_iteration += 1
-    #if(current_iteration % 1000 == 0):
-      #print(flatten(best_individual.gene))
-      #print(len(flatten(best_individual.gene)))
+
 
 
 

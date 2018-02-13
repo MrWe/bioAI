@@ -6,13 +6,15 @@ import math
 
 class Population():
 
-  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, parent=None):
+  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.num_vehicles = num_vehicles
     self.mutation_rate = mutation_rate
     self.nearest_customers = nearest_customers
     self.borderline = borderline
+    self.mem_keys = mem_keys
+    self.mem_vals = mem_vals
 
     if(parent):
       self.individuals = self.construct_population(parent)
@@ -25,7 +27,7 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      individual, self.borderline = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline)
+      individual, self.borderline, self.mem_keys, self.mem_vals = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
       population.append(individual)
 
     return population
@@ -40,15 +42,20 @@ class Population():
       parent2 = self.tournament_selection(parent_population)
 
       c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles)
-      i1, borderline1 = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline)
-      i2, borderline2 = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline)
+      i1, borderline1, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
+      i2, borderline2, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
 
       population.append(i1)
       population.append(i2)
 
-    #TODO: Should create method to copy parent as another individual and add that to population to prevent mutation on that parent
-    population.append(parent_population[0])
-    population.append(parent_population[1])
+    for i in range(int(POPULATION_SIZE * 0.01)):
+      rand = random.randint(0, POPULATION_SIZE-1)
+      del population[rand]
+      population.append(parent_population[i])
+
+
+
+
 
 
     # for i in range(int(POPULATION_SIZE - 2)):

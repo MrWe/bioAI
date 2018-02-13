@@ -11,26 +11,41 @@ class Individual():
     def __init__(self):
       pass
 
-    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline): # Initial construction
-        self.customers_params = customers_params
-        self.depots_params = depots_params
-        #self.gene, self.borderline = depot_cluster(self.depots_params, self.customers_params)
-        self.num_vehicles = num_vehicles
-        self.gene = nearest_customers
-        self.borderline = borderline
-        self.mutation_rate = mutation_rate
-        self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
-        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
-
-        #self.valid = self.is_valid()
-
-        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
-        self.fitness = self.get_fitness()
-        return self, self.borderline
-
-    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline):
+    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals): # Initial construction
       self.customers_params = customers_params
       self.depots_params = depots_params
+      self.mem_keys = mem_keys
+      self.mem_vals = mem_vals
+      self.num_vehicles = num_vehicles
+      self.gene = nearest_customers
+      self.borderline = borderline
+      self.mutation_rate = mutation_rate
+      self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
+      self.hash = self.get_hash(self.gene)
+      if(self.hash in self.mem_vals):
+        self.vehicles = self.mem_vals[self.hash][0]
+        self.path_length = self.mem_vals[self.hash][1]
+        self.fitness = self.mem_vals[self.hash][2]
+      else:
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.fitness = self.get_fitness()
+        self.mem_keys.add(self.hash)
+        self.mem_vals[self.hash] = []
+        self.mem_vals[self.hash].append(self.vehicles)
+        self.mem_vals[self.hash].append(self.path_length)
+        self.mem_vals[self.hash].append(self.fitness)
+
+
+
+
+      return self, self.borderline, self.mem_keys, self.mem_vals
+
+    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals):
+      self.customers_params = customers_params
+      self.depots_params = depots_params
+      self.mem_keys = mem_keys
+      self.mem_vals = mem_vals
       #self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
       self.nearest_customers = nearest_customers
       self.borderline = borderline
@@ -38,15 +53,32 @@ class Individual():
       self.gene = gene
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
-      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
+      self.hash = self.get_hash(self.gene)
+      if(self.hash in self.mem_keys):
+        self.vehicles = self.mem_vals[self.hash][0]
+        self.path_length = self.mem_vals[self.hash][1]
+        self.fitness = self.mem_vals[self.hash][2]
+        self.vehicles = self.mem_vals[self.hash][3]
+      else:
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.fitness = self.get_fitness()
+        self.mem_keys.add(self.hash)
+        self.mem_vals[self.hash] = []
+        self.mem_vals[self.hash].append(self.vehicles)
+        self.mem_vals[self.hash].append(self.path_length)
+        self.mem_vals[self.hash].append(self.fitness)
+        self.mem_vals[self.hash].append(self.vehicles)
 
-      self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
-      self.fitness = self.get_fitness()
 
-      return self, self.borderline
+      return self, self.borderline, self.mem_keys, self.mem_vals
+
 
     def __cmp__(self, other):
         return self.path_length < other.path_length
+
+    def get_hash(self, gene):
+        return str(gene)
 
     def is_valid(self):
       depots_fitness = 0
@@ -122,8 +154,8 @@ class Individual():
       rand_depot = randint(0, len(gene)-1)
       depot = gene[rand_depot]
 
-      if(len(depot) < 2):
-        return gene
+      # if(len(depot) < 2):
+      #   return gene
 
       r = random()
       if(r < 0.33):
@@ -155,6 +187,7 @@ class Individual():
       return depot
 
     def reroute(self, depot, rand_depot, gene):
+
       depot = depot[:]
       copy_gene = self.copy_gene(gene)
       customer_to_move_index = randint(0, len(depot)-1)
@@ -168,8 +201,13 @@ class Individual():
           for index in range(len(copy_gene[i])):
               copy_gene[i].insert(index, customer_to_move)
 
-              vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
-              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)[0]
+              str_hash = self.get_hash(copy_gene)
+              if(str_hash in self.mem_keys):
+                vehicles = self.mem_vals[str_hash][0]
+                curr_path_length = self.mem_vals[str_hash][1]
+              else:
+                vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
+                curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)[0]
 
               if curr_path_length < best_path_length:
                   best_path_length = curr_path_length

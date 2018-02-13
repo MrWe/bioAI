@@ -1,5 +1,6 @@
 import math
 from random import randint, random
+from config import *
 
 def get_best_individual(population):
   path_length = float("Inf")
@@ -11,6 +12,7 @@ def get_best_individual(population):
   return path_length, individual
 
 def depot_cluster(depots, customers, bound=0.1):
+    bound = DISTANCE_BOUND
     nearest_customers = [[] for _ in depots]
     borderline = [[] for _ in depots]
 
@@ -246,8 +248,8 @@ def crossover(parent, rand_route, rand_depot, customers_params, depots_params, n
         if(curr_length < best_depot_length):
           best_depot_length = curr_length
           best_depot_index = i
-      if(len(valids) == 0):
-        return None #No valid options, returning default
+      # if(len(valids) == 0):
+      #   return None #No valid options, returning default
       parent[rand_depot] = valids[best_depot_index]
 
   return parent
