@@ -6,7 +6,7 @@ import math
 
 class Population():
 
-  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, parent=None):
+  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.num_vehicles = num_vehicles
@@ -15,6 +15,9 @@ class Population():
     self.borderline = borderline
     self.mem_keys = mem_keys
     self.mem_vals = mem_vals
+    self.customer_2_customer = customer_2_customer
+    self.customer_2_depots = customer_2_depots
+    self.depots_2_customers = depots_2_customers
 
     if(parent):
       self.individuals = self.construct_population(parent)
@@ -27,7 +30,7 @@ class Population():
     population = []
 
     for i in range(int(POPULATION_SIZE)):
-      individual, self.borderline, self.mem_keys, self.mem_vals = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
+      individual, self.borderline, self.mem_keys, self.mem_vals = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
       population.append(individual)
 
     return population
@@ -41,9 +44,9 @@ class Population():
       parent1 = self.tournament_selection(parent_population)
       parent2 = self.tournament_selection(parent_population)
 
-      c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles)
-      i1, borderline1, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
-      i2, borderline2, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals)
+      c1, c2 = construct_child_gene(parent1.gene, parent2.gene, self.customers_params, self.depots_params, self.num_vehicles, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
+      i1, borderline1, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
+      i2, borderline2, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
 
       population.append(i1)
       population.append(i2)
@@ -52,10 +55,6 @@ class Population():
       rand = random.randint(0, POPULATION_SIZE-1)
       del population[rand]
       population.append(parent_population[i])
-
-
-
-
 
 
     # for i in range(int(POPULATION_SIZE - 2)):

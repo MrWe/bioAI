@@ -11,12 +11,15 @@ class Individual():
     def __init__(self):
       pass
 
-    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals): # Initial construction
+    def initial_individual(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers): # Initial construction
       self.customers_params = customers_params
       self.depots_params = depots_params
       self.mem_keys = mem_keys
       self.mem_vals = mem_vals
       self.num_vehicles = num_vehicles
+      self.customer_2_customer = customer_2_customer
+      self.customer_2_depots = customer_2_depots
+      self.depots_2_customers = depots_2_customers
       self.gene = nearest_customers
       self.borderline = borderline
       self.mutation_rate = mutation_rate
@@ -27,8 +30,8 @@ class Individual():
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
       else:
-        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
-        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
         self.fitness = self.get_fitness()
         self.mem_keys.add(self.hash)
         self.mem_vals[self.hash] = []
@@ -41,11 +44,14 @@ class Individual():
 
       return self, self.borderline, self.mem_keys, self.mem_vals
 
-    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals):
+    def init_with_gene(self, customers_params, depots_params, num_vehicles, gene, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers):
       self.customers_params = customers_params
       self.depots_params = depots_params
       self.mem_keys = mem_keys
       self.mem_vals = mem_vals
+      self.customer_2_customer = customer_2_customer
+      self.customer_2_depots = customer_2_depots
+      self.depots_2_customers = depots_2_customers
       #self.nearest_customers, self.borderline = depot_cluster(self.depots_params, self.customers_params)
       self.nearest_customers = nearest_customers
       self.borderline = borderline
@@ -58,17 +64,15 @@ class Individual():
         self.vehicles = self.mem_vals[self.hash][0]
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
-        self.vehicles = self.mem_vals[self.hash][3]
       else:
-        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
-        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
         self.fitness = self.get_fitness()
         self.mem_keys.add(self.hash)
         self.mem_vals[self.hash] = []
         self.mem_vals[self.hash].append(self.vehicles)
         self.mem_vals[self.hash].append(self.path_length)
         self.mem_vals[self.hash].append(self.fitness)
-        self.mem_vals[self.hash].append(self.vehicles)
 
 
       return self, self.borderline, self.mem_keys, self.mem_vals
@@ -206,8 +210,8 @@ class Individual():
                 vehicles = self.mem_vals[str_hash][0]
                 curr_path_length = self.mem_vals[str_hash][1]
               else:
-                vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
-                curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)[0]
+                vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
+                curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)[0]
 
               if curr_path_length < best_path_length:
                   best_path_length = curr_path_length
