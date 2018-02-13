@@ -47,9 +47,20 @@ class GUI(object):
         curr_vehicle.insert(0, curr_depot_coords)
         curr_vehicle.append(curr_depot_coords)
         for k in range(len(curr_vehicle)-1):
-
           self.draw_line(self.path_color[i + j], curr_vehicle[k], curr_vehicle[k+1])
 
+
+  def show_gene(self, vehicles, customers, depots, num_vehicles):
+    for i in range(len(vehicles)):
+      curr_depot_coords = (depots[i][0], depots[i][1])
+      for j in range(len(vehicles[i])):
+        curr_vehicle = []
+        for n in range(len(vehicles[i][j])):
+          curr_vehicle.append((customers[vehicles[i][j][n]][0], customers[vehicles[i][j][n]][1]))
+        curr_vehicle.insert(0, curr_depot_coords)
+        curr_vehicle.append(curr_depot_coords)
+        for k in range(len(curr_vehicle)-1):
+          self.draw_line(self.path_color[i + j], curr_vehicle[k], curr_vehicle[k+1])
 
   def draw_line(self, path_color, start, stop):
     pygame.draw.line(self.screen, path_color, start, stop, 1)
