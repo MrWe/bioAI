@@ -46,14 +46,12 @@ def main(f):
       percentile = 1-float(optimal_path_length) / best_path_length
       print("Iteration", current_iteration, "  Path length", round(best_path_length, 6), "  Mutation rate", round(m_rate, 5), "  Percentile:", 100*round(percentile,3), "%")
 
-      if percentile < 0.05:
+      if percentile <= 0.05:
           print("Yay found great path wow")
-          results_array = [[float(optimal_path_length.strip())]]
-          results_array.append(best_individual.get_results())
+          results = best_individual.get_results()
 
-          for line in results_array:
-              print(line)
-          return results_array
+          print(results)
+          return results
 
 
     population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)

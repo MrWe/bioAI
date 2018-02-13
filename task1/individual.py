@@ -24,7 +24,7 @@ class Individual():
 
         #self.valid = self.is_valid()
 
-        self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+        self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
         self.fitness = self.get_fitness()
         return self, self.borderline
 
@@ -40,7 +40,7 @@ class Individual():
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
-      self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+      self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
 
       return self, self.borderline
@@ -59,14 +59,24 @@ class Individual():
 
     def get_results(self):
         results_array = ""
+        results_array += str(self.path_length) + "\n"
         for i in range(len(self.vehicles)):
             for j in range(len(self.vehicles[i])):
-                results_array += "\n"
                 results_array += str(i+1) + " "
 
                 results_array += str(j+1) + " "
+
+                results_array += str(round(self.lengths[i][j],3)) + " "
+
+                results_array += str(get_route_load(self.vehicles[i][j], self.depots_params, self.customers_params)) + " "
+
+                results_array += "0 "
+
                 for v in range(len(self.vehicles[i][j])):
-                    results_array += str(self.vehicles[i][j][v]) + " "
+                    results_array += str(self.vehicles[i][j][v]+1) + " "
+
+                results_array += "0"
+                results_array += "\n"
         return results_array
 
     '''
@@ -159,7 +169,7 @@ class Individual():
               copy_gene[i].insert(index, customer_to_move)
 
               vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
-              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)
+              curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)[0]
 
               if curr_path_length < best_path_length:
                   best_path_length = curr_path_length
