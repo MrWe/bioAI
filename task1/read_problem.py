@@ -41,6 +41,24 @@ def read(f):
 
   return GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles
 
+def read_result_file(f):
+  lines = []
+  with open('SolutionFiles/' + f + '.res', 'r') as res:
+    for l in res:
+      line = []
+      elem = l.split()
+      if(len(elem) == 1):
+        continue
+      for i in range(len(elem)):
+        if(i == 2):
+          line.append(float(elem[i]))
+        else:
+          line.append(int(elem[i]))
+      if(len(line) > 0):
+        lines.append(line)
+  return lines
+
+
 
 def find_minmax_coords(customers, depots):
   max_x = 0
