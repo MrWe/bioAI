@@ -20,7 +20,7 @@ class Individual():
         self.borderline = borderline
         self.mutation_rate = mutation_rate
         self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
-        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
+        self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
         #self.valid = self.is_valid()
 
@@ -38,7 +38,7 @@ class Individual():
       self.gene = gene
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
-      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params)
+      self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles)
 
       self.path_length = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles)
       self.fitness = self.get_fitness()
@@ -132,7 +132,7 @@ class Individual():
           for index in range(len(copy_gene[i])):
               copy_gene[i].insert(index, customer_to_move)
 
-              vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params)
+              vehicles = construct_vehicles(copy_gene, self.customers_params, self.depots_params, self.num_vehicles)
               curr_path_length = get_path_length(vehicles, self.depots_params, self.customers_params, self.num_vehicles)
 
               if curr_path_length < best_path_length:
