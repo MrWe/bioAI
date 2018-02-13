@@ -45,21 +45,39 @@ def read(f):
 
   return GUI_customers, GUI_depots, customers_params, depots_params, num_vehicles, optimal_path_length
 
-def read_result_file(f):
+def read_result_file(f, optimal):
   lines = []
-  with open('SolutionFiles/' + f + '.res', 'r') as res:
-    for l in res:
-      line = []
-      elem = l.split()
-      if(len(elem) == 1):
-        continue
-      for i in range(len(elem)):
-        if(i == 2):
-          line.append(float(elem[i]))
-        else:
-          line.append(int(elem[i]))
-      if(len(line) > 0):
-        lines.append(line)
+  if(optimal == "True"):
+
+
+    with open('SolutionFiles/' + f + '.res', 'r') as res:
+      for l in res:
+        line = []
+        elem = l.split()
+        if(len(elem) == 1):
+          continue
+        for i in range(len(elem)):
+          if(i == 2):
+            line.append(float(elem[i]))
+          else:
+            line.append(int(elem[i]))
+        if(len(line) > 0):
+          lines.append(line)
+  else:
+    with open('OurSolutions/' + f + '.res', 'r') as res:
+      for l in res:
+        line = []
+        elem = l.split()
+        if(len(elem) == 1):
+          continue
+        for i in range(len(elem)):
+          if(i == 2):
+            line.append(float(elem[i]))
+          else:
+            line.append(int(elem[i]))
+        if(len(line) > 0):
+          lines.append(line)
+
   return lines
 
 
