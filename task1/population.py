@@ -41,7 +41,7 @@ class Population():
   def all_have_same_fitness(self, population):
     mean = population[0].fitness
     for i in population:
-      if(i.fitness - mean > 200 or i.fitness - mean < -200):
+      if(i.fitness - mean > 250 or i.fitness - mean < -250):
         return False
     return True
 

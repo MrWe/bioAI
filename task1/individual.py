@@ -25,7 +25,7 @@ class Individual():
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.hash = self.get_hash(self.gene)
-      if(self.hash in self.mem_vals):
+      if(self.hash in self.mem_keys):
         self.vehicles = self.mem_vals[self.hash][0]
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
@@ -63,7 +63,7 @@ class Individual():
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.hash = self.get_hash(self.gene)
-      if(self.hash in self.mem_vals):
+      if(self.hash in self.mem_keys):
         self.vehicles = self.mem_vals[self.hash][0]
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
