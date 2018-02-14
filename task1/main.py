@@ -8,6 +8,7 @@ from config import *
 from helpers import *
 from population import Population
 from read_problem import read
+from random import random
 
 if(ENABLE_GUI):
   import pygame
@@ -22,14 +23,18 @@ def main(f):
 
   nearest_customers, borderline = depot_cluster(depots_params, customers_params)
 
-  population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline)
+  mem_keys = set()
+  mem_vals = dict()
 
+  customer_2_customer, customer_2_depots, depots_2_customers = get_distances(customers_params, depots_params)
   current_iteration = 1
+  population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, current_iteration)
 
 
 
   best_path_length = float("Inf")
   best_individual = None
+  t = False
 
   while(True):
     if(ENABLE_GUI):
@@ -53,16 +58,39 @@ def main(f):
           with open('OurSolutions/' + f + '.res','w') as result_file:
             result_file.write(results)
             exit()
+    current_iteration += 1
+    population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, current_iteration, population)
 
-
-    population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, population)
+    mem_keys = population.mem_keys
+    mem_vals = population.mem_vals
 
     m_rate *= MUTATION_RATE_DECAY
-    current_iteration += 1
-    #if(current_iteration % 1000 == 0):
-      #print(flatten(best_individual.gene))
-      #print(len(flatten(best_individual.gene)))
 
+
+
+
+def get_distances(customers, depots):
+  customer_2_customer = []
+  for i in range(len(customers)):
+    curr_distances = []
+    for j in range(len(customers)):
+      curr_distances.append(euclideanDistance((customers[i][1], customers[i][2]), (customers[j][1], customers[j][2])))
+    customer_2_customer.append(curr_distances)
+
+  customer_2_depots = []
+  for i in range(len(customers)):
+    curr_distances = []
+    for j in range(len(depots)):
+      curr_distances.append(euclideanDistance((customers[i][1], customers[i][2]), (depots[j][0], depots[j][1])))
+    customer_2_depots.append(curr_distances)
+
+  depots_2_customers = []
+  for i in range(len(depots)):
+    curr_distances = []
+    for j in range(len(customers)):
+      curr_distances.append(euclideanDistance((depots[i][0], depots[i][1]), (customers[j][1], customers[j][2])))
+    depots_2_customers.append(curr_distances)
+  return customer_2_customer, customer_2_depots, depots_2_customers
 
 
 def update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, show_best_individual, best_individual, num_vehicles):

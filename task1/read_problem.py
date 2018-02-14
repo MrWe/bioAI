@@ -48,8 +48,6 @@ def read(f):
 def read_result_file(f, optimal):
   lines = []
   if(optimal == "True"):
-
-
     with open('SolutionFiles/' + f + '.res', 'r') as res:
       for l in res:
         line = []
