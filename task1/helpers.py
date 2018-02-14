@@ -132,7 +132,9 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles, custome
   vehicles = []
   depot_max_load = depots[depot_index][3]
   route_load_cost = 0
+  route_load_costs = []
   route_max_duration = depots[depot_index][2] if depots[depot_index][2] != 0 else float("Inf")
+
 
   curr_route = []
 
@@ -147,21 +149,60 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles, custome
         last_customer = curr_route.pop()
         vehicles.append(curr_route)
         curr_route = [last_customer]
+        route_load_costs.append(route_load_cost)
         route_load_cost = customers[last_customer][4]
 
     else:
       vehicles.append(curr_route)
       curr_route = [customer_index]
+
+      route_load_costs.append(route_load_cost)
       route_load_cost = customers[customer_index][4]
 
   if(len(curr_route) != 0):
     vehicles.append(curr_route)
+    route_load_costs.append(route_load_cost)
 
   # if len(vehicles) > num_vehicles: #Too many vehicles were created
   #   return None
+  #print(route_load_costs)
+  #print(vehicles)
 
+  length, lengths = get_path_length([vehicles], customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
+  lenghts = lengths[0]
+  #print(lengths)
+
+  for i in range(len(vehicles)-1):
+      if len(vehicles[i]) == 0:
+          continue
+      customer_to_move = vehicles[i].pop()
+      vehicles[i+1].insert(0, customer_to_move)
+
+      if route_load_costs[i+1] + customers[customer_to_move][4] > depot_max_load:
+          #print("Cannot move:(")
+          customer_to_move_back = vehicles[i+1].pop(0)
+          vehicles[i].append(customer_to_move_back)
+      else:
+          new_length, new_lengths = get_path_length([vehicles], customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
+          if new_length > length:
+              #print("Was not shorter buu")
+              customer_to_move_back = vehicles[i+1].pop(0)
+              vehicles[i].append(customer_to_move_back)
+          else:
+              #print("Found better path woo")
+              length, lengths = new_length, new_lengths[0]
   return vehicles
 
+'''
+In Phase 2, the last customer of each route ri,
+is relocated to become the first cus- tomer to route ri+1 .
+If this removal and insertion maintains feasibility for route ri+1,
+and the sum of costs of ri and ri+1 at Phase 2 is less than the sum of costs of ri +ri+1
+at Phase 1, the routing configuration at Phase 2 is accepted,
+otherwise the route network before Phase 2 (that is, at Phase 1) is maintained.
+
+
+'''
 
 def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
 
