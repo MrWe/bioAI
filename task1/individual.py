@@ -1,5 +1,5 @@
-from random import randint, random, shuffle
-from copy import deepcopy
+from random import random
+
 #import numpy as np
 from config import *
 import math
@@ -29,6 +29,7 @@ class Individual():
         self.vehicles = self.mem_vals[self.hash][0]
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
+        self.lengths = self.mem_vals[self.hash][3]
       else:
         self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
         self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
@@ -38,6 +39,8 @@ class Individual():
         self.mem_vals[self.hash].append(self.vehicles)
         self.mem_vals[self.hash].append(self.path_length)
         self.mem_vals[self.hash].append(self.fitness)
+        self.mem_vals[self.hash].append(self.lengths)
+
 
 
 
@@ -60,10 +63,11 @@ class Individual():
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.hash = self.get_hash(self.gene)
-      if(self.hash in self.mem_keys):
+      if(self.hash in self.mem_vals):
         self.vehicles = self.mem_vals[self.hash][0]
         self.path_length = self.mem_vals[self.hash][1]
         self.fitness = self.mem_vals[self.hash][2]
+        self.lengths = self.mem_vals[self.hash][3]
       else:
         self.vehicles = construct_vehicles(self.gene, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
         self.path_length, self.lengths = get_path_length(self.vehicles, self.depots_params, self.customers_params, self.num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
@@ -73,6 +77,8 @@ class Individual():
         self.mem_vals[self.hash].append(self.vehicles)
         self.mem_vals[self.hash].append(self.path_length)
         self.mem_vals[self.hash].append(self.fitness)
+        self.mem_vals[self.hash].append(self.lengths)
+
 
 
       return self, self.borderline, self.mem_keys, self.mem_vals
@@ -129,33 +135,19 @@ class Individual():
         4   2   42.14   69   0 21 50 16 2 29 0
     '''
 
-    def construct_gene(self, flat_gene, vehicle_lengths):
-      vehicles = self.construct_vehicles(flat_gene, vehicle_lengths)
-      depots = []
-      for i in range(len(self.depots_params)):
-          depots.append(self.construct_depot(vehicles, i))
-      return depots
 
-    def construct_depot(self, vehicles, index):
-      return vehicles[self.num_vehicles*index:(self.num_vehicles*index)+self.num_vehicles]
 
-    def construct_vehicles(self, flat_gene, vehicle_lengths):
-      vehicles = []
-      total_length = 0
-      for length in vehicle_lengths:
-        vehicles.append(flat_gene[total_length:total_length + length])
-        total_length += length
-      return vehicles
+
 
     def mutate_gene(self, gene, borderline):
-      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
+      if random() < 0.2: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene, borderline)
       if random() < self.mutation_rate:
          return self.intra_depot_mutation(gene), borderline
       return gene, borderline
 
     def intra_depot_mutation(self, gene):
-      rand_depot = randint(0, len(gene)-1)
+      rand_depot = randint(0, len(gene))
       depot = gene[rand_depot]
 
       # if(len(depot) < 2):
@@ -174,18 +166,18 @@ class Individual():
       return gene
 
     def swap(self, depot):
-      r1 = randint(0, len(depot)-1)
-      r2 = randint(0, len(depot)-1)
+      r1 = randint(0, len(depot))
+      r2 = randint(0, len(depot))
       while(r2 != r1):
-        r2 = randint(0, len(depot)-1)
+        r2 = randint(0, len(depot))
       depot[r1], depot[r2] = depot[r2], depot[r1]
       return depot
 
     def reverse(self, depot):
       if(len(depot) <= 2):
         return reversed(depot)
-      r1 = randint(0, len(depot)-2)
-      r2 = randint(r1+1, len(depot)-1)
+      r1 = randint(0, len(depot)-1)
+      r2 = randint(r1+1, len(depot))
       t = reversed(depot[r1:r2][:])
       depot[r1:r2] = t
       return depot
@@ -194,7 +186,7 @@ class Individual():
 
       depot = depot[:]
       copy_gene = self.copy_gene(gene)
-      customer_to_move_index = randint(0, len(depot)-1)
+      customer_to_move_index = randint(0, len(depot))
       customer_to_move = depot[customer_to_move_index]
       del depot[customer_to_move_index]
       copy_gene[rand_depot] = depot
@@ -222,12 +214,12 @@ class Individual():
 
     def inter_depot_mutation(self, gene, borderline):
       #lengths = get_vehicle_lengths(gene)
-      selected_depot = randint(0, len(borderline)-1) #the depot we want to move something into
+      selected_depot = randint(0, len(borderline)) #the depot we want to move something into
 
       if len(borderline[selected_depot]) == 0: #Nothing to mutate
           return gene, borderline
 
-      selected_customer_index = randint(0, len(borderline[selected_depot])-1)
+      selected_customer_index = randint(0, len(borderline[selected_depot]))
       selected_customer = borderline[selected_depot][selected_customer_index] #e.g. 5
       del borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
 
@@ -247,20 +239,16 @@ class Individual():
 
     def get_fitness(self):
       a = 100
-      b = 0.01
-      #c = 100
-
-      # depots_fitness = 0
-      # for i in range(len(self.gene)):
-      #   depots_fitness += self.get_depot_fitness(self.gene[i], i)
-
+      b = 0.001
       num_cars = 0
       for depot in self.vehicles:
         for car in depot:
           if(len(car) != 0):
             num_cars += 1
 
+
       return (a * num_cars) + (b * self.path_length)
+
       #return a * (self.num_vehicles * len(self.depots_params)) + (b * self.path_length)
 
     def get_depot_fitness(self, depot, i):

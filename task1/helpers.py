@@ -1,6 +1,7 @@
 import math
-from random import randint, random
+from random import random
 from config import *
+
 
 def get_best_individual(population):
   path_length = float("Inf")
@@ -79,9 +80,8 @@ def get_depot_path_length(vehicles, depot_index, customers, depots, num_vehicles
 
   for vehicle in vehicles:
     vehicle_path_length = 0
-    if(len(vehicle) != 0):
+    if(len(vehicle) > 1):
       for k, v in enumerate(vehicle[:-1]):
-
         v_next = vehicle[k+1]
         #path_length += euclideanDistance((customers[v][1], customers[v][2]), (customers[v_next][1], customers[v_next][2]))
         path_length += customer_2_customer[v][v_next]
@@ -99,9 +99,10 @@ def get_depot_path_length(vehicles, depot_index, customers, depots, num_vehicles
       #path_length += euclideanDistance((customers[vehicle[len(vehicle)-1]][1], customers[vehicle[len(vehicle)-1]][2]), curr_depot_coords)
       path_length += customer_2_depots[vehicle[len(vehicle)-1]][depot_index]
       vehicle_path_lengths.append(vehicle_path_length)
-    # else:
-    #   print(vehicle)
-    #   path_length += euclideanDistance(curr_depot_coords, (customers[vehicle[0]][1], customers[vehicle[0]][2])) * 2 #If car has only one customer, path_length = 2* distance from depot to customer
+    elif(len(vehicle) == 1):
+      path_length += depots_2_customers[depot_index][vehicle[0]] * 2
+      vehicle_path_lengths.append(depots_2_customers[depot_index][vehicle[0]] * 2)
+
 
   return path_length, vehicle_path_lengths
 
@@ -111,35 +112,7 @@ def get_route_load(vehicle, depots_params, customers_params):
     total_load += customers_params[vehicle[n]][4]
   return total_load
 
-# def get_vehicle_lengths(gene):
-#   lengths = []
-#   for depot in gene:
-#       for vehicle in depot:
-#           lengths.append(len(vehicle))
-#   return lengths  # lengths = [4, 3, 4, 0, 2, 4, 3, 0, ...]
 
-
-#gene = [[1,2,3,4,5], [6,7,8,9], [10,11]]
-# def construct_vehicles(gene, customers, depots, num_vehicles):
-#   vehicles = []
-#   for i, depot in enumerate(gene):
-#     curr_route = []
-#     route_load_cost = 0
-#     depot_max_load = depots[i][3]
-#     depot_vehicles = []
-#     for j, customer_index in enumerate(depot):
-#       if(route_load_cost + customers[customer_index][4] <= depot_max_load):
-#         curr_route.append(customer_index)
-#         route_load_cost += customers[customer_index][4]
-#       else:
-#         depot_vehicles.append(curr_route)
-#         curr_route = [customer_index]
-#         route_load_cost = customers[customer_index][4]
-#     if(len(curr_route) != 0):
-#       depot_vehicles.append(curr_route)
-#     vehicles.append(depot_vehicles)
-#
-#   return vehicles
 def construct_vehicles(gene, customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
   vehicles = []
   for i, depot in enumerate(gene):
@@ -151,7 +124,8 @@ def construct_vehicles(gene, customers, depots, num_vehicles, customer_2_custome
 
   return vehicles
 
-
+def randint(start, stop):
+  return int(start+random()*(stop-start))
 
 def construct_route(depot, depot_index, customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
 
@@ -194,7 +168,7 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
   copy_p1 = [x[:] for x in parent_gene1]
   copy_p2 = [x[:] for x in parent_gene2]
 
-  rand_depot = randint(0, len(depots_params)-1)
+  rand_depot = randint(0, len(depots_params))
 
   routes_p1 = construct_route(parent_gene1[rand_depot], rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
   routes_p2 = construct_route(parent_gene2[rand_depot], rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
@@ -204,8 +178,8 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
   if(len(routes_p2) == 0):
     return parent_gene1
 
-  rand_route_p1 = routes_p1[randint(0, len(routes_p1)-1)]
-  rand_route_p2 = routes_p2[randint(0, len(routes_p2)-1)]
+  rand_route_p1 = routes_p1[randint(0, len(routes_p1))]
+  rand_route_p2 = routes_p2[randint(0, len(routes_p2))]
 
   for i in rand_route_p1:
     for j in range(len(copy_p2)-1, -1, -1):
@@ -225,6 +199,7 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
   return child1, child2
 
 def crossover(parent, rand_route, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
+  done = False
   if(random() < 0.8):
     for i in rand_route:
       for j, _ in enumerate(parent[rand_depot]):

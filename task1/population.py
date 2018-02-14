@@ -4,9 +4,10 @@ from individual import Individual
 import random
 import math
 
+
 class Population():
 
-  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, parent=None):
+  def __init__(self, customers_params, depots_params, num_vehicles, mutation_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, curr_iteration , parent=None):
     self.customers_params = customers_params
     self.depots_params = depots_params
     self.num_vehicles = num_vehicles
@@ -22,14 +23,32 @@ class Population():
     if(parent):
       self.individuals = self.construct_population(parent)
     else:
-      self.individuals = self.construct_init_population()
+      self.individuals = self.construct_init_population(POPULATION_SIZE)
 
-    self.surviving_population = self.get_surviving_population()
+    if(curr_iteration % 1 == 0):
+      if(self.all_have_same_fitness(self.individuals)):
+        new = []
+        partition = 0.3
+        for i in range(int(POPULATION_SIZE * partition)):
+          new.append(self.get_surviving_population()[i])
 
-  def construct_init_population(self):
+        self.construct_init_population(POPULATION_SIZE * 1-partition)
+        for i in new:
+          self.individuals.append(i)
+
+
+
+  def all_have_same_fitness(self, population):
+    mean = population[0].fitness
+    for i in population:
+      if(i.fitness - mean > 200 or i.fitness - mean < -200):
+        return False
+    return True
+
+  def construct_init_population(self, pop_size):
     population = []
 
-    for i in range(int(POPULATION_SIZE)):
+    for i in range(int(pop_size)):
       individual, self.borderline, self.mem_keys, self.mem_vals = Individual().initial_individual(self.customers_params, self.depots_params, self.num_vehicles, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
       population.append(individual)
 
@@ -38,7 +57,7 @@ class Population():
   def construct_population(self, parent):
     population = []
 
-    parent_population = parent.surviving_population
+    parent_population = parent.individuals
 
     for i in range(int(POPULATION_SIZE / 2)):
       parent1 = self.tournament_selection(parent_population)
@@ -52,7 +71,7 @@ class Population():
       population.append(i2)
 
     for i in range(int(POPULATION_SIZE * 0.01)):
-      rand = random.randint(0, POPULATION_SIZE-1)
+      rand = randint(0, POPULATION_SIZE-1)
       del population[rand]
       population.append(parent_population[i])
 
@@ -66,14 +85,14 @@ class Population():
     percent = math.floor(((len(population) / 100) * 10))
     best_parent = None
     for i in range(percent):
-      curr_option = population[random.randint(0,len(population)-1)]
+      curr_option = population[randint(0,len(population)-1)]
       if(best_parent == None or curr_option.path_length < best_parent.path_length):
         best_parent = curr_option
     return best_parent
 
   def tournament_selection(self, population):
-    p1 = population[random.randint(0, len(population)-1)]
-    p2 = population[random.randint(0, len(population)-1)]
+    p1 = population[randint(0, len(population))]
+    p2 = population[randint(0, len(population))]
     r = random.random()
     if(r < 0.8):
       selected = p1 if p1.fitness < p2.fitness else p2
