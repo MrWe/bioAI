@@ -49,17 +49,28 @@ In the crossover process, some infeasible solutions may be created. The process 
 4a. In 80% of cases, we insert a vehicle in the best _feasible_ position.
 4b. In 20% of cases, we insert a vehicle in the best position, regardless of feasibility.
 
-These infeasible cases often get a bad fitness, because it requires more vehicles than we even have to maintain the route. This way, it opens up for a mutation that may lead to a better result, but if it proves unuseful, the weighted fitness function will be its demise.
+These infeasible cases often get a bad fitness, because it requires more vehicles than we even have to maintain the route. This way, it opens up for a mutation that may lead to a better result, but if it proves unuseful, the weighted fitness function will eventually be its demise.
+
+## Parameter Values
+In the development of the algorithm, fitting parameter values were critical to the success of the system.
+Our __population size__ was fairly small, around 20. This could probably have been bigger, but proved sufficient for our purposes and restraints in terms of running time.
+The __mutation rate__ was set to 0.015 in the end. We also implemented a decay for the mutation rate so that the system will mutate less as the run progresses.
+
+generation number
+crossover rate
 
 ## Mutation
-
 ### Inter-Depot Mutation
+Inter-depot mutation takes place every 10 generations.
 
 ### Intra-Depot Mutation
+Mutation occurs depending on the given mutation rate, and then one of three mutation methods are randomly selected.
+
 #### Swap
+Two customers in the depot are swapped and routes adjust accordingly.
 
 #### Reroute
+All customers in a route are redistributed to other vehicles. According to a probability, it is either put in the first viable position, or it is put in the best possible position at the given time.
 
 #### Inverse
-
-### Mutation Rate Decay
+A segment of a route is reversed.
