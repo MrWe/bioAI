@@ -1,4 +1,4 @@
-from random import random
+from random import random, shuffle
 
 #import numpy as np
 from config import *
@@ -21,6 +21,9 @@ class Individual():
       self.customer_2_depots = customer_2_depots
       self.depots_2_customers = depots_2_customers
       self.gene = nearest_customers
+      for i in range(len(self.gene)):
+        shuffle(self.gene[i])
+
       self.borderline = borderline
       self.mutation_rate = mutation_rate
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
@@ -40,10 +43,6 @@ class Individual():
         self.mem_vals[self.hash].append(self.path_length)
         self.mem_vals[self.hash].append(self.fitness)
         self.mem_vals[self.hash].append(self.lengths)
-
-
-
-
 
       return self, self.borderline, self.mem_keys, self.mem_vals
 
@@ -61,6 +60,8 @@ class Individual():
       self.num_vehicles = num_vehicles
       self.gene = gene
       self.mutation_rate = mutation_rate
+      # print(gene)
+      # print("\n")
       self.gene, self.borderline = self.mutate_gene(self.gene, self.borderline)
       self.hash = self.get_hash(self.gene)
       if(self.hash in self.mem_keys):
@@ -78,8 +79,6 @@ class Individual():
         self.mem_vals[self.hash].append(self.path_length)
         self.mem_vals[self.hash].append(self.fitness)
         self.mem_vals[self.hash].append(self.lengths)
-
-
 
       return self, self.borderline, self.mem_keys, self.mem_vals
 
@@ -100,6 +99,11 @@ class Individual():
         return False
 
     def get_results(self):
+        for i in range(len(self.vehicles)-1,-1,-1):
+          for j in range(len(self.vehicles[i])-1,-1,-1):
+            if(len(self.vehicles[i][j]) == 0):
+              del self.vehicles[i][j]
+
         results_array = ""
         results_array += str(self.path_length) + "\n"
         for i in range(len(self.vehicles)):
@@ -107,6 +111,7 @@ class Individual():
                 results_array += str(i+1) + " "
 
                 results_array += str(j+1) + " "
+
 
                 results_array += str(round(self.lengths[i][j],3)) + " "
 
@@ -140,8 +145,9 @@ class Individual():
 
 
     def mutate_gene(self, gene, borderline):
-      if random() < 0.2: #Should execute at exactly every 10 generations, men erresånøyea
+      if random() < 0.1: #Should execute at exactly every 10 generations, men erresånøyea
           return self.inter_depot_mutation(gene, borderline)
+
       if random() < self.mutation_rate:
          return self.intra_depot_mutation(gene), borderline
       return gene, borderline
@@ -220,7 +226,16 @@ class Individual():
           return gene, borderline
 
       selected_customer_index = randint(0, len(borderline[selected_depot]))
+
+      if(len(borderline[selected_depot]) == 0):
+        return gene, borderline
+      # print(borderline[selected_depot])
+
       selected_customer = borderline[selected_depot][selected_customer_index] #e.g. 5
+      # print(selected_customer)
+      # print(gene)
+      # print("\n")
+
       del borderline[selected_depot][selected_customer_index] #we now have the item to move into our selected_depot
 
       customer_location = self.find(gene, selected_customer) # returns depot index
