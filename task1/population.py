@@ -67,13 +67,15 @@ class Population():
       i1, borderline1, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c1, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
       i2, borderline2, self.mem_keys, self.mem_vals = Individual().init_with_gene(self.customers_params, self.depots_params, self.num_vehicles, c2, self.mutation_rate, self.nearest_customers, self.borderline, self.mem_keys, self.mem_vals, self.customer_2_customer, self.customer_2_depots, self.depots_2_customers)
 
+
       population.append(i1)
       population.append(i2)
 
-    for i in range(int(POPULATION_SIZE * 0.01)):
-      rand = randint(0, POPULATION_SIZE-1)
-      del population[rand]
-      population.append(parent_population[i])
+    # for i in range(int(POPULATION_SIZE * 0.01)):
+    #   rand = randint(0, POPULATION_SIZE-1)
+    #   del population[rand]
+    #   population.append(parent_population[i])
+
 
 
     # for i in range(int(POPULATION_SIZE - 2)):
