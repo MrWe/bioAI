@@ -30,8 +30,6 @@ def main(f):
   current_iteration = 1
   population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, current_iteration)
 
-
-
   best_path_length = float("Inf")
   best_individual = None
   t = False
@@ -41,7 +39,7 @@ def main(f):
       update_GUI(gui, current_iteration, population, GUI_customers, GUI_depots, True,  best_individual, num_vehicles)
 
     #path_length, individual = get_best_individual(population)
-    individual = population.individuals[0]
+    individual = population.get_surviving_population()[0]
     if(individual != None):
       path_length = individual.path_length
 
@@ -52,12 +50,15 @@ def main(f):
       print("Iteration", current_iteration, "  Path length", round(best_path_length, 6), "  Mutation rate", round(m_rate, 5), "  Percentile:", 100*round(percentile,3), "%")
 
       if percentile <= 0.05:
-          print("Yay found great path wow")
-          results = best_individual.get_results()
+        print("Yay found great path wow")
+        results = best_individual.get_results()
 
-          with open('OurSolutions/' + f + '.res','w') as result_file:
-            result_file.write(results)
-            exit()
+        with open('OurSolutions/' + f + '.res','w') as result_file:
+          result_file.write(results)
+        exit()
+
+
+
     current_iteration += 1
     population = Population(customers_params, depots_params, num_vehicles, m_rate, nearest_customers, borderline, mem_keys, mem_vals, customer_2_customer, customer_2_depots, depots_2_customers, current_iteration, population)
 
@@ -65,6 +66,12 @@ def main(f):
     mem_vals = population.mem_vals
 
     m_rate *= MUTATION_RATE_DECAY
+
+    if(current_iteration % 100 == 0):
+      results = best_individual.get_results()
+
+      with open('OurSolutions/' + f + '.res','w') as result_file:
+        result_file.write(results)
 
 
 

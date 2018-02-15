@@ -130,15 +130,15 @@ def randint(start, stop):
 def construct_route(depot, depot_index, customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
 
   vehicles = []
-  depot_max_load = depots[depot_index][3]
+  depot_max_load = depots[depot_index][3] if depots[depot_index][3] != 0 else float("Inf")
   route_load_cost = 0
   route_load_costs = []
   route_max_duration = depots[depot_index][2] if depots[depot_index][2] != 0 else float("Inf")
 
-
   curr_route = []
 
   for customer_index in depot:
+
     can_carry_load = route_load_cost + customers[customer_index][4] <= depot_max_load
 
     if(can_carry_load):
@@ -163,34 +163,29 @@ def construct_route(depot, depot_index, customers, depots, num_vehicles, custome
     vehicles.append(curr_route)
     route_load_costs.append(route_load_cost)
 
-  # if len(vehicles) > num_vehicles: #Too many vehicles were created
-  #   return None
-  #print(route_load_costs)
-  #print(vehicles)
-
   length, lengths = get_path_length([vehicles], customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
   lenghts = lengths[0]
-  #print(lengths)
+
 
   for i in range(len(vehicles)-1):
-      if len(vehicles[i]) == 0:
-          continue
-      customer_to_move = vehicles[i].pop()
-      vehicles[i+1].insert(0, customer_to_move)
+    if len(vehicles[i]) == 0:
+        continue
+    customer_to_move = vehicles[i].pop()
+    vehicles[i+1].insert(0, customer_to_move)
 
-      if route_load_costs[i+1] + customers[customer_to_move][4] > depot_max_load:
-          #print("Cannot move:(")
-          customer_to_move_back = vehicles[i+1].pop(0)
-          vehicles[i].append(customer_to_move_back)
-      else:
-          new_length, new_lengths = get_path_length([vehicles], customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
-          if new_length > length:
-              #print("Was not shorter buu")
-              customer_to_move_back = vehicles[i+1].pop(0)
-              vehicles[i].append(customer_to_move_back)
-          else:
-              #print("Found better path woo")
-              length, lengths = new_length, new_lengths[0]
+    if route_load_costs[i+1] + customers[customer_to_move][4] > depot_max_load:
+        #print("Cannot move:(")
+        customer_to_move_back = vehicles[i+1].pop(0)
+        vehicles[i].append(customer_to_move_back)
+    else:
+        new_length, new_lengths = get_path_length([vehicles], customers, depots, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
+        if new_length > length:
+            #print("Was not shorter buu")
+            customer_to_move_back = vehicles[i+1].pop(0)
+            vehicles[i].append(customer_to_move_back)
+        else:
+            #print("Found better path woo")
+            length, lengths = new_length, new_lengths[0]
   return vehicles
 
 '''
@@ -210,14 +205,23 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
   copy_p2 = [x[:] for x in parent_gene2]
 
   rand_depot = randint(0, len(depots_params))
+  #print("rand depot", rand_depot)
 
   routes_p1 = construct_route(parent_gene1[rand_depot], rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
   routes_p2 = construct_route(parent_gene2[rand_depot], rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
 
-  if(len(routes_p1) == 0):
-    return parent_gene2
-  if(len(routes_p2) == 0):
-    return parent_gene1
+  # print("Routes1", routes_p1)
+  # print("Routes2", routes_p2)
+  # print("\n")
+
+  if(T):
+    return copy_p1, copy_p2
+
+  if(routes_p1 == []):
+    return copy_p1, copy_p2
+  if(routes_p2 == []):
+    return copy_p1, copy_p2
+
 
   rand_route_p1 = routes_p1[randint(0, len(routes_p1))]
   rand_route_p2 = routes_p2[randint(0, len(routes_p2))]
@@ -233,22 +237,21 @@ def construct_child_gene(parent_gene1, parent_gene2, customers_params, depots_pa
         if(i in copy_p1[j]):
           copy_p1[j].remove(i)
 
-
   child1 = crossover(copy_p2, rand_route_p1, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
   child2 = crossover(copy_p1, rand_route_p2, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers)
 
   return child1, child2
 
 def crossover(parent, rand_route, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers):
-  done = False
+
   if(random() < 0.8):
     for i in rand_route:
       for j, _ in enumerate(parent[rand_depot]):
         temp_depot_copy = parent[rand_depot][:]
         temp_depot_copy.insert(j, i)
-        if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers) != None: #Route with customer i in location j was is_valid
-          parent[rand_depot] = temp_depot_copy[:]
-          break
+        #if construct_route(temp_depot_copy, rand_depot, customers_params, depots_params, num_vehicles, customer_2_customer, customer_2_depots, depots_2_customers) != None: #Route with customer i in location j was is_valid
+        parent[rand_depot] = temp_depot_copy[:]
+        break
   else:
     for i in rand_route:
       valids = []
@@ -267,8 +270,9 @@ def crossover(parent, rand_route, rand_depot, customers_params, depots_params, n
         if(curr_length < best_depot_length):
           best_depot_length = curr_length
           best_depot_index = i
-      # if(len(valids) == 0):
-      #   return None #No valid options, returning default
+
+      if(len(valids) == 0):
+        return parent
       parent[rand_depot] = valids[best_depot_index][0]
 
   return parent
