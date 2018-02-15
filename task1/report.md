@@ -55,9 +55,7 @@ These infeasible cases often get a bad fitness, because it requires more vehicle
 In the development of the algorithm, fitting parameter values were critical to the success of the system.
 Our __population size__ was fairly small, around 20. This could probably have been bigger, but proved sufficient for our purposes and restraints in terms of running time.
 The __mutation rate__ was set to 0.015 in the end. We also implemented a decay for the mutation rate so that the system will mutate less as the run progresses.
-
-generation number
-crossover rate
+Other parameters, such as generation number and crossover rate were not used as we found good results without them, and other studies had created sufficient solutions which did not take these into account.
 
 ## Mutation
 ### Inter-Depot Mutation
