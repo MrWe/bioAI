@@ -1,5 +1,7 @@
 # Multi-Depot Vehicle Routing Problem
 
+By: Erik Wiker & Agnete Djupvik
+
 ## Chromosome Representation
 The group decided to represent the chromosome as a two-dimensional array of depots, with each depot array containing the customers which the depot's _n_ vehicles will visit.
 A shortened (and thus incomplete) example follows:
