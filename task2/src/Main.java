@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Main {
@@ -11,7 +12,7 @@ public class Main {
         /*
         Change these
          */
-        String path = "7";
+        String path = "9";
         int numCentroids = 16;
         int kmeansIterations = 30;
 
@@ -19,19 +20,20 @@ public class Main {
         Init image and centroids
          */
         BufferedImage img = readImage(path);
-        ArrayList<Centroid> centroids = initDentroids(numCentroids, img);
 
+        //writeImage(path, img);
+        ArrayList<ArrayList<Integer>> gene = constructInitialGene(img, 4);
 
-        ArrayList<Centroid> trainedCentroids = kMeans(centroids, img, kmeansIterations);
-        BufferedImage newImg = changeImage(img, trainedCentroids);
-        writeImage(path, newImg);
-
+        for (ArrayList<Integer> line : gene) {
+            System.out.println(line);
+        }
     }
 
-    static BufferedImage readImage(String path){
+    static BufferedImage readImage(String path) {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File("TestImages/"+ path +"/Test image.jpg"));
+            img = ImageIO.read(new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/7/Test image.jpg"));
+            //TestImages/7/Test image.jpg
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,8 +41,25 @@ public class Main {
         return img;
     }
 
-    static void writeImage(String path, BufferedImage img){
-        File outputfile = new File("OutFiles/"+path+".jpg");
+    static ArrayList<ArrayList<Integer>> constructInitialGene(BufferedImage img, int num_segments) {
+        ArrayList<ArrayList<Integer>> gene = new ArrayList<>();
+
+
+        int row_segments = img.getHeight() / num_segments; // Number of rows an initial gene should cover
+        int current_segment = 0;
+
+        for (int i = 0; i < img.getHeight(); i++) {
+            ArrayList<Integer> line = new ArrayList<Integer>(Collections.nCopies(img.getWidth() - 1, current_segment));
+            gene.add(line);
+            if (i % row_segments == 0) {
+                current_segment++;
+            }
+        }
+        return gene;
+    }
+
+    static void writeImage(String path, BufferedImage img) {
+        File outputfile = new File("OutFiles/" + path + ".jpg");
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {
@@ -48,75 +67,7 @@ public class Main {
         }
     }
 
-    static BufferedImage changeImage(BufferedImage img, ArrayList<Centroid> centroids) {
-
-        for (int i = 0; i < img.getHeight(); i++) {
-            for (int j = 0; j < img.getWidth(); j++) {
-
-                Color c = new Color(img.getRGB(j, i));
-                double smallestDistance = Double.POSITIVE_INFINITY;
-                int nearestCentroidIndex = 0;
-                for (int k = 0; k < centroids.size(); k++) {
-                    double currDistance = euclideanDistance(c, centroids.get(k).getPosition());
-                    if (currDistance < smallestDistance) {
-                        smallestDistance = currDistance;
-                        nearestCentroidIndex = k;
-                    }
-                }
-
-                img.setRGB(j, i, centroids.get(nearestCentroidIndex).getPosition().getRGB());
-            }
-        }
-        return img;
-    }
-
-    static ArrayList<Centroid> initDentroids(int numOfCentroids, BufferedImage img){
-        Random r = new Random();
-
-        ArrayList<Centroid> centroids = new ArrayList<>();
-        for (int i = 0; i < numOfCentroids; i++) {
-            assert img != null;
-            Color c = new Color(img.getRGB(r.nextInt(img.getWidth()),r.nextInt(img.getHeight())));
-            centroids.add(new Centroid(c));
-        }
-        return centroids;
-    }
-
-    static double euclideanDistance(Color c0, Color c1){
-        return Math.sqrt((Math.pow(c0.getRed(),2) - Math.pow(c1.getRed(),2)) + (Math.pow(c0.getGreen(),2) - Math.pow(c1.getGreen(),2)) + (Math.pow(c0.getBlue(),2) - Math.pow(c1.getBlue(),2)));
-    }
-
-    static ArrayList<Centroid> kMeans(ArrayList<Centroid> centroids, BufferedImage img, int numIterations){
-
-        Random r = new Random();
-
-        for (int n = 0; n < numIterations; n++) {
-            int boundStart = r.nextInt(10);
-            int bound = r.nextInt(10);
-
-
-            for (int i = boundStart; i < img.getHeight()-1; i+=2) {
-                for (int j = boundStart; j < img.getWidth()-1; j+=2) {
-                    Color c = new Color(img.getRGB(j,i));
-                    double smallestDistance = Double.POSITIVE_INFINITY;
-                    int nearestCentroidIndex = 0;
-                    for (int k = 0; k < centroids.size(); k++) {
-                        double currDistance = euclideanDistance(c, centroids.get(k).getPosition());
-                        if (currDistance < smallestDistance) {
-                            smallestDistance = currDistance;
-                            nearestCentroidIndex = k;
-                        }
-                    }
-                    centroids.get(nearestCentroidIndex).assignColor(c);
-                }
-            }
-            for(Centroid cent : centroids){
-                cent.updateCentroid();
-            }
-        }
-        return centroids;
+    static double euclideanDistance(Color c0, Color c1) {
+        return Math.sqrt((Math.pow(c0.getRed(), 2) - Math.pow(c1.getRed(), 2)) + (Math.pow(c0.getGreen(), 2) - Math.pow(c1.getGreen(), 2)) + (Math.pow(c0.getBlue(), 2) - Math.pow(c1.getBlue(), 2)));
     }
 }
-
-
-

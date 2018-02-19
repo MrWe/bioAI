@@ -1,0 +1,12 @@
+TODO:
+- Implement gene
+    - Initialize valid gene [[0,0,0,0],
+                             [0,0,0,0],
+                             [1,1,1,1]
+                            ]
+        Initialize by the stupid method of: row_segments = len(image) / num_segments. Each segment is row_segments rows.
+    - This genes positions corresponds to a pixel in the input image.
+
+
+
+- Implement floodfill (used to identify segments)
