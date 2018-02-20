@@ -1,10 +1,12 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.List;
 
 public class Main {
 
@@ -67,7 +69,38 @@ public class Main {
         }
     }
 
-    static double euclideanDistance(Color c0, Color c1) {
-        return Math.sqrt((Math.pow(c0.getRed(), 2) - Math.pow(c1.getRed(), 2)) + (Math.pow(c0.getGreen(), 2) - Math.pow(c1.getGreen(), 2)) + (Math.pow(c0.getBlue(), 2) - Math.pow(c1.getBlue(), 2)));
+
+
+    static ArrayList<Centroid> initCentroids(BufferedImage img, int num_centroids){
+
+        Random r = null;
+
+        ArrayList<Centroid> centroids = new ArrayList<>();
+        for (int n = 0; n < num_centroids; n++){
+
+            centroids.add(new Centroid(new Point2D.Double(r.nextInt(img.getHeight()-1), r.nextInt(img.getHeight()-1))));
+        }
+        return centroids;
     }
+
+    static ArrayList<ArrayList<Integer>> getWeights(BufferedImage img, ArrayList<Centroid> centroids){
+        ArrayList<Point2D> seen = new ArrayList<>();
+        for(Centroid c : centroids){
+            c.addPixel(new Gene(c.getPosition()));
+
+        }
+
+
+        while(seen.size() < img.getHeight() * img.getWidth()){
+            for(Centroid c : centroids){
+
+
+            }
+        }
+
+        
+    }
+
+
+
 }
