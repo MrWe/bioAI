@@ -5,12 +5,13 @@ public class Node implements Comparable<Node>{
 
     private double x, y;
     private Node parent;
-    private double g = 10;
+    private double g = 1;
     private int cost = Integer.MAX_VALUE;
     private Color color;
     private ArrayList<Node> neighbours;
     private Centroid belongsToCentroid;
     private String hash;
+    private boolean closed = false;
 
     public Node(double x, double y, Color c){
         this.x = x;
@@ -18,6 +19,26 @@ public class Node implements Comparable<Node>{
         this.color = c;
         this.hash = hashNode();
 
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    private int concatenate() {
+        int pow = 10;
+        while(this.y >= pow)
+            pow *= 10;
+        return (int)this.x * pow + (int)this.y;
+    }
+
+    @Override
+    public int hashCode(){
+        return concatenate();
     }
 
     public String getHash() {
@@ -32,8 +53,8 @@ public class Node implements Comparable<Node>{
         this.cost = cost;
     }
 
-    public Centroid getBelongsToCentroid() {
-        return belongsToCentroid;
+    public boolean getBelongsToCentroid() {
+        return belongsToCentroid == null;
     }
 
     public void setBelongsToCentroid(Centroid belongsToCentroid) {
@@ -62,7 +83,7 @@ public class Node implements Comparable<Node>{
     }
 
     public String hashNode() {
-        return this.x +""+ this.y;
+        return "" + this.x +""+ this.y;
     }
 
     public double getX() {

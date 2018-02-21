@@ -4,10 +4,10 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.Buffer;
-import java.util.*;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Random;
 
 public class Main {
 
@@ -16,9 +16,8 @@ public class Main {
         /*
         Change these
          */
-        String path = "2";
+        String path = "9";
         int numCentroids = 5;
-        int kmeansIterations = 30;
 
 
 
@@ -29,20 +28,43 @@ public class Main {
 
 
         ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
-        ArrayList<Node> startNodes = initNodes(centroids);
+        ArrayList<ArrayList<Node>> nodes = initNodes(img);
+        ArrayList<Node> startNodes = getStartNodes(centroids, nodes);
         ArrayList<SearchPath> searches = new ArrayList<>();
 
-        ClosedSet closedList = new ClosedSet();
+
+
+
+
 
         for (Node n : startNodes){
             searches.add(new SearchPath(n));
         }
 
-        for (int n = 0; n < 20000; n++) {
+
+
+        System.out.println(img.getWidth() * img.getHeight());
+
+        HashSet<Node> closedList = new HashSet<>();
+
+
+        boolean runOneMore = true;
+        boolean didRun;
+        while(closedList.size() < img.getWidth() * img.getHeight())
+
+        {
+            runOneMore = false;
+
             for (int i = 0; i < searches.size(); i++) {
-                closedList = searches.get(i).runOneStep(closedList, img, centroids.get(i));
+                closedList = searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes);
+
+
+
             }
+
         }
+
+        System.out.println(closedList.size());
 
 
 
@@ -56,11 +78,10 @@ public class Main {
 
         writeImage(path, img);
 
-
         long endTime   = System.nanoTime();
         long totalTime = endTime - startTime;
-        System.out.println(totalTime / 1000000000);
 
+        System.out.println(totalTime / 1000000000);
 
 
     }
@@ -105,13 +126,34 @@ public class Main {
 
 
 
-    static ArrayList<Node> initNodes(ArrayList<Centroid> centroids){
+   /* static ArrayList<Node> initNodes(ArrayList<Centroid> centroids){
         ArrayList<Node> nodes = new ArrayList<>();
 
         for(Centroid c : centroids){
             nodes.add(new Node(c.getX(), c.getY(), c.getColor()));
         }
         return nodes;
+    }*/
+
+    static ArrayList<ArrayList<Node>> initNodes(BufferedImage img){
+        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
+        for (int i = 0; i < img.getWidth(); i++) {
+            nodes.add(new ArrayList<Node>());
+            for (int j = 0; j < img.getHeight(); j++) {
+                Color c = new Color(img.getRGB(i,j));
+                nodes.get(i).add(new Node(i,j,c));
+            }
+        }
+        return nodes;
+    }
+
+    static ArrayList<Node> getStartNodes(ArrayList<Centroid> centroids, ArrayList<ArrayList<Node>> nodes){
+        ArrayList<Node> startNodes = new ArrayList<>();
+
+        for(Centroid c : centroids){
+            startNodes.add(nodes.get((int) c.getX()).get((int) c.getY()));
+        }
+        return startNodes;
     }
 
     static ArrayList<Centroid> initCentroids(BufferedImage img, int num_centroids){
@@ -150,14 +192,10 @@ public class Main {
 
     static BufferedImage changeImage(BufferedImage img, Node node, Centroid centroid) {
 
-        for (int i = 0; i < img.getHeight(); i++) {
-            for (int j = 0; j < img.getWidth(); j++) {
+        Color c = new Color(centroid.getColor().getRGB());
 
-                Color c = new Color(img.getRGB((int)centroid.getX(), (int)centroid.getY()));
+        img.setRGB((int)node.getX(), (int)node.getY(), c.getRGB());
 
-                img.setRGB((int)node.getX(), (int)node.getY(), c.getRGB());
-            }
-        }
         return img;
     }
 
