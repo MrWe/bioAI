@@ -33,20 +33,8 @@ public class Centroid {
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
     }
 
     public Color getColor() {

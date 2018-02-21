@@ -13,7 +13,7 @@ public class Node implements Comparable<Node>{
     private String hash;
     private boolean closed = false;
 
-    public Node(double x, double y, Color c){
+    Node(double x, double y, Color c){
         this.x = x;
         this.y = y;
         this.color = c;
@@ -30,10 +30,7 @@ public class Node implements Comparable<Node>{
     }
 
     private int concatenate() {
-        int pow = 10;
-        while(this.y >= pow)
-            pow *= 10;
-        return (int)this.x * pow + (int)this.y;
+        return Integer.parseInt((int)this.x+""+(int)this.y);
     }
 
     @Override
@@ -41,20 +38,8 @@ public class Node implements Comparable<Node>{
         return concatenate();
     }
 
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
     public void setCost(int cost) {
         this.cost = cost;
-    }
-
-    public boolean getBelongsToCentroid() {
-        return belongsToCentroid == null;
     }
 
     public void setBelongsToCentroid(Centroid belongsToCentroid) {
@@ -73,10 +58,6 @@ public class Node implements Comparable<Node>{
         return color;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
     @Override
     public int compareTo(Node o) {
         return Double.compare(this.getCost(), o.getCost());
@@ -90,28 +71,12 @@ public class Node implements Comparable<Node>{
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return y;
     }
 
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getG() {
-        return g;
-    }
-
     public void setG(double g) {
         this.g = g;
-    }
-
-    public Node getParent() {
-        return parent;
     }
 
     public void setParent(Node parent) {
