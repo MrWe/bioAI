@@ -5,36 +5,70 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.Buffer;
 import java.util.*;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
         /*
         Change these
          */
-        String path = "9";
-        int numCentroids = 16;
+        String path = "2";
+        int numCentroids = 5;
         int kmeansIterations = 30;
+
+
 
         /*
         Init image and centroids
          */
         BufferedImage img = readImage(path);
 
-        //writeImage(path, img);
-        ArrayList<ArrayList<Integer>> gene = constructInitialGene(img, 4);
 
-        for (ArrayList<Integer> line : gene) {
-            System.out.println(line);
+        ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
+        ArrayList<Node> startNodes = initNodes(centroids);
+        ArrayList<SearchPath> searches = new ArrayList<>();
+
+        ClosedSet closedList = new ClosedSet();
+
+        for (Node n : startNodes){
+            searches.add(new SearchPath(n));
         }
+
+        for (int n = 0; n < 20000; n++) {
+            for (int i = 0; i < searches.size(); i++) {
+                closedList = searches.get(i).runOneStep(closedList, img, centroids.get(i));
+            }
+        }
+
+
+
+        for(Centroid c : centroids){
+            for(Node n : c.getcurrentlyAssignedNodes()){
+                img = changeImage(img, n, c);
+            }
+        }
+
+
+
+        writeImage(path, img);
+
+
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+        System.out.println(totalTime / 1000000000);
+
+
+
     }
 
     static BufferedImage readImage(String path) {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/7/Test image.jpg"));
+            img = ImageIO.read(new File(String.format("TestImages/%s/Test image.jpg", path)));
             //TestImages/7/Test image.jpg
 
         } catch (IOException e) {
@@ -71,23 +105,35 @@ public class Main {
 
 
 
+    static ArrayList<Node> initNodes(ArrayList<Centroid> centroids){
+        ArrayList<Node> nodes = new ArrayList<>();
+
+        for(Centroid c : centroids){
+            nodes.add(new Node(c.getX(), c.getY(), c.getColor()));
+        }
+        return nodes;
+    }
+
     static ArrayList<Centroid> initCentroids(BufferedImage img, int num_centroids){
 
-        Random r = null;
+        Random r = new Random();
 
         ArrayList<Centroid> centroids = new ArrayList<>();
         for (int n = 0; n < num_centroids; n++){
-
-            centroids.add(new Centroid(new Point2D.Double(r.nextInt(img.getHeight()-1), r.nextInt(img.getHeight()-1))));
+            int x = r.nextInt(img.getWidth());
+            int y = r.nextInt(img.getHeight());
+            Color c = new Color(img.getRGB(x,y));
+            centroids.add(new Centroid(x,y,c));
         }
         return centroids;
     }
 
-    static ArrayList<ArrayList<Integer>> getWeights(BufferedImage img, ArrayList<Centroid> centroids){
+    /*static ArrayList<Centroid> getWeights(BufferedImage img, ArrayList<Centroid> centroids){
         ArrayList<Point2D> seen = new ArrayList<>();
-        for(Centroid c : centroids){
-            c.addPixel(new Gene(c.getPosition()));
 
+        for(Centroid c : centroids){
+            c.addPixel(new Gene(c, c.getPosition(), getColorFromCoords(img, c.getPosition()), getPixelNeighbours((int)c.getPosition().getX(), (int)c.getPosition().getY(), img)));
+            seen.add(c.getPosition());
         }
 
 
@@ -97,8 +143,76 @@ public class Main {
 
             }
         }
+        return centroids;
+    }*/
 
-        
+
+
+    static BufferedImage changeImage(BufferedImage img, Node node, Centroid centroid) {
+
+        for (int i = 0; i < img.getHeight(); i++) {
+            for (int j = 0; j < img.getWidth(); j++) {
+
+                Color c = new Color(img.getRGB((int)centroid.getX(), (int)centroid.getY()));
+
+                img.setRGB((int)node.getX(), (int)node.getY(), c.getRGB());
+            }
+        }
+        return img;
+    }
+
+    static ArrayList<Point2D> getPixelNeighbours(int  x, int y, BufferedImage img) {
+        ArrayList<Point2D> neighbours = new ArrayList<>();
+
+
+        int neighbourX = x;
+        int neighbourY = y-1;
+
+        //make sure it is within  grid
+        if(withinGrid (neighbourX, neighbourY, img)) {
+            neighbours.add(new Point2D.Double(neighbourX, neighbourY));
+        }
+
+        neighbourX = x-1;
+        neighbourY = y;
+
+        //make sure it is within  grid
+        if(withinGrid (neighbourX, neighbourY, img)) {
+            neighbours.add(new Point2D.Double(neighbourX, neighbourY));
+        }
+
+        neighbourX = x;
+        neighbourY = y+1;
+
+        //make sure it is within  grid
+        if(withinGrid (neighbourX, neighbourY, img)) {
+            neighbours.add(new Point2D.Double(neighbourX, neighbourY));
+        }
+
+        neighbourX = x+1;
+        neighbourY = y;
+
+        //make sure it is within  grid
+        if(withinGrid (neighbourX, neighbourY, img)) {
+            neighbours.add(new Point2D.Double(neighbourX, neighbourY));
+        }
+
+        return neighbours;
+    }
+
+    static boolean withinGrid(int colNum, int rowNum, BufferedImage img) {
+
+        if((colNum < 0) || (rowNum <0) ) {
+            return false;    //false if row or col are negative
+        }
+        if((colNum >= img.getWidth()) || (rowNum >= img.getHeight())) {
+            return false;    //false if row or col are > 75
+        }
+        return true;
+    }
+
+    static Color getColorFromCoords(BufferedImage img, Point2D pix){
+        return new Color(img.getRGB((int)pix.getX(), (int)pix.getY()));
     }
 
 
