@@ -35,7 +35,7 @@ public class SearchPath {
             for (int i = 0; i < current.getNeighbours().size(); i++) {
                 Node neighbour = current.getNeighbours().get(i);
 
-                double tentative_g_score = (PlanarEuclideanDistance(centroid.getX(), centroid.getY(), neighbour.getX(), neighbour.getY())) + ColorEuclideanDistance(centroid.getColor(), neighbour.getColor());
+                double tentative_g_score = (Helpers.PlanarEuclideanDistance(centroid.getX(), centroid.getY(), neighbour.getX(), neighbour.getY())) + Helpers.ColorEuclideanDistance(centroid.getColor(), neighbour.getColor());
 
                 //If neighbours is in closed list and its score are worse; ignore it
                 if(neighbour.isClosed()){
@@ -91,17 +91,6 @@ public class SearchPath {
 
         return neighbours;
     }
-
-
-    private double ColorEuclideanDistance(Color c0, Color c1) {
-        return Math.sqrt((Math.pow(c0.getRed()- c1.getRed(), 2)) + (Math.pow(c0.getGreen() - c1.getGreen(), 2)) + (Math.pow(c0.getBlue()- c1.getBlue(), 2)));
-    }
-
-    private double PlanarEuclideanDistance(double x0, double y0, double x1, double y1) {
-        return Math.sqrt((Math.pow(x0 - x1, 2)) + Math.pow(y0 - y1, 2));
-    }
-
-
 
 
 

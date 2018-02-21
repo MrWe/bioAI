@@ -48,6 +48,10 @@ public class Main {
             }
         }
 
+        overallDeviation(centroids);
+
+        System.out.println(centroids.get(0).getOverallDeviation());
+
         writeImage(path, img);
 
         long endTime   = System.nanoTime();
@@ -56,6 +60,16 @@ public class Main {
         System.out.println("Seconds used to execute: "+totalTime / 1000000000);
 
 
+    }
+
+    static void overallDeviation(ArrayList<Centroid> centroids){
+        for (Centroid centroid : centroids){
+            double fitness = 0;
+            for (Node node : centroid.getcurrentlyAssignedNodes()) {
+                fitness += Helpers.ColorEuclideanDistance(node.getColor(), centroid.getColor());
+            }
+            centroid.setOverallDeviation(fitness);
+        }
     }
 
     static BufferedImage readImage(String path) {
