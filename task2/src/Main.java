@@ -16,7 +16,7 @@ public class Main {
         /*
         Change these
          */
-        String path = "12";
+        String path = "1";
         int numCentroids = 50;
 
 
@@ -49,8 +49,10 @@ public class Main {
         }
 
         overallDeviation(centroids);
+        edgeValue(centroids);
 
         System.out.println(centroids.get(0).getOverallDeviation());
+        System.out.println(centroids.get(0).getEdgeValue());
 
         writeImage(path, img);
 
@@ -62,6 +64,10 @@ public class Main {
 
     }
 
+
+    /*
+    We want to minimize this
+     */
     static void overallDeviation(ArrayList<Centroid> centroids){
         for (Centroid centroid : centroids){
             double fitness = 0;
@@ -69,6 +75,25 @@ public class Main {
                 fitness += Helpers.ColorEuclideanDistance(node.getColor(), centroid.getColor());
             }
             centroid.setOverallDeviation(fitness);
+        }
+    }
+
+
+    /*
+    We want to maximize this
+     */
+    static void edgeValue(ArrayList<Centroid> centroids){
+        for(Centroid centroid : centroids){
+            double fitness = 0;
+            for(Node node : centroid.getcurrentlyAssignedNodes()){
+                for(Node neighbour : node.getNeighbours()){
+                    if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
+                        continue;
+                    }
+                    fitness += Helpers.ColorEuclideanDistance(node.getColor(), neighbour.getColor());
+                }
+            }
+            centroid.setEdgeValue(fitness);
         }
     }
 

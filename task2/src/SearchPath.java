@@ -32,12 +32,13 @@ public class SearchPath {
 
 
             current.setNeighbours(addNeighbours(current, nodes));
+            current.setBelongsToCentroid(centroid); //OBS! This may be wrong
             for (int i = 0; i < current.getNeighbours().size(); i++) {
                 Node neighbour = current.getNeighbours().get(i);
 
                 double tentative_g_score = (Helpers.PlanarEuclideanDistance(centroid.getX(), centroid.getY(), neighbour.getX(), neighbour.getY())) + Helpers.ColorEuclideanDistance(centroid.getColor(), neighbour.getColor());
 
-                //If neighbours is in closed list and its score are worse; ignore it
+                //If neighbours is in closed list; ignore it
                 if(neighbour.isClosed()){
                     continue;
                 }
@@ -48,6 +49,7 @@ public class SearchPath {
                     centroid.addNode(current);
                     neighbour.setParent(current);
                     neighbour.setCost(tentative_g_score);
+                    neighbour.setBelongsToCentroid(centroid); //OBS! This may be wrong
                 }
                 // Add to open list if not already there
                 if(!pqueueHash.contains(neighbour)){
