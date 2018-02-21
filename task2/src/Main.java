@@ -16,8 +16,8 @@ public class Main {
         /*
         Change these
          */
-        String path = "1";
-        int numCentroids = 50;
+        String path = "2";
+        int numCentroids = 2;
 
 
         BufferedImage img = readImage(path);

@@ -24,7 +24,9 @@ public class SearchPath {
             //Set current to best possible node in priority queue, comparison can be found i Node class
             Node current = pqueue.poll();
             pqueueHash.remove(current);
-
+            if(current.isClosed()){
+                return closed;
+            }
             closed.add(current);
             current.setClosed(true);
             current.setBelongsToCentroid(centroid);
@@ -70,22 +72,35 @@ public class SearchPath {
     private ArrayList<Node> addNeighbours(Node node, ArrayList<ArrayList<Node>> nodes){
         ArrayList<Node> neighbours = new ArrayList<>();
         try{
-            neighbours.add(nodes.get((int) node.getX()).get((int) (node.getY()-1)));
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+            if(!neighbour.isClosed()){
+                neighbours.add(neighbour);
+            }
+
         }
         catch(Exception ignored){
         }
         try{
-            neighbours.add(nodes.get((int) node.getX()-1).get((int) (node.getY())));
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()+1));
+            if(!neighbour.isClosed()){
+                neighbours.add(neighbour);
+            }
         }
         catch(Exception ignored){
         }
         try{
-            neighbours.add(nodes.get((int) node.getX()).get((int) (node.getY()+1)));
+            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+            if(!neighbour.isClosed()){
+                neighbours.add(neighbour);
+            }
         }
         catch(Exception ignored){
         }
         try{
-            neighbours.add(nodes.get((int) node.getX()+1).get((int) (node.getY())));
+            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+            if(!neighbour.isClosed()){
+                neighbours.add(neighbour);
+            }
         }
         catch(Exception ignored){
         }
