@@ -8,13 +8,14 @@ public class Centroid {
     private double x;
     private double y;
     private Color color;
+    private double overallDeviation;
 
 
     public Centroid(double x, double y, Color c){
         this.x = x;
         this.y = y;
         this.color = c;
-        currentlyAssignedNodes = new ArrayList<>();
+        this.currentlyAssignedNodes = new ArrayList<>();
     }
 
     public void updateCentroid() {
@@ -39,6 +40,14 @@ public class Centroid {
 
     public Color getColor() {
         return color;
+    }
+
+    public double getOverallDeviation() {
+        return overallDeviation;
+    }
+
+    public void setOverallDeviation(double overallDeviation) {
+        this.overallDeviation = overallDeviation;
     }
 }
 
