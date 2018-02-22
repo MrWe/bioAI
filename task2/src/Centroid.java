@@ -9,6 +9,8 @@ public class Centroid {
     private double y;
     private Color color;
     private double overallDeviation;
+    private double edgeValue;
+    private String hash;
 
 
     public Centroid(double x, double y, Color c){
@@ -16,10 +18,15 @@ public class Centroid {
         this.y = y;
         this.color = c;
         this.currentlyAssignedNodes = new ArrayList<>();
+        this.hash = createHash();
     }
 
     public void updateCentroid() {
 
+    }
+
+    private String createHash(){
+        return (int)this.x+""+(int)this.y;
     }
 
     public ArrayList<Node> getcurrentlyAssignedNodes() {
@@ -48,6 +55,19 @@ public class Centroid {
 
     public void setOverallDeviation(double overallDeviation) {
         this.overallDeviation = overallDeviation;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+
+    public double getEdgeValue() {
+        return edgeValue;
+    }
+
+    public void setEdgeValue(double edgeValue) {
+        this.edgeValue = edgeValue;
     }
 }
 

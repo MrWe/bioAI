@@ -90,4 +90,8 @@ public class Node implements Comparable<Node>{
     public void setCost(double cost) {
         this.cost = (int)cost;
     }
+
+    public Centroid getBelongsToCentroid() {
+        return belongsToCentroid;
+    }
 }
