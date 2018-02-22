@@ -12,12 +12,12 @@ import java.util.Random;
 public class Main {
 
     public static void main(String[] args) {
-        long startTime = System.nanoTime();
+
         /*
         Change these
          */
-        String path = "2";
-        int numCentroids = 2;
+        String path = "1";
+        int numCentroids = 5;
 
 
         BufferedImage img = readImage(path);
@@ -35,12 +35,23 @@ public class Main {
 
         ArrayList<Node> closedList = new ArrayList<>();
 
+        long startTime = System.nanoTime();
+
         while(closedList.size() < img.getWidth() * img.getHeight())
         {
             for (int i = 0; i < searches.size(); i++) {
                 closedList = searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes);
             }
         }
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+
+        System.out.println("Seconds used to execute: "+totalTime / 1000000000);
+
+
+
+        overallDeviation(centroids);
+        edgeValue(centroids);
 
         for(Centroid c : centroids){
             for(Node n : c.getcurrentlyAssignedNodes()){
@@ -48,18 +59,12 @@ public class Main {
             }
         }
 
-        overallDeviation(centroids);
-        edgeValue(centroids);
-
         System.out.println(centroids.get(0).getOverallDeviation());
         System.out.println(centroids.get(0).getEdgeValue());
 
         writeImage(path, img);
 
-        long endTime   = System.nanoTime();
-        long totalTime = endTime - startTime;
 
-        System.out.println("Seconds used to execute: "+totalTime / 1000000000);
 
 
     }
@@ -90,6 +95,7 @@ public class Main {
                     if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
                         continue;
                     }
+                    node.setColor(Color.PINK);
                     fitness += Helpers.ColorEuclideanDistance(node.getColor(), neighbour.getColor());
                 }
             }
@@ -170,11 +176,13 @@ public class Main {
     }
 
     static BufferedImage changeImage(BufferedImage img, Node node, Centroid centroid) {
+        Color c = Color.WHITE;
+        if(node.getColor() == Color.PINK) {
+            //c = new Color(centroid.getColor().getRGB());
+            c = Color.PINK;
+        }
 
-        Color c = new Color(centroid.getColor().getRGB());
-
-        img.setRGB((int)node.getX(), (int)node.getY(), c.getRGB());
-
+        img.setRGB((int) node.getX(), (int) node.getY(), c.getRGB());
         return img;
     }
 }

@@ -91,6 +91,10 @@ public class Node implements Comparable<Node>{
         this.cost = (int)cost;
     }
 
+    public void setColor(Color c){
+        this.color = c;
+    }
+
     public Centroid getBelongsToCentroid() {
         return belongsToCentroid;
     }
