@@ -1,58 +1,45 @@
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class Centroid {
 
-    private ArrayList<Color>  currentlyAssignedColors;
-    private Color position;
+    private ArrayList<Node>  currentlyAssignedNodes;
+    private double x;
+    private double y;
+    private Color color;
 
-    public Centroid(Color c){
-        this.currentlyAssignedColors = new ArrayList<>();
-        this.position = c;
+
+    public Centroid(double x, double y, Color c){
+        this.x = x;
+        this.y = y;
+        this.color = c;
+        currentlyAssignedNodes = new ArrayList<>();
     }
 
-    public void updateCentroid(){
-        double r = 0;
-        double g = 0;
-        double b = 0;
-
-        for(Color c : this.currentlyAssignedColors){
-            r += c.getRed();
-            g += c.getGreen();
-            b += c.getBlue();
-        }
-
-        r /= this.currentlyAssignedColors.size();
-        g /= this.currentlyAssignedColors.size();
-        b /= this.currentlyAssignedColors.size();
-
-        double redDir =   ( this.position.getRed() - r);
-        double greenDir = ( this.position.getGreen() - g);
-        double blueDir =  ( this.position.getBlue() - b);
-
-        double newR = this.position.getRed() - (redDir * 0.00001);
-        double newG = this.position.getGreen() - (greenDir * 0.00001);
-        double newB = this.position.getBlue() - (blueDir * 0.00001);
-
-
-
-        this.position = new Color(ensureRange((int)newR), ensureRange((int)newG), ensureRange((int)newB));
-        //this.position = new Color((int)newR, (int)newG, (int)newB);
-
-
-        this.currentlyAssignedColors = new ArrayList<>();
+    public void updateCentroid() {
 
     }
 
-    private int ensureRange(int value) {
-        return Math.min(Math.max(value, 0), 255);
-    }
-    
-    public void assignColor(Color c){
-        this.currentlyAssignedColors.add(c);
+    public ArrayList<Node> getcurrentlyAssignedNodes() {
+        return currentlyAssignedNodes;
     }
 
-    public Color getPosition() {
-        return position;
+    public void addNode(Node node) {
+        this.currentlyAssignedNodes.add(node);
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }
+
+
