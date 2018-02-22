@@ -22,6 +22,8 @@ public class Main {
 
         BufferedImage img = readImage(path);
 
+        ArrayList<Individual> individuals = new ArrayList<>();
+
 
         ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
         ArrayList<ArrayList<Node>> nodes = initNodes(img);
@@ -43,15 +45,19 @@ public class Main {
                 closedList = searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes);
             }
         }
+
+        /*
+        Create individuals
+         */
+
+        individuals.add(new Individual(centroids));
+
+
         long endTime   = System.nanoTime();
         long totalTime = endTime - startTime;
 
         System.out.println("Seconds used to execute: "+totalTime / 1000000000);
 
-
-
-        overallDeviation(centroids);
-        edgeValue(centroids);
 
         for(Centroid c : centroids){
             for(Node n : c.getcurrentlyAssignedNodes()){
@@ -70,38 +76,7 @@ public class Main {
     }
 
 
-    /*
-    We want to minimize this
-     */
-    static void overallDeviation(ArrayList<Centroid> centroids){
-        for (Centroid centroid : centroids){
-            double fitness = 0;
-            for (Node node : centroid.getcurrentlyAssignedNodes()) {
-                fitness += Helpers.ColorEuclideanDistance(node.getColor(), centroid.getColor());
-            }
-            centroid.setOverallDeviation(fitness);
-        }
-    }
 
-
-    /*
-    We want to maximize this
-     */
-    static void edgeValue(ArrayList<Centroid> centroids){
-        for(Centroid centroid : centroids){
-            double fitness = 0;
-            for(Node node : centroid.getcurrentlyAssignedNodes()){
-                for(Node neighbour : node.getNeighbours()){
-                    if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
-                        continue;
-                    }
-                    node.setColor(Color.PINK);
-                    fitness += Helpers.ColorEuclideanDistance(node.getColor(), neighbour.getColor());
-                }
-            }
-            centroid.setEdgeValue(fitness);
-        }
-    }
 
     static BufferedImage readImage(String path) {
         BufferedImage img = null;
