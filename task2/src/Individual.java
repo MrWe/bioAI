@@ -50,25 +50,24 @@ public class Individual {
 
     }
 
-
     /*
     We want to maximize this
      */
     private double edgeValue(Centroid centroid){
-
         double fitness = 0;
         for(Node node : centroid.getcurrentlyAssignedNodes()){
             for(Node neighbour : node.getNeighbours()){
                 if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
                     continue;
                 }
-                node.setColor(Color.PINK);
+                //node.setColor(Color.BLACK);
                 fitness += Helpers.ColorEuclideanDistance(node.getColor(), neighbour.getColor());
             }
         }
         centroid.setEdgeValue(fitness);
         return fitness;
     }
+
 
     public double getEdgeValue() {
         return edgeValue;

@@ -29,7 +29,7 @@ public class SearchPath {
             }
             closed.add(current);
             current.setClosed(true);
-            current.setBelongsToCentroid(centroid);
+
             centroid.addNode(current);
 
 
@@ -41,7 +41,7 @@ public class SearchPath {
                 double tentative_g_score = (Helpers.PlanarEuclideanDistance(centroid.getX(), centroid.getY(), neighbour.getX(), neighbour.getY())) + Helpers.ColorEuclideanDistance(centroid.getColor(), neighbour.getColor());
 
                 //If neighbours is in closed list; ignore it
-                if(neighbour.isClosed()){
+                if(neighbour.isClosed() && tentative_g_score > neighbour.getCost()){
                     continue;
                 }
 

@@ -8,9 +8,11 @@ public class Centroid {
     private double x;
     private double y;
     private Color color;
+    private Color avgColor;
     private double overallDeviation;
     private double edgeValue;
     private String hash;
+
 
 
     public Centroid(double x, double y, Color c){
@@ -68,6 +70,14 @@ public class Centroid {
 
     public void setEdgeValue(double edgeValue) {
         this.edgeValue = edgeValue;
+    }
+
+    public Color getAvgColor() {
+        return avgColor;
+    }
+
+    public void setAvgColor(Color avgColor) {
+        this.avgColor = avgColor;
     }
 }
 
