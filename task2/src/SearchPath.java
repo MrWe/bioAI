@@ -19,15 +19,15 @@ public class SearchPath {
 
     }
 
-    private ArrayList<Node> dijkstra(ArrayList<Node> closed, BufferedImage img, Centroid centroid, ArrayList<ArrayList<Node>> nodes){
+    private boolean dijkstra(Centroid centroid, ArrayList<ArrayList<Node>> nodes){
         if(!pqueue.isEmpty()){
             //Set current to best possible node in priority queue, comparison can be found i Node class
             Node current = pqueue.poll();
             pqueueHash.remove(current);
             if(current.isClosed()){
-                return closed;
+                return true;
             }
-            closed.add(current);
+
             current.setClosed(true);
 
             centroid.addNode(current);
@@ -59,13 +59,14 @@ public class SearchPath {
                     pqueueHash.add(neighbour);
                 }
             }
+            return true;
         }
-       return closed;
+       return false;
     }
 
 
-    public ArrayList<Node> runOneStep(ArrayList<Node> closed, BufferedImage img, Centroid centroid, ArrayList<ArrayList<Node>> nodes){
-        return dijkstra(closed, img, centroid, nodes);
+    public boolean runOneStep(ArrayList<Node> closed, BufferedImage img, Centroid centroid, ArrayList<ArrayList<Node>> nodes){
+        return dijkstra(centroid, nodes);
     }
 
 
