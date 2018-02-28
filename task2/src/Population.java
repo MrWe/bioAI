@@ -13,7 +13,7 @@ public class Population {
 
     public Population(BufferedImage img, int numCentroids){
         individuals = new ArrayList<>();
-        createIndividuals(img, numCentroids, 10);
+        createIndividuals(img, numCentroids, 3);
 
     }
 
@@ -69,6 +69,10 @@ public class Population {
             }
             rankCounter++;
         }
+
+        ArrayList<Individual> final_individuals = Helpers.crowdingDistance(acceptedIndividuals, numIndividuals);
+        System.out.println(final_individuals);
+        this.individuals = final_individuals;
     }
 
     public ArrayList<Individual> getAllIndividualsOfRankN(int n){

@@ -30,15 +30,15 @@ TODO:
     e. Put nodes into tiers (fronts) DONE
     f. Accept best 2N nodes from top tiers DONE
 4. Crowding distance DONE (Hopefully)
-    a. Reduce children node amount to N
-        i. Try to add entire fronts at a time
-        ii. When an entire front cannot be added, sort by crowding distance
-            - For each objective function:
-                1. Sort by all objective functions separately
-                2. Assign a large distance to best and worst solution to the objective function
-                3. For all other solutions:
-                    - Calculate crowding distance by looking at a node's two closest neighbours (in the sorted list)
-        iii. Add only the n best solutions resulting from the largest crowding distance
+    a. Reduce children node amount to N DONE
+        i. Try to add entire fronts at a time DONE
+        ii. When an entire front cannot be added, sort by crowding distance DON
+            - For each objective function: DONE
+                1. Sort by all objective functions separately DONE
+                2. Assign a large distance to best and worst solution to the objective function DONE
+                3. For all other solutions: DONE
+                    - Calculate crowding distance by looking at a node's two closest neighbours (in the sorted list) DONE
+        iii. Add only the n best solutions resulting from the largest crowding distance DONE
 5. Create offspring population of size N from parent population of size 2N
     a. Crowding Tournament Selection Operator
         i. Choose two individuals i and j
