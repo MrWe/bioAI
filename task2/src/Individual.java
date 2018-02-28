@@ -7,6 +7,7 @@ public class Individual implements Comparable<Individual>{
     private double overallDeviation;
     private double edgeValue;
     private int rank;
+    private double crowdingDistance;
 
 
     public Individual(ArrayList<Centroid> centroids){
@@ -14,6 +15,7 @@ public class Individual implements Comparable<Individual>{
         this.overallDeviation = sumOverallDeviation(centroids);
         this.edgeValue = sumEdgeValue(centroids);
         this.rank = 0;
+        this.crowdingDistance = 0;
     }
 
     double sumOverallDeviation(ArrayList<Centroid> centroids){
@@ -95,5 +97,13 @@ public class Individual implements Comparable<Individual>{
 
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    public double getCrowdingDistance() {
+        return crowdingDistance;
+    }
+
+    public void setCrowdingDistance(double crowdingDistance) {
+        this.crowdingDistance = crowdingDistance;
     }
 }

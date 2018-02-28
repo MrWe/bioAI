@@ -26,7 +26,7 @@ public class Population {
     }
 
     private void createIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
-        for (int i = 0; i < numIndividuals; i++) {
+        for (int i = 0; i < 3*numIndividuals; i++) {
             ArrayList<ArrayList<Node>> nodes = initNodes(img);
 
             ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
@@ -50,12 +50,35 @@ public class Population {
             setRank(i);
         }
 
-        System.out.println("Before sort" + this.individuals);
-
         Collections.sort(this.individuals);
 
-        System.out.println("After sort" + this.individuals);
+        ArrayList<Individual> acceptedIndividuals = new ArrayList<>();
 
+        int rankCounter = 1;
+
+        while (true) {
+            ArrayList<Individual> individualsToAdd = getAllIndividualsOfRankN(rankCounter);
+            if (acceptedIndividuals.size() + individualsToAdd.size() > numIndividuals * 2) {
+                acceptedIndividuals.addAll(Helpers.crowdingDistance(individualsToAdd, acceptedIndividuals.size() + individualsToAdd.size() - numIndividuals * 2));
+                break;
+            } else {
+                acceptedIndividuals.addAll(individualsToAdd);
+                if(acceptedIndividuals.size() == numIndividuals * 2){ //We added exactly as many as we needed
+                    break;
+                }
+            }
+            rankCounter++;
+        }
+    }
+
+    public ArrayList<Individual> getAllIndividualsOfRankN(int n){
+        ArrayList<Individual> returned_individuals = new ArrayList<Individual>();
+        for(Individual i : this.individuals){
+            if (i.getRank() == n){
+                returned_individuals.add(i);
+            }
+        }
+        return returned_individuals;
     }
 
     public void setRank(Individual i){

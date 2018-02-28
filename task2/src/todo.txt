@@ -18,18 +18,18 @@ TODO:
     - Elitism
         - TODO: What is even a population
         -
-1. Define Individual
-2. Define Population
-3. Create non-dominating sorting function
-    a. Minimize overall deviance D
-    b. Maximize edge value E -> Minimize instead
-    c. Define domination:
-        this.E = other.E, but this.D < other.D
-        -> this is dominated by other
-    d. Rank of a node = 1 + (amount of nodes that dominate)
-    e. Put nodes into tiers (fronts)
-    f. Accept best 2N nodes from top tiers
-4. Crowding distance
+1. Define Individual DONE
+2. Define Population DONE
+3. Create non-dominating sorting function DONE
+    a. Minimize overall deviance D DONE
+    b. Maximize edge value E -> Minimize instead DONE
+    c. Define domination: DONE
+        this.E = other.E, but this.D < other.D DONE
+        -> this is dominated by other DONE
+    d. Rank of a node = 1 + (amount of nodes that dominate) DONE
+    e. Put nodes into tiers (fronts) DONE
+    f. Accept best 2N nodes from top tiers DONE
+4. Crowding distance DONE (Hopefully)
     a. Reduce children node amount to N
         i. Try to add entire fronts at a time
         ii. When an entire front cannot be added, sort by crowding distance
