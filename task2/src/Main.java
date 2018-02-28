@@ -20,7 +20,7 @@ public class Main {
          */
         String path = "1";
         int numCentroids = 10;
-        int numPopulations = 10;
+        int numPopulations = 1;
 
 
         BufferedImage img = readImage(path);
@@ -52,7 +52,7 @@ public class Main {
     static BufferedImage readImage(String path) {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(String.format("TestImages/%s/Test image.jpg", path)));
+            img = ImageIO.read(new File(String.format("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/3/Test image.jpg", path)));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,7 +61,7 @@ public class Main {
     }
 
     static void writeImage(String path, BufferedImage img) {
-        File outputfile = new File("OutFiles/" + path + ".jpg");
+        File outputfile = new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/OutFiles/3.jpg");
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {

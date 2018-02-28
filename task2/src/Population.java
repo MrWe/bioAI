@@ -36,7 +36,7 @@ public class Population {
             while(runMore) {
                 runMore = false;
                 for (int j = 0; j < searches.size(); j++) {
-                    if(searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes)){
+                    if(searches.get(j).runOneStep(closedList, img, centroids.get(j), nodes)){
                         runMore = true;
                     }
                 }
@@ -72,10 +72,7 @@ public class Population {
     }
 
     public boolean isDominated(Individual i, Individual o){
-        System.out.println("i is " + i.getEdgeValue() + "and o is " + o.getEdgeValue());
-
         if(i.getEdgeValue() > o.getEdgeValue() && i.getOverallDeviation() > o.getOverallDeviation()){
-            System.out.println("i is dominated by o");
             return true;
         }
         return false;

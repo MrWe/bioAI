@@ -61,7 +61,6 @@ public class Individual implements Comparable<Individual>{
         for(Node node : centroid.getcurrentlyAssignedNodes()){
             for(Node neighbour : node.getNeighbours()){
                 if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
-                    System.out.println(node.getBelongsToCentroid().getHash() + "-------" + neighbour.getBelongsToCentroid().getHash());
                     continue;
                 }
                 //node.setColor(Color.BLACK);
@@ -87,7 +86,6 @@ public class Individual implements Comparable<Individual>{
 
 
     public int compareTo(Individual o) {
-        System.out.println("Individual i has deviation" + this.getRank() + "and o has deviation" + o.getRank());
         return this.getRank() - o.getRank();
     }
 
