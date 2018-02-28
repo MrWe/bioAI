@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -12,7 +13,7 @@ public class Population {
 
     public Population(BufferedImage img, int numCentroids){
         individuals = new ArrayList<>();
-        createIndividuals(img, numCentroids);
+        createIndividuals(img, numCentroids, 10);
 
     }
 
@@ -24,26 +25,63 @@ public class Population {
         this.individuals = individuals;
     }
 
-    private void createIndividuals(BufferedImage img, int numCentroids){
+    private void createIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
+        for (int i = 0; i < numIndividuals; i++) {
+            ArrayList<ArrayList<Node>> nodes = initNodes(img);
 
-        ArrayList<ArrayList<Node>> nodes = initNodes(img);
+            ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
+            ArrayList<Node> startNodes = getStartNodes(centroids, nodes);
+            ArrayList<SearchPath> searches = initSearches(startNodes);
+            boolean runMore = true;
+            while(runMore) {
+                runMore = false;
+                for (int j = 0; j < searches.size(); j++) {
+                    if(searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes)){
+                        runMore = true;
+                    }
+                }
+            }
+            Helpers.setAvgColor(centroids);
 
-        ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
-        ArrayList<Node> startNodes = getStartNodes(centroids, nodes);
-        ArrayList<SearchPath> searches = initSearches(startNodes);
-        boolean runMore = true;
-        while(runMore) {
-            runMore = false;
-            for (int i = 0; i < searches.size(); i++) {
-                if(searches.get(i).runOneStep(closedList, img, centroids.get(i), nodes)){
-                    runMore = true;
+            this.individuals.add(new Individual(centroids));
+        }
+
+        for(Individual i : this.individuals){
+            setRank(i);
+        }
+
+        System.out.println("Before sort" + this.individuals);
+
+        Collections.sort(this.individuals);
+
+        System.out.println("After sort" + this.individuals);
+
+    }
+
+    public void setRank(Individual i){
+        int rank = 1;
+        for (Individual individual : this.individuals){
+            if(individual != i){
+
+                if(isDominated(i, individual)){
+                    rank++;
                 }
             }
         }
-        Helpers.setAvgColor(centroids);
-
-        this.individuals.add(new Individual(centroids));
+        i.setRank(rank);
     }
+
+    public boolean isDominated(Individual i, Individual o){
+        System.out.println("i is " + i.getEdgeValue() + "and o is " + o.getEdgeValue());
+
+        if(i.getEdgeValue() > o.getEdgeValue() && i.getOverallDeviation() > o.getOverallDeviation()){
+            System.out.println("i is dominated by o");
+            return true;
+        }
+        return false;
+    }
+
+
 
     private ArrayList<ArrayList<Node>> initNodes(BufferedImage img){
         ArrayList<ArrayList<Node>> nodes = new ArrayList<>();

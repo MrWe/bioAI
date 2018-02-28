@@ -1,20 +1,22 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Individual {
+public class Individual implements Comparable<Individual>{
 
     private ArrayList<Centroid> centroids;
     private double overallDeviation;
     private double edgeValue;
+    private int rank;
 
 
     public Individual(ArrayList<Centroid> centroids){
         this.centroids = centroids;
         this.overallDeviation = sumOverallDeviation(centroids);
         this.edgeValue = sumEdgeValue(centroids);
+        this.rank = 0;
     }
 
-    private double sumOverallDeviation(ArrayList<Centroid> centroids){
+    double sumOverallDeviation(ArrayList<Centroid> centroids){
 
         double totalFitness = 0;
         for (Centroid centroid : centroids) {
@@ -25,15 +27,16 @@ public class Individual {
 
     }
 
-    private double sumEdgeValue(ArrayList<Centroid> centroids){
+    double sumEdgeValue(ArrayList<Centroid> centroids){
         double totalFitness = 0;
         for(Centroid centroid : centroids) {
-            totalFitness += -edgeValue(centroid);  //Trying to minimize this value, therefore it is the minus value. TODO: Test if we are correct.
+            totalFitness -= edgeValue(centroid);  //Trying to minimize this value, therefore it is the minus value. TODO: Test if we are correct.
         }
-
         return totalFitness;
 
     }
+
+
 
 
     /*
@@ -58,6 +61,7 @@ public class Individual {
         for(Node node : centroid.getcurrentlyAssignedNodes()){
             for(Node neighbour : node.getNeighbours()){
                 if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
+                    System.out.println(node.getBelongsToCentroid().getHash() + "-------" + neighbour.getBelongsToCentroid().getHash());
                     continue;
                 }
                 //node.setColor(Color.BLACK);
@@ -79,5 +83,19 @@ public class Individual {
 
     public ArrayList<Centroid> getCentroids() {
         return centroids;
+    }
+
+
+    public int compareTo(Individual o) {
+        System.out.println("Individual i has deviation" + this.getRank() + "and o has deviation" + o.getRank());
+        return this.getRank() - o.getRank();
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 }
