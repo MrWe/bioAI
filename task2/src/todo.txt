@@ -40,9 +40,9 @@ TODO:
                     - Calculate crowding distance by looking at a node's two closest neighbours (in the sorted list) DONE
         iii. Add only the n best solutions resulting from the largest crowding distance DONE
 5. Create offspring population of size N from parent population of size 2N
-    a. Crowding Tournament Selection Operator
-        i. Choose two individuals i and j
-        ii. If one rank is better, it wins
-        iii. If ranks are equal, choose the one with the larger crowding distance
-    b. Crossover (choose our own) gg ez
+    a. Crowding Tournament Selection Operator DONE
+        i. Choose two individuals i and j DONE
+        ii. If one rank is better, it wins DONE
+        iii. If ranks are equal, choose the one with the larger crowding distance DONE
+    b. Crossover (choose our own) gg ez DONE
     c. Mutation (choose our own) gg super ez

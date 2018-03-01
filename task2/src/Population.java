@@ -11,9 +11,19 @@ public class Population {
     private ArrayList<Node> closedList = new ArrayList<>();
     private ArrayList<Individual> individuals;
 
+    public Individual getChildIndividual() {
+        return childIndividual;
+    }
+
+    public void setChildIndividual(Individual childIndividual) {
+        this.childIndividual = childIndividual;
+    }
+
+    private Individual childIndividual;
+
     public Population(BufferedImage img, int numCentroids){
         individuals = new ArrayList<>();
-        createIndividuals(img, numCentroids, 3);
+        createIndividuals(img, numCentroids, 10);
 
     }
 
@@ -70,9 +80,33 @@ public class Population {
             rankCounter++;
         }
 
-        ArrayList<Individual> final_individuals = Helpers.crowdingDistance(acceptedIndividuals, numIndividuals);
-        System.out.println(final_individuals);
+        ArrayList<Individual> final_individuals = Helpers.crowdingDistance(acceptedIndividuals, numIndividuals); //Reduce number of individuals from 2N to N=numIndividuals
         this.individuals = final_individuals;
+        Random r = new Random();
+
+        //TODO: Ensure that we cannot get the same two individuals
+        Individual crossover_individual_a = Helpers.tournamentSelection(this.individuals.get(r.nextInt(this.individuals.size())), this.individuals.get(r.nextInt(this.individuals.size())));
+        Individual crossover_individual_b = Helpers.tournamentSelection(this.individuals.get(r.nextInt(this.individuals.size())), this.individuals.get(r.nextInt(this.individuals.size())));
+
+
+        setChildIndividual(GA.crossover(crossover_individual_a, crossover_individual_b, img));
+
+
+        ArrayList<ArrayList<Node>> nodes = initNodes(img);
+
+
+        ArrayList<Node> startNodes = getStartNodes(this.getChildIndividual().getCentroids(), nodes);
+        ArrayList<SearchPath> searches = initSearches(startNodes);
+        boolean runMore = true;
+        while(runMore) {
+            runMore = false;
+            for (int j = 0; j < searches.size(); j++) {
+                if(searches.get(j).runOneStep(closedList, img, this.getChildIndividual().getCentroids().get(j), nodes)){
+                    runMore = true;
+                }
+            }
+        }
+        Helpers.setAvgColor(this.getChildIndividual().getCentroids());
     }
 
     public ArrayList<Individual> getAllIndividualsOfRankN(int n){

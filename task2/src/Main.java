@@ -20,7 +20,7 @@ public class Main {
          */
         String path = "1";
         int numCentroids = 10;
-        int numPopulations = 1;
+        int numPopulations = 3;
 
 
         BufferedImage img = readImage(path);
@@ -32,7 +32,7 @@ public class Main {
             populations.add(new Population(img, numCentroids));
         }
 
-
+        /*
         for(Population p : populations) {
             for (Individual i : p.getIndividuals()) {
                 for (Centroid c : i.getCentroids()) {
@@ -40,6 +40,15 @@ public class Main {
                         img = changeImage(img, n, c);
                     }
                 }
+            }
+        }
+        */
+
+        Individual ind = populations.get(0).getChildIndividual();
+
+        for(Centroid c : ind.getCentroids()){
+            for (Node n : c.getcurrentlyAssignedNodes()) {
+                img = changeImage(img, n, c);
             }
         }
 
