@@ -69,14 +69,6 @@ public abstract class Helpers {
         return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
     }
 
-    public static Individual tournamentSelection(Individual a, Individual b){
-        if (a.getRank() == b.getRank()){
-            return a.getCrowdingDistance() > b.getCrowdingDistance() ? a : b;
-        } else {
-            return a.getRank() > b.getRank() ? a: b;
-        }
-
-    }
 
     static double ColorEuclideanDistance(Color c0, Color c1) {
         return Math.sqrt((Math.pow(c0.getRed()- c1.getRed(), 2)) + (Math.pow(c0.getGreen() - c1.getGreen(), 2)) + (Math.pow(c0.getBlue()- c1.getBlue(), 2)));

@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,20 +10,23 @@ public class Population {
     private ArrayList<Node> closedList = new ArrayList<>();
     private ArrayList<Individual> individuals;
 
-    public Individual getChildIndividual() {
-        return childIndividual;
-    }
-
-    public void setChildIndividual(Individual childIndividual) {
-        this.childIndividual = childIndividual;
-    }
-
-    private Individual childIndividual;
-
-    public Population(BufferedImage img, int numCentroids){
+    public Population(BufferedImage img, int numCentroids, int numIndividuals){
         individuals = new ArrayList<>();
-        createIndividuals(img, numCentroids, 10);
+        createRandomIndividuals(img, numCentroids, numIndividuals);
+        setRanks();
+        sortIndividuals();
+        ArrayList<Individual> fronts = selectFronts(numIndividuals);
+        this.individuals = reduceFronts(fronts, numIndividuals);
 
+
+    }
+
+    public Population(BufferedImage img, int numCentroids, ArrayList<Individual> individuals){
+        runIndividuals(img, numCentroids, individuals);
+        setRanks();
+        sortIndividuals();
+        ArrayList<Individual> fronts = selectFronts(individuals.size());
+        this.individuals = reduceFronts(fronts, individuals.size());
     }
 
     public ArrayList<Individual> getIndividuals() {
@@ -35,33 +37,17 @@ public class Population {
         this.individuals = individuals;
     }
 
-    private void createIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
-        for (int i = 0; i < 3*numIndividuals; i++) {
-            ArrayList<ArrayList<Node>> nodes = initNodes(img);
-
-            ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
-            ArrayList<Node> startNodes = getStartNodes(centroids, nodes);
-            ArrayList<SearchPath> searches = initSearches(startNodes);
-            boolean runMore = true;
-            while(runMore) {
-                runMore = false;
-                for (int j = 0; j < searches.size(); j++) {
-                    if(searches.get(j).runOneStep(closedList, img, centroids.get(j), nodes)){
-                        runMore = true;
-                    }
-                }
-            }
-            Helpers.setAvgColor(centroids);
-
-            this.individuals.add(new Individual(centroids));
-        }
-
+    private void setRanks(){
         for(Individual i : this.individuals){
             setRank(i);
         }
+    }
 
+    private void sortIndividuals(){
         Collections.sort(this.individuals);
+    }
 
+    private ArrayList<Individual> selectFronts(int numIndividuals){
         ArrayList<Individual> acceptedIndividuals = new ArrayList<>();
 
         int rankCounter = 1;
@@ -79,35 +65,58 @@ public class Population {
             }
             rankCounter++;
         }
+        return acceptedIndividuals;
+    }
 
-        ArrayList<Individual> final_individuals = Helpers.crowdingDistance(acceptedIndividuals, numIndividuals); //Reduce number of individuals from 2N to N=numIndividuals
-        this.individuals = final_individuals;
-        Random r = new Random();
+    private ArrayList<Individual> reduceFronts(ArrayList<Individual> fronts, int numIndividuals){
+        return Helpers.crowdingDistance(fronts, numIndividuals); //Reduce number of individuals from 2N to N=numIndividuals
+    }
 
-        //TODO: Ensure that we cannot get the same two individuals
-        Individual crossover_individual_a = Helpers.tournamentSelection(this.individuals.get(r.nextInt(this.individuals.size())), this.individuals.get(r.nextInt(this.individuals.size())));
-        Individual crossover_individual_b = Helpers.tournamentSelection(this.individuals.get(r.nextInt(this.individuals.size())), this.individuals.get(r.nextInt(this.individuals.size())));
+    private void createRandomIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
+        for (int i = 0; i < 3*numIndividuals; i++) {
+            ArrayList<ArrayList<Node>> nodes = initNodes(img);
 
+            ArrayList<Centroid> centroids = initCentroids(img, numCentroids);
+            ArrayList<Node> startNodes = getStartNodes(centroids, nodes);
+            ArrayList<SearchPath> searches = initSearches(startNodes);
 
-        setChildIndividual(GA.crossover(crossover_individual_a, crossover_individual_b, img));
+            dijkstra(img, nodes, searches, centroids);
 
+            Helpers.setAvgColor(centroids);
 
-        ArrayList<ArrayList<Node>> nodes = initNodes(img);
+            this.individuals.add(new Individual(centroids));
+        }
 
+    }
 
-        ArrayList<Node> startNodes = getStartNodes(this.getChildIndividual().getCentroids(), nodes);
-        ArrayList<SearchPath> searches = initSearches(startNodes);
+    private void runIndividuals(BufferedImage img, int numCentroids, ArrayList<Individual> individuals) {
+        for (int i = 0; i < individuals.size(); i++) {
+            Individual currentIndividual = individuals.get(i);
+
+            ArrayList<ArrayList<Node>> nodes = initNodes(img);
+
+            ArrayList<Node> startNodes = getStartNodes(currentIndividual.getCentroids(), nodes);
+            ArrayList<SearchPath> searches = initSearches(startNodes);
+
+            dijkstra(img, nodes, searches, currentIndividual.getCentroids());
+            Helpers.setAvgColor(currentIndividual.getCentroids());
+        }
+        this.individuals = individuals;
+    }
+
+    private void dijkstra(BufferedImage img, ArrayList<ArrayList<Node>> nodes, ArrayList<SearchPath> searches,  ArrayList<Centroid> centroids){
         boolean runMore = true;
         while(runMore) {
             runMore = false;
             for (int j = 0; j < searches.size(); j++) {
-                if(searches.get(j).runOneStep(closedList, img, this.getChildIndividual().getCentroids().get(j), nodes)){
+                if(searches.get(j).runOneStep(closedList, img, centroids.get(j), nodes)){
                     runMore = true;
                 }
             }
         }
-        Helpers.setAvgColor(this.getChildIndividual().getCentroids());
     }
+
+
 
     public ArrayList<Individual> getAllIndividualsOfRankN(int n){
         ArrayList<Individual> returned_individuals = new ArrayList<Individual>();

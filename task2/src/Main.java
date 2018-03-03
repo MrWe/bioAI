@@ -20,33 +20,21 @@ public class Main {
          */
         String path = "1";
         int numCentroids = 10;
-        int numPopulations = 3;
+        int numPopulations = 20;
+        int numIndividuals = 20;
 
 
         BufferedImage img = readImage(path);
 
 
-        ArrayList<Population> populations = new ArrayList<>();
+        Population population = new Population(img, numCentroids, numIndividuals);
+
 
         for (int i = 0; i < numPopulations; i++) {
-            populations.add(new Population(img, numCentroids));
+            population = new Population(img, numCentroids, GA.doGA(img, population));
         }
 
-        /*
-        for(Population p : populations) {
-            for (Individual i : p.getIndividuals()) {
-                for (Centroid c : i.getCentroids()) {
-                    for (Node n : c.getcurrentlyAssignedNodes()) {
-                        img = changeImage(img, n, c);
-                    }
-                }
-            }
-        }
-        */
-
-        Individual ind = populations.get(0).getChildIndividual();
-
-        for(Centroid c : ind.getCentroids()){
+        for (Centroid c : population.getIndividuals().get(0).getCentroids()) {
             for (Node n : c.getcurrentlyAssignedNodes()) {
                 img = changeImage(img, n, c);
             }
@@ -61,7 +49,7 @@ public class Main {
     static BufferedImage readImage(String path) {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(String.format("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/3/Test image.jpg", path)));
+            img = ImageIO.read(new File("TestImages/"+path+"/Test image.jpg"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +58,7 @@ public class Main {
     }
 
     static void writeImage(String path, BufferedImage img) {
-        File outputfile = new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/OutFiles/3.jpg");
+        File outputfile = new File("OutFiles/"+path+".jpg");
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {

@@ -39,8 +39,6 @@ public class Individual implements Comparable<Individual>{
     }
 
 
-
-
     /*
    We want to minimize this
     */
