@@ -7,7 +7,7 @@ public class Centroid {
     private ArrayList<Node>  currentlyAssignedNodes;
     private double x;
     private double y;
-    private Color color;
+    private int color;
     private Color avgColor;
     private double overallDeviation;
     private double edgeValue;
@@ -15,7 +15,7 @@ public class Centroid {
 
 
 
-    public Centroid(double x, double y, Color c){
+    public Centroid(double x, double y, int c){
         this.x = x;
         this.y = y;
         this.color = c;
@@ -47,7 +47,7 @@ public class Centroid {
         return y;
     }
 
-    public Color getColor() {
+    public int getColor() {
         return color;
     }
 

@@ -29,23 +29,40 @@ public class Main {
         //img = scale(img, img.getType(), (int)(img.getWidth()*0.1), (int)(img.getHeight()*0.1), 0.1, 0.1);
         int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
 
+
+
+
+
         ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
 
         MST mst = new MST(nodes.get(0).get(0));
         nodes = mst.prim(nodes);
+
+
+
+
+
+
+
+
 
         nodes.get(0).get(0).setRoot(true);
 
         nodes.get(10).get(0).setRoot(true);
 
         System.out.println(img.getWidth() * img.getHeight());
+        final long startTime = System.currentTimeMillis();
 
         ArrayList<Node> closed =  BFS.BFS(nodes.get(0).get(0));
+
+
+
 
         System.out.println(closed.size());
 
         closed =  BFS.BFS(nodes.get(10).get(0));
-
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime - startTime) );
         System.out.println(closed.size());
 
 
@@ -96,16 +113,17 @@ public class Main {
 
 
 
-    static BufferedImage changeImage(BufferedImage img, Node node, Centroid centroid) {
+    /*static BufferedImage changeImage(BufferedImage img, Node node, Centroid centroid) {
         //Color c = Color.WHITE;
         //if(node.getColor() == Color.BLACK) {
-            Color c = new Color(centroid.getColor().getRGB());
+            Color c = new Color(centroid.getColor());
           //  c = Color.BLACK;
         //}
 
         img.setRGB((int) node.getX(), (int) node.getY(), c.getRGB());
         return img;
     }
+    */
 
 
     static BufferedImage scale(BufferedImage sbi, int imageType, int dWidth, int dHeight, double fWidth, double fHeight) {

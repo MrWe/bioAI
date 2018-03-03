@@ -22,7 +22,6 @@ public class Node implements Comparable<Node>{
         this.color = c;
         this.hash = hashNode();
         this.children = new ArrayList<>();
-        this.isRoot = false;
 
     }
 

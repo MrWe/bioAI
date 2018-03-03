@@ -175,5 +175,35 @@ public abstract class Helpers {
         return nodes;
     }
 
-   
+    private ArrayList<Centroid> initCentroids(int[][] img, int num_centroids){
+
+        Random r = new Random();
+
+        HashSet<String> selected = new HashSet<>();
+
+        ArrayList<Centroid> centroids = new ArrayList<>();
+        for (int n = 0; n < num_centroids; n++){
+            int x = r.nextInt(img.length);
+            int y = r.nextInt(img[0].length);
+            String s = x+""+y;
+            int counter = 0;
+            while(selected.contains(s) && counter < 1000){
+                x = r.nextInt(img.length);
+                y = r.nextInt(img[0].length);
+                s = x+""+y;
+                counter += 1;
+            }
+            if(counter >= 999){
+                break;
+            }
+
+            selected.add(s);
+
+            int c = img[x][y];
+            centroids.add(new Centroid(x,y,c));
+        }
+        return centroids;
+    }
+
+
 }
