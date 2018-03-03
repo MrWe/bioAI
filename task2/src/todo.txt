@@ -1,3 +1,7 @@
+Hvis sentroiden vi vil flytte == rootnoden:
+    -> Flytt sentroiden kun en piksel, til et av sine children, og flipp parent/child-forholdet
+
+
 TODO:
 - Implement gene
     - Initialize valid gene [[0,0,0,0],
