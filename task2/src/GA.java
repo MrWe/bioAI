@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GA {
-    public static Individual crossover(Individual a, Individual b, BufferedImage img){
+  /*  public static Individual crossover(Individual a, Individual b, BufferedImage img){
         ArrayList<Centroid> newCentroids = new ArrayList<>();
 
         for (int i = 0; i < a.getCentroids().size(); i++) {
@@ -42,5 +42,5 @@ public class GA {
             children.add(GA.crossover(crossover_individual_a, crossover_individual_b, img));
         }
         return children;
-    }
+    }*/
 }

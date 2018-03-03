@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class Population {
 
-    private ArrayList<Node> closedList = new ArrayList<>();
+    /*private ArrayList<Node> closedList = new ArrayList<>();
     private ArrayList<Individual> individuals;
 
     public Population(BufferedImage img, int numCentroids, int numIndividuals){
@@ -207,5 +207,5 @@ public class Population {
             searches.add(new SearchPath(n));
         }
         return searches;
-    }
+    }*/
 }

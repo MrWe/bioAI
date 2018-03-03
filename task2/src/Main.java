@@ -1,5 +1,6 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -25,9 +26,34 @@ public class Main {
 
 
         BufferedImage img = readImage(path);
+        //img = scale(img, img.getType(), (int)(img.getWidth()*0.1), (int)(img.getHeight()*0.1), 0.1, 0.1);
+        int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
+
+        ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
+
+        MST mst = new MST(nodes.get(0).get(0));
+        nodes = mst.prim(nodes);
+
+        nodes.get(0).get(0).setRoot(true);
+
+        nodes.get(10).get(0).setRoot(true);
+
+        System.out.println(img.getWidth() * img.getHeight());
+
+        ArrayList<Node> closed =  BFS.BFS(nodes.get(0).get(0));
+
+        System.out.println(closed.size());
+
+        closed =  BFS.BFS(nodes.get(10).get(0));
+
+        System.out.println(closed.size());
 
 
-        Population population = new Population(img, numCentroids, numIndividuals);
+
+        System.exit(1);
+
+       /* Population population = new Population(img, numCentroids, numIndividuals);
+
 
 
         for (int i = 0; i < numPopulations; i++) {
@@ -40,7 +66,7 @@ public class Main {
             }
         }
 
-        writeImage(path, img);
+        writeImage(path, img);*/
 
     }
 
@@ -79,5 +105,17 @@ public class Main {
 
         img.setRGB((int) node.getX(), (int) node.getY(), c.getRGB());
         return img;
+    }
+
+
+    static BufferedImage scale(BufferedImage sbi, int imageType, int dWidth, int dHeight, double fWidth, double fHeight) {
+        BufferedImage dbi = null;
+        if(sbi != null) {
+            dbi = new BufferedImage(dWidth, dHeight, imageType);
+            Graphics2D g = dbi.createGraphics();
+            AffineTransform at = AffineTransform.getScaleInstance(fWidth, fHeight);
+            g.drawRenderedImage(sbi, at);
+        }
+        return dbi;
     }
 }
