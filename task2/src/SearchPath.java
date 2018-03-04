@@ -1,9 +1,3 @@
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-
 public class SearchPath {
    /* private PriorityQueue<Node> pqueue;
     private HashSet<Node> pqueueHash;

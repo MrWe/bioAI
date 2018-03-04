@@ -1,7 +1,6 @@
-import java.awt.*;
 import java.util.ArrayList;
 
-public class Individual implements Comparable<Individual>{
+public class Individual implements Comparable<Individual> {
 
     private ArrayList<Centroid> centroids;
     private double overallDeviation;

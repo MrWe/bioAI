@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Gene {
@@ -12,7 +11,6 @@ public class Gene {
     private ArrayList<Point2D> neighbours;
     private ArrayList<Double> neighbours_weights;
     private Centroid parent;
-
 
 
     public Gene(Centroid parent, Point2D pos, Color c, ArrayList<Point2D> neighbours) {
@@ -43,9 +41,9 @@ public class Gene {
         this.direction = dir;
     }
 
-    public ArrayList<Double> setNeighboursWeights(ArrayList<Point2D> neighbours, BufferedImage img){
+    public ArrayList<Double> setNeighboursWeights(ArrayList<Point2D> neighbours, BufferedImage img) {
         ArrayList<Double> weights = new ArrayList<>();
-        for(Point2D p : neighbours){
+        for (Point2D p : neighbours) {
             Color currC = getColorFromCoords(img, p);
             double dist = euclideanDistance(this.color, currC);
 
@@ -57,8 +55,8 @@ public class Gene {
         return Math.sqrt((Math.pow(c0.getRed(), 2) - Math.pow(c1.getRed(), 2)) + (Math.pow(c0.getGreen(), 2) - Math.pow(c1.getGreen(), 2)) + (Math.pow(c0.getBlue(), 2) - Math.pow(c1.getBlue(), 2)));
     }
 
-    public Color getColorFromCoords(BufferedImage img, Point2D pix){
-        return new Color(img.getRGB((int)pix.getX(), (int)pix.getY()));
+    public Color getColorFromCoords(BufferedImage img, Point2D pix) {
+        return new Color(img.getRGB((int) pix.getX(), (int) pix.getY()));
     }
 
 }

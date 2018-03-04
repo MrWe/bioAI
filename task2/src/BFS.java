@@ -4,7 +4,7 @@ import java.util.LinkedList;
 public class BFS {
 
 
-    public static ArrayList<Node> BFS(Node startNode){
+    public static ArrayList<Node> BFS(Node startNode) {
 
         LinkedList<Node> BFSQueue = new LinkedList<>();
         ArrayList<Node> closed = new ArrayList<>();
@@ -13,9 +13,8 @@ public class BFS {
         //Set initial condition
         BFSQueue.add(startNode);
         Node current;
-        System.out.println(startNode.getChildren());
         //While will run until all possible nodes are checked, even if solution is not found
-        while(!BFSQueue.isEmpty()){
+        while (!BFSQueue.isEmpty()) {
             //Set current to first in open list
             current = BFSQueue.pop();
 
@@ -27,16 +26,16 @@ public class BFS {
                 Node child = children.get(i);
 
                 //If neighbours is in closed list; ignore it
-                if(closed.contains(child) || child.isRoot()){
+                if (closed.contains(child) || child.isRoot()) {
                     continue;
                 }
 
                 //If open list does not contains neighbour
-                if(!BFSQueue.contains(child)){
+                if (!BFSQueue.contains(child)) {
                     BFSQueue.offer(child);
                 }
             }
         }
-    return closed;
+        return closed;
     }
 }

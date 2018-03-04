@@ -1,5 +1,7 @@
-import java.util.*;
-import java.lang.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 class MST {
 
@@ -8,7 +10,7 @@ class MST {
     private HashMap<String, Double> memoizer;
 
 
-    MST(Node start){
+    MST(Node start) {
         pqueue = new PriorityQueue<>();
         pqueueHash = new HashSet<>();
         memoizer = new HashMap<>();
@@ -40,7 +42,7 @@ class MST {
 
                 // Add to open list if not already there
                 if (!pqueueHash.contains(neighbour.hashNode())) {
-                    neighbour.setG(g_score);
+                    neighbour.setCost(g_score);
                     neighbour.setParent(current);
                     pqueue.offer(neighbour);
                     pqueueHash.add(neighbour.hashNode());
@@ -59,9 +61,9 @@ class MST {
     }
 
     private ArrayList<ArrayList<Node>> addChildren(ArrayList<ArrayList<Node>> nodes) {
-        for(ArrayList<Node> row : nodes){
-            for(Node node : row){
-                if(node.getParent() != null) {
+        for (ArrayList<Node> row : nodes) {
+            for (Node node : row) {
+                if (node.getParent() != null) {
                     node.getParent().addChild(node);
                 }
             }
@@ -69,19 +71,17 @@ class MST {
         return nodes;
     }
 
-    private double getG(Node current, Node neighbour){
+    private double getG(Node current, Node neighbour) {
         String key = current.getColor() + "" + neighbour.getColor();
-        String revKey =  neighbour.getColor() + "" + current.getColor();
+        String revKey = neighbour.getColor() + "" + current.getColor();
 
         double g_score;
 
-        if(memoizer.containsKey(key)){
+        if (memoizer.containsKey(key)) {
             g_score = memoizer.get(key);
-        }
-        else if(memoizer.containsKey(revKey)){
+        } else if (memoizer.containsKey(revKey)) {
             g_score = memoizer.get(revKey);
-        }
-        else{
+        } else {
             g_score = Helpers.rgbDistance(current.getColor(), neighbour.getColor());
             memoizer.put(key, g_score);
         }
@@ -90,43 +90,38 @@ class MST {
     }
 
 
-    private ArrayList<Node> addNeighbours(Node node, ArrayList<ArrayList<Node>> nodes){
+    private ArrayList<Node> addNeighbours(Node node, ArrayList<ArrayList<Node>> nodes) {
         ArrayList<Node> neighbours = new ArrayList<>();
-        try{
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+        try {
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
             neighbours.add(neighbour);
+        } catch (Exception ignored) {
         }
-        catch(Exception ignored){
-        }
-        try{
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()+1));
-
-            neighbours.add(neighbour);
-
-        }
-        catch(Exception ignored){
-        }
-        try{
-            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+        try {
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
 
             neighbours.add(neighbour);
 
+        } catch (Exception ignored) {
         }
-        catch(Exception ignored){
-        }
-        try{
-            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+        try {
+            Node neighbour = nodes.get((int) node.getX() - 1).get((int) (node.getY()));
 
             neighbours.add(neighbour);
 
+        } catch (Exception ignored) {
         }
-        catch(Exception ignored){
+        try {
+            Node neighbour = nodes.get((int) node.getX() + 1).get((int) (node.getY()));
+
+            neighbours.add(neighbour);
+
+        } catch (Exception ignored) {
         }
 
 
         return neighbours;
     }
-
 
 
 }

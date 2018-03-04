@@ -1,14 +1,13 @@
-import java.awt.*;
 import java.util.ArrayList;
 
-public class Node implements Comparable<Node>{
+public class Node implements Comparable<Node> {
 
-    private double x, y;
+    private int x, y;
     private Node parent;
-    private boolean isRoot;
+    private boolean isRoot = false;
+    private boolean isTreeRoot = false;
     private ArrayList<Node> children;
     private ArrayList<Node> neighbours;
-    private double g = 1;
     private int cost = Integer.MAX_VALUE;
     private int color;
 
@@ -16,7 +15,7 @@ public class Node implements Comparable<Node>{
     private String hash;
     private boolean closed = false;
 
-    Node(double x, double y, int c){
+    Node(int x, int y, int c) {
         this.x = x;
         this.y = y;
         this.color = c;
@@ -34,11 +33,11 @@ public class Node implements Comparable<Node>{
     }
 
     private int concatenate() {
-        return Integer.parseInt((int)this.x+""+(int)this.y);
+        return Integer.parseInt((int) this.x + "" + (int) this.y);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return concatenate();
     }
 
@@ -58,7 +57,7 @@ public class Node implements Comparable<Node>{
         return color;
     }
 
-    public void setColor(int c){
+    public void setColor(int c) {
         this.color = c;
     }
 
@@ -68,23 +67,15 @@ public class Node implements Comparable<Node>{
     }
 
     public String hashNode() {
-        return "" + this.x +""+ this.y;
+        return "" + this.x + "" + this.y;
     }
 
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
-    }
-
-    public void setG(double g) {
-        this.g = g;
-    }
-
-    public void setParent(Node parent) {
-        this.parent = parent;
     }
 
     public double getCost() {
@@ -92,7 +83,7 @@ public class Node implements Comparable<Node>{
     }
 
     public void setCost(double cost) {
-        this.cost = (int)cost;
+        this.cost = (int) cost;
     }
 
     public Centroid getBelongsToCentroid() {
@@ -115,11 +106,23 @@ public class Node implements Comparable<Node>{
         return parent;
     }
 
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
     public boolean isRoot() {
         return isRoot;
     }
 
     public void setRoot(boolean root) {
         isRoot = root;
+    }
+
+    public boolean isTreeRoot() {
+        return isTreeRoot;
+    }
+
+    public void setTreeRoot(boolean treeRoot) {
+        isTreeRoot = treeRoot;
     }
 }

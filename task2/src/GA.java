@@ -1,8 +1,3 @@
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Random;
-
 public class GA {
   /*  public static Individual crossover(Individual a, Individual b, BufferedImage img){
         ArrayList<Centroid> newCentroids = new ArrayList<>();
