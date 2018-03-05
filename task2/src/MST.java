@@ -14,9 +14,11 @@ class MST {
         pqueue = new PriorityQueue<>();
         pqueueHash = new HashSet<>();
         memoizer = new HashMap<>();
+
         //Set initial condition
         start.setCost(0);
         pqueue.offer(start);
+
 
 
     }

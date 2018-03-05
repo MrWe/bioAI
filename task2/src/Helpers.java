@@ -156,6 +156,9 @@ public abstract class Helpers {
         int r2 = (argb2 >> 16) & 255;
         int g2 = (argb2 >> 8) & 255;
         int b2 = (argb2) & 255;
+
+        //return ColorEuclideanDistance(new Color(r1, g1, b1), new Color(r2, g2, b2));
+
         return Math.sqrt(r1 * r2 + g1 * g2 + b1 * b2);
     }
 

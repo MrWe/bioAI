@@ -3,7 +3,6 @@ import java.util.LinkedList;
 
 public class BFS {
 
-
     public static ArrayList<Node> BFS(Node startNode) {
 
         LinkedList<Node> BFSQueue = new LinkedList<>();

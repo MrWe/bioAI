@@ -14,7 +14,7 @@ public class Main {
         Change these
          */
         String path = "3";
-        int numSegments = 1000;
+        int numSegments = 100;
         int numPopulations = 20;
         int numIndividuals = 20;
 
@@ -34,13 +34,12 @@ public class Main {
 
         ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
-
-        System.out.println(rootNodes.size());
-
+        rootNodes.add(nodes.get(0).get(0));
+        nodes.get(0).get(0).setRoot(true);
 
         for(Node rootNode : rootNodes){
             ArrayList<Node> segment = BFS.BFS(rootNode);
-            System.out.println(segment.size());
+
             for(Node n : segment){
                 img = changeImage(img, n, rootNode);
             }
