@@ -1,25 +1,17 @@
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-
 public class Centroid {
 
-    private ArrayList<Node>  currentlyAssignedNodes;
-    private double x;
-    private double y;
-    private Color color;
-    private Color avgColor;
+    private int x;
+    private int y;
+    private int color;
     private double overallDeviation;
     private double edgeValue;
     private String hash;
 
 
-
-    public Centroid(double x, double y, Color c){
+    public Centroid(int x, int y, int c) {
         this.x = x;
         this.y = y;
         this.color = c;
-        this.currentlyAssignedNodes = new ArrayList<>();
         this.hash = createHash();
     }
 
@@ -27,27 +19,19 @@ public class Centroid {
 
     }
 
-    private String createHash(){
-        return (int)this.x+""+(int)this.y;
+    private String createHash() {
+        return (int) this.x + "" + (int) this.y;
     }
 
-    public ArrayList<Node> getcurrentlyAssignedNodes() {
-        return currentlyAssignedNodes;
-    }
-
-    public void addNode(Node node) {
-        this.currentlyAssignedNodes.add(node);
-    }
-
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
     }
 
-    public Color getColor() {
+    public int getColor() {
         return color;
     }
 
@@ -63,7 +47,6 @@ public class Centroid {
         return hash;
     }
 
-
     public double getEdgeValue() {
         return edgeValue;
     }
@@ -72,13 +55,6 @@ public class Centroid {
         this.edgeValue = edgeValue;
     }
 
-    public Color getAvgColor() {
-        return avgColor;
-    }
-
-    public void setAvgColor(Color avgColor) {
-        this.avgColor = avgColor;
-    }
 }
 
 

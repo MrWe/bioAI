@@ -1,7 +1,6 @@
-import java.awt.*;
 import java.util.ArrayList;
 
-public class Individual implements Comparable<Individual>{
+public class Individual implements Comparable<Individual> {
 
     private ArrayList<Centroid> centroids;
     private double overallDeviation;
@@ -10,15 +9,15 @@ public class Individual implements Comparable<Individual>{
     private double crowdingDistance;
 
 
-    public Individual(ArrayList<Centroid> centroids){
+    /*public Individual(ArrayList<Centroid> centroids){
         this.centroids = centroids;
         this.overallDeviation = sumOverallDeviation(centroids);
         this.edgeValue = sumEdgeValue(centroids);
         this.rank = 0;
         this.crowdingDistance = 0;
-    }
+    }*/
 
-    double sumOverallDeviation(ArrayList<Centroid> centroids){
+    /*double sumOverallDeviation(ArrayList<Centroid> centroids){
 
         double totalFitness = 0;
         for (Centroid centroid : centroids) {
@@ -36,15 +35,13 @@ public class Individual implements Comparable<Individual>{
         }
         return totalFitness;
 
-    }
-
-
+    }*/
 
 
     /*
    We want to minimize this
     */
-    private double overallDeviation(Centroid centroid){
+    /*private double overallDeviation(Centroid centroid){
 
         double fitness = 0;
         for (Node node : centroid.getcurrentlyAssignedNodes()) {
@@ -53,12 +50,12 @@ public class Individual implements Comparable<Individual>{
         centroid.setOverallDeviation(fitness);
         return fitness;
 
-    }
+    }*/
 
     /*
     We want to maximize this
      */
-    private double edgeValue(Centroid centroid){
+    /*private double edgeValue(Centroid centroid){
         double fitness = 0;
         for(Node node : centroid.getcurrentlyAssignedNodes()){
             for(Node neighbour : node.getNeighbours()){
@@ -71,7 +68,7 @@ public class Individual implements Comparable<Individual>{
         }
         centroid.setEdgeValue(fitness);
         return fitness;
-    }
+    }*/
 
 
     public double getEdgeValue() {
