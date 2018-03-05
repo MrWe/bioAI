@@ -5,61 +5,41 @@ import java.util.PriorityQueue;
 
 class MST {
 
-    private PriorityQueue<Node> pqueue;
+    private PriorityQueue<Edge> pqueue;
     private HashSet<String> pqueueHash;
     private HashMap<String, Double> memoizer;
 
 
-    MST(Node start) {
+    MST(ArrayList<Node> start, ArrayList<ArrayList<Node>> nodes) {
         pqueue = new PriorityQueue<>();
         pqueueHash = new HashSet<>();
         memoizer = new HashMap<>();
 
         //Set initial condition
-        start.setCost(0);
-        pqueue.offer(start);
-
-
+        for(Node root : start){
+            root.setCost(0);
+            pqueue.addAll(addEdges(root, nodes));
+        }
 
     }
 
     public ArrayList<ArrayList<Node>> prim(ArrayList<ArrayList<Node>> nodes) {
+        ArrayList<Edge> edges = new ArrayList<>();
         while (!pqueue.isEmpty()) {
             //Set current to best possible node in priority queue, comparison can be found i Node class
-            Node current = pqueue.poll();
+            Edge current = pqueue.poll();
 
-            current.setClosed(true);
-
-            current.setNeighbours(addNeighbours(current, nodes));
-
-            for (int i = 0; i < current.getNeighbours().size(); i++) {
-                Node neighbour = current.getNeighbours().get(i);
-
-                double g_score = getG(current, neighbour);
-
-                //If neighbours is in closed list; ignore it
-                if (neighbour.isClosed()) {
-                    continue;
-                }
-
-                // Add to open list if not already there
-                if (!pqueueHash.contains(neighbour.hashNode())) {
-                    neighbour.setCost(g_score);
-                    neighbour.setParent(current);
-                    pqueue.offer(neighbour);
-                    pqueueHash.add(neighbour.hashNode());
-                }
-
-                //If open list contains neighbour OR it is better, set parent to current node.
-                else if (g_score < neighbour.getCost()) {
-                    neighbour.setParent(current);
-                    neighbour.setCost(g_score);
-                    pqueue.remove(neighbour);
-                    pqueue.offer(neighbour);
-                }
+            if(!(current.getN1().isClosed() && current.getN2().isClosed())) { //The edge between N1 and N2 lead to the discovery of a new node (N2)
+                edges.add(current);
             }
+
+            current.getN1().setClosed(true);
+            current.getN2().setClosed(true);
+
+            pqueue.addAll(addEdges(current.getN1(), nodes));
+            pqueue.addAll(addEdges(current.getN2(), nodes));
         }
-        return addChildren(nodes);
+        return nodes;
     }
 
     private ArrayList<ArrayList<Node>> addChildren(ArrayList<ArrayList<Node>> nodes) {
@@ -74,6 +54,8 @@ class MST {
     }
 
     private double getG(Node current, Node neighbour) {
+        //return Helpers.rgbDistance(current.getColor(), neighbour.getColor());
+
         String key = current.getColor() + "" + neighbour.getColor();
         String revKey = neighbour.getColor() + "" + current.getColor();
 
@@ -89,6 +71,7 @@ class MST {
         }
 
         return g_score;
+
     }
 
 
@@ -123,6 +106,73 @@ class MST {
 
 
         return neighbours;
+    }
+
+    private ArrayList<Edge> addEdges(Node node, ArrayList<ArrayList<Node>> nodes) {
+        ArrayList<Edge> edges = new ArrayList<>();
+        try {
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
+            double g = getG(node, neighbour);
+            Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
+
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
+
+        } catch (Exception ignored) {
+        }
+        try {
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
+            double g = getG(node, neighbour);
+            Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
+
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
+
+        } catch (Exception ignored) {
+        }
+        try {
+            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+            double g = getG(node, neighbour);
+            Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
+
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
+
+        } catch (Exception ignored) {
+        }
+        try {
+            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+            double g = getG(node, neighbour);
+            Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
+
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
+
+        } catch (Exception ignored) {
+        }
+
+
+        return edges;
     }
 
 

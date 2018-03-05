@@ -157,9 +157,9 @@ public abstract class Helpers {
         int g2 = (argb2 >> 8) & 255;
         int b2 = (argb2) & 255;
 
-        //return ColorEuclideanDistance(new Color(r1, g1, b1), new Color(r2, g2, b2));
+        return ColorEuclideanDistance(new Color(r1, g1, b1), new Color(r2, g2, b2));
 
-        return Math.sqrt(r1 * r2 + g1 * g2 + b1 * b2);
+        //return Math.sqrt(r1 * r2 + g1 * g2 + b1 * b2);
     }
 
     public static ArrayList<ArrayList<Node>> initNodes(int[][] img) {
@@ -209,16 +209,11 @@ public abstract class Helpers {
 
         ArrayList<Node> rootNodes = new ArrayList<>();
 
-        nodes.get(0).get(0).setRoot(true);
-        nodes.get(0).get(0).setTreeRoot(true);
-
-        rootNodes.add(nodes.get(0).get(0));
-
         Random r = new Random();
 
         HashSet<String> selected = new HashSet<>();
 
-        for (int n = 0; n < numSegments - 1; n++) { //init with 0 0 as root, so we take that into account for number of segments.
+        for (int n = 0; n < numSegments; n++) { //init with 0 0 as root, so we take that into account for number of segments.
             int x = r.nextInt(nodes.size());
             int y = r.nextInt(nodes.get(0).size());
             String s = x + "" + y;

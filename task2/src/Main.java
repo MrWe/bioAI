@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Main {
 
@@ -14,7 +15,7 @@ public class Main {
         Change these
          */
         String path = "3";
-        int numSegments = 100;
+        int numSegments = 10;
         int numPopulations = 20;
         int numIndividuals = 20;
 
@@ -25,17 +26,13 @@ public class Main {
 
         ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
 
-        nodes.get(0).get(0).setRoot(true);
-        nodes.get(0).get(0).setTreeRoot(true);
+        ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
-        MST mst = new MST(nodes.get(0).get(0));
+        MST mst = new MST(rootNodes, nodes);
         nodes = mst.prim(nodes);
 
 
-        ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
-
-        rootNodes.add(nodes.get(0).get(0));
-        nodes.get(0).get(0).setRoot(true);
+        System.out.println(rootNodes.size());
 
         for(Node rootNode : rootNodes){
             ArrayList<Node> segment = BFS.BFS(rootNode);
