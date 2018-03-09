@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class Helpers {
 
@@ -163,15 +165,27 @@ public abstract class Helpers {
     }
 
     public static ArrayList<ArrayList<Node>> initNodes(int[][] img) {
-        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
-        for (int i = 0; i < img.length; i++) {
-            nodes.add(new ArrayList<>());
-            for (int j = 0; j < img[0].length; j++) {
 
-                int c = img[i][j];
-                nodes.get(i).add(new Node(i, j, c));
+        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        executorService.execute(() -> {
+
+
+            for (int i = 0; i < img.length; i++) {
+                nodes.add(new ArrayList<>());
+                for (int j = 0; j < img[0].length; j++) {
+
+                    final int c = img[i][j];
+                    nodes.get(i).add(new Node(i, j, c));
+                }
             }
-        }
+        });
+
+        executorService.shutdown();
+        while(!executorService.isTerminated()){}
+
         return nodes;
     }
 
@@ -207,33 +221,44 @@ public abstract class Helpers {
 
     public static ArrayList<Node> initRootNodes(ArrayList<ArrayList<Node>> nodes, int numSegments) {
 
-        ArrayList<Node> rootNodes = new ArrayList<>();
+        final ArrayList<Node> rootNodes = new ArrayList<>();
 
-        Random r = new Random();
+        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        HashSet<String> selected = new HashSet<>();
+        executorService.execute(() -> {
 
-        for (int n = 0; n < numSegments; n++) { //init with 0 0 as root, so we take that into account for number of segments.
-            int x = r.nextInt(nodes.size());
-            int y = r.nextInt(nodes.get(0).size());
-            String s = x + "" + y;
-            int counter = 0;
-            while (selected.contains(s) && (x == 0 && y == 0) && counter < 1000) {
-                x = r.nextInt(nodes.size());
-                y = r.nextInt(nodes.get(0).size());
-                s = x + "" + y;
-                counter += 1;
-            }
-            if (counter >= 999) {
-                break;
+            for (ArrayList<Node> row : nodes) {
+                for (Node node : row) {
+                    node.setRoot(false);
+                }
             }
 
-            selected.add(s);
 
-            nodes.get(x).get(y).setRoot(true);
+            final Random r = new Random();
 
-            rootNodes.add(nodes.get(x).get(y));
-        }
+            final HashSet<String> selected = new HashSet<>();
+
+            for (int n = 0; n < numSegments; n++) { //init with 0 0 as root, so we take that into account for number of segments.
+
+                for (int i = 0; i < 1000; i++) {
+
+                    final int x = r.nextInt(nodes.size());
+                    final int y = r.nextInt(nodes.get(0).size());
+                    final String s = x + "" + y;
+                    if(!selected.contains(s)){
+                        selected.add(s);
+
+                        nodes.get(x).get(y).setRoot(true);
+
+                        rootNodes.add(nodes.get(x).get(y));
+                        break;
+                    }
+                }
+            }
+        });
+
+        executorService.shutdown();
+        while(!executorService.isTerminated()){}
 
         return rootNodes;
     }

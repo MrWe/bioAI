@@ -24,15 +24,17 @@ public class Main {
         //img = scale(img, img.getType(), (int)(img.getWidth()*0.1), (int)(img.getHeight()*0.1), 0.1, 0.1);
         int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
 
-        ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
-
-        ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
-
-        MST mst = new MST(rootNodes, nodes);
-        nodes = mst.prim(nodes);
 
 
-        System.out.println(rootNodes.size());
+
+        for (int i = 0; i < 3; i++) {
+
+            ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
+
+            ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
+
+            nodes = MST.prim(nodes, rootNodes);
+
 
         for(Node rootNode : rootNodes){
             ArrayList<Node> segment = BFS.BFS(rootNode);
@@ -42,23 +44,8 @@ public class Main {
             }
         }
 
-
-
-       /* Population population = new Population(img, numCentroids, numIndividuals);
-
-
-
-        for (int i = 0; i < numPopulations; i++) {
-            population = new Population(img, numCentroids, GA.doGA(img, population));
-        }
-
-        for (Centroid c : population.getIndividuals().get(0).getCentroids()) {
-            for (Node n : c.getcurrentlyAssignedNodes()) {
-                img = changeImage(img, n, c);
-            }
-        }*/
-
         writeImage(path, img);
+        }
 
     }
 
