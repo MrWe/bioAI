@@ -18,7 +18,7 @@ class MST {
             final HashSet<String> pqueueHash = new HashSet<>();
 
             //Set initial condition
-            for(Node root : start){
+            for(final Node root : start){
                 root.setCost(0);
                 pqueue.addAll(addEdges(root, nodes));
             }
@@ -64,9 +64,9 @@ class MST {
     private static ArrayList<Edge> addEdges(Node node, ArrayList<ArrayList<Node>> nodes) {
         final ArrayList<Edge> edges = new ArrayList<>();
         try {
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
-            double g = getG(node, neighbour);
-            Edge edge = new Edge(node, neighbour, g);
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
             if(!(node.isClosed() && neighbour.isClosed())){
 
                 neighbour.setParent(node);
@@ -79,9 +79,9 @@ class MST {
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
-            double g = getG(node, neighbour);
-            Edge edge = new Edge(node, neighbour, g);
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
             if(!(node.isClosed() && neighbour.isClosed())){
 
                 neighbour.setParent(node);
@@ -94,9 +94,9 @@ class MST {
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
-            double g = getG(node, neighbour);
-            Edge edge = new Edge(node, neighbour, g);
+            final  Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
             if(!(node.isClosed() && neighbour.isClosed())){
 
                 neighbour.setParent(node);
@@ -109,9 +109,9 @@ class MST {
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
-            double g = getG(node, neighbour);
-            Edge edge = new Edge(node, neighbour, g);
+            final Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
             if(!(node.isClosed() && neighbour.isClosed())){
 
                 neighbour.setParent(node);

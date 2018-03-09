@@ -7,7 +7,7 @@ public class BFS {
 
     public static ArrayList<Node> BFS(Node startNode) {
 
-        ArrayList<Node> closed = new ArrayList<>();
+        final ArrayList<Node> closed = new ArrayList<>();
 
         final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -28,7 +28,8 @@ public class BFS {
                 //else add neighbours to current node
                 final ArrayList<Node> children = current.getChildren();
                 for (int i = 0; i < children.size(); i++) {
-                   final Node child = children.get(i);
+                   final int j = i;
+                   final Node child = children.get(j);
 
                     //If neighbours is in closed list; ignore it
                     if (closed.contains(child) || child.isRoot()) {

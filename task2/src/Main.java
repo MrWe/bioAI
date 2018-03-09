@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -25,15 +27,16 @@ public class Main {
         int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
 
 
+        ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
+        ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
+        for (int i = 0; i < 1; i++) {
 
-        for (int i = 0; i < 3; i++) {
+            System.out.println(i);
 
-            ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
-
-            ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
             nodes = MST.prim(nodes, rootNodes);
+        }
 
 
         for(Node rootNode : rootNodes){
@@ -42,10 +45,11 @@ public class Main {
             for(Node n : segment){
                 img = changeImage(img, n, rootNode);
             }
-        }
 
-        writeImage(path, img);
+
+
         }
+        writeImage(path, img);
 
     }
 
@@ -75,15 +79,16 @@ public class Main {
 
 
     static BufferedImage changeImage(BufferedImage img, Node node, Node rootNode) {
-        //Color c = Color.WHITE;
-        //if(node.getColor() == Color.BLACK) {
+
+
+            //Color c = Color.WHITE;
+            //if(node.getColor() == Color.BLACK) {
             Color c = new Color(rootNode.getColor());
-          //  c = Color.BLACK;
-        //}
+            //  c = Color.BLACK;
+            //}
 
+            img.setRGB(node.getY(), node.getX(), c.getRGB());
 
-
-        img.setRGB(node.getY(), node.getX(), c.getRGB());
         return img;
     }
 
