@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 public class BFS {
 
-    public static ArrayList<Node> BFS(Node startNode) {
+    public static ArrayList<Node> BFS(Node startNode, Segment segment) {
 
         final ArrayList<Node> closed = new ArrayList<>();
 
@@ -24,6 +24,7 @@ public class BFS {
                 final Node current = BFSQueue.pop();
 
                 closed.add(current);
+                current.setSegment(segment);
 
                 //else add neighbours to current node
                 final ArrayList<Node> children = current.getChildren();

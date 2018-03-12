@@ -17,7 +17,7 @@ public class Main {
         Change these
          */
         String path = "3";
-        int numSegments = 10;
+        int numSegments = 30;
         int numPopulations = 20;
         int numIndividuals = 20;
 
@@ -26,30 +26,74 @@ public class Main {
         //img = scale(img, img.getType(), (int)(img.getWidth()*0.1), (int)(img.getHeight()*0.1), 0.1, 0.1);
         int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
 
-
         ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
-        ArrayList<Node> rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
-        for (int i = 0; i < 1; i++) {
-
-            System.out.println(i);
+        ArrayList<ArrayList<ArrayList<Edge>>> edges = new ArrayList<>();
 
 
-            nodes = MST.prim(nodes, rootNodes);
+        for (int i = 0; i < nodes.size(); i++) {
+            edges.add(new ArrayList<>());
+            for (int j = 0; j < nodes.get(i).size(); j++) {
+                edges.get(i).add(new ArrayList<>());
+                edges.get(i).get(j).addAll(Helpers.setNodeEdges(nodes.get(i).get(j),nodes));
+            }
         }
 
+
+        ArrayList<Node> rootNodes;
+        ArrayList<Individual> individuals = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+
+            nodes = Helpers.initNodes(imgArray);
+
+            rootNodes = Helpers.initRootNodes(nodes, numSegments);
+
+            nodes = MST.prim(nodes, rootNodes, edges);
+
+
+            ArrayList<Segment> segments = new ArrayList<>();
 
         for(Node rootNode : rootNodes){
-            ArrayList<Node> segment = BFS.BFS(rootNode);
+            Segment segment = new Segment();
+            segment.setNodes(BFS.BFS(rootNode, segment));
 
-            for(Node n : segment){
-                img = changeImage(img, n, rootNode);
-            }
+            segment.setRootNode(rootNode);
+            segments.add(segment);
 
 
 
         }
+
+        individuals.add(new Individual(segments, nodes));
+
+
+        }
+
+        double bestEdge = Integer.MAX_VALUE;
+        double bestOverall = Integer.MAX_VALUE;
+        Individual bestI = individuals.get(0);
+
+        for(Individual individual : individuals){
+            if(individual.getEdgeValue() < bestEdge && individual.getOverallDeviation() < bestOverall){
+                bestEdge = individual.getEdgeValue();
+                bestOverall = individual.getOverallDeviation();
+                bestI = individual;
+            }
+        }
+
+
+        for(Segment segment : bestI.getSegments()){
+            for(Node n : segment.getNodes()){
+                img = changeImage(img, n, segment.getRootNode());
+            }
+
+        }
+
+
         writeImage(path, img);
+
+
 
     }
 

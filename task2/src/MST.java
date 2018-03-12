@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 
 class MST {
 
-    public static ArrayList<ArrayList<Node>> prim(ArrayList<ArrayList<Node>> nodes, ArrayList<Node> start) {
+    public static ArrayList<ArrayList<Node>> prim(ArrayList<ArrayList<Node>> nodes, ArrayList<Node> start, ArrayList<ArrayList<ArrayList<Edge>>> initedges) {
 
         final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -20,22 +20,22 @@ class MST {
             //Set initial condition
             for(final Node root : start){
                 root.setCost(0);
-                pqueue.addAll(addEdges(root, nodes));
+                pqueue.addAll(addEdges(root, nodes, initedges));
             }
 
             while (!pqueue.isEmpty()) {
                 //Set current to best possible node in priority queue, comparison can be found i Node class
                 final Edge current = pqueue.poll();
 
-                if (!(current.getN1().isClosed() && current.getN2().isClosed())) { //The edge between N1 and N2 lead to the discovery of a new node (N2)
-                    edges.add(current);
-                }
 
-                current.getN1().setClosed(true);
-                current.getN2().setClosed(true);
 
-                pqueue.addAll(addEdges(current.getN1(), nodes));
-                pqueue.addAll(addEdges(current.getN2(), nodes));
+                nodes.get(current.getN1X()).get(current.getN1Y()).setClosed(true);
+                nodes.get(current.getN2X()).get(current.getN2Y()).setClosed(true);
+
+                pqueue.addAll(addEdges(nodes.get(current.getN1X()).get(current.getN1Y()), nodes, initedges));
+                pqueue.addAll(addEdges(nodes.get(current.getN2X()).get(current.getN2Y()), nodes, initedges));
+
+
             }
         });
         executorService.shutdown();
@@ -61,8 +61,32 @@ class MST {
 
     }
 
-    private static ArrayList<Edge> addEdges(Node node, ArrayList<ArrayList<Node>> nodes) {
+    private static ArrayList<Edge> addEdges(Node node, ArrayList<ArrayList<Node>> nodes, ArrayList<ArrayList<ArrayList<Edge>>> initedges) {
         final ArrayList<Edge> edges = new ArrayList<>();
+
+        ArrayList<Edge> neighbourEdges = initedges.get(node.getX()).get(node.getY());
+
+        ArrayList<Edge> edgesToReturn = new ArrayList<>();
+
+        for(Edge e : neighbourEdges){
+
+            if(! (nodes.get(e.getN1X()).get(e.getN1Y()).isClosed() && (nodes.get(e.getN2X()).get(e.getN2Y()).isClosed()))){
+                edgesToReturn.add(e);
+
+                nodes.get(e.getN2X()).get(e.getN2Y()).setParent(node);
+                node.addChild(nodes.get(e.getN2X()).get(e.getN2Y()));
+                nodes.get(e.getN2X()).get(e.getN2Y()).setCost(e.getEdgeCost());
+            }
+        }
+
+
+
+        return edgesToReturn;
+
+
+        /*
+
+
         try {
             final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
             final double g = getG(node, neighbour);
@@ -126,6 +150,7 @@ class MST {
 
 
         return edges;
+        */
     }
 
 
