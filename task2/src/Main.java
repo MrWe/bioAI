@@ -53,6 +53,15 @@ public class Main {
 
             p = new Population(imgArray, edges, newRoots, numIndividuals);
 
+            Individual outIndividual = p.getIndividuals().get(0);
+            for(Segment segment : outIndividual.getSegments()){
+                for(Node n : segment.getNodes()){
+                    img = changeImageGroundTruth(img, n);
+                }
+            }
+
+            writeImage(path, img, i);
+
         }
 
 
@@ -67,8 +76,8 @@ public class Main {
             }
 
 
-        writeImage(path, img);
-        writeImage(path+"COLORS", img2);
+        writeImage(path, img, numIndividuals+2);
+        writeImage(path+"COLORS", img2, 0);
 
 
     }
@@ -83,6 +92,7 @@ public class Main {
 
     static BufferedImage readImage(String path) {
         BufferedImage img = null;
+
         try {
             img = ImageIO.read(new File("TestImages/" + path + "/Test image.jpg"));
 
@@ -92,8 +102,11 @@ public class Main {
         return img;
     }
 
-    static void writeImage(String path, BufferedImage img) {
-        File outputfile = new File("OutFiles/" + path + ".jpg");
+    static void writeImage(String path, BufferedImage img, int imgCount) {
+        File dir = new File("OutFiles/" + path);
+        dir.mkdir();
+
+        File outputfile = new File("OutFiles/" + path +"/" + path + imgCount + ".jpg");
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {
