@@ -94,7 +94,7 @@ public class Main {
         BufferedImage img = null;
 
         try {
-            img = ImageIO.read(new File("TestImages/" + path + "/Test image.jpg"));
+            img = ImageIO.read(new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/2/Test image.jpg"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,11 +102,13 @@ public class Main {
         return img;
     }
 
+
     static void writeImage(String path, BufferedImage img, int imgCount) {
         File dir = new File("OutFiles/" + path);
         dir.mkdir();
 
-        File outputfile = new File("OutFiles/" + path +"/" + path + imgCount + ".jpg");
+        File outputfile = new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/OutFiles/2.jpg");
+
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {
