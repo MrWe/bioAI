@@ -27,6 +27,7 @@ public class BFS {
 
                 final Node current = children.remove(0);
                 segments.get(index).add(current);
+                segments.get(index).setRootNode(current);
                 current.setSegment(segments.get(index));
 
                 for (final Node child : current.getChildren()) {

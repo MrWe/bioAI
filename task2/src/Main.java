@@ -2,7 +2,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBufferInt;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,13 +20,14 @@ public class Main {
         /*
         Change these
          */
-        String path = "5";
-        int numSegments = 10;
-        int numPopulations = 20;
-        int numIndividuals = 20;
+        String path = "2";
+        int numSegments = 26;
+        int numPopulations = 10;
+        int numIndividuals = 3;
 
 
         BufferedImage img = readImage(path);
+
         //img = scale(img, img.getType(), (int)(img.getWidth()*0.1), (int)(img.getHeight()*0.1), 0.1, 0.1);
         int[][] imgArray = Helpers.convertTo2DWithoutUsingGetRGB(img);
 
@@ -41,39 +44,40 @@ public class Main {
             }
         }
 
-        ArrayList<Node> rootNodes;
-        ArrayList<Individual> individuals = new ArrayList<>();
 
-        for (int i = 0; i < 20; i++) {
-            System.out.println(i);
+        Population p = new Population(imgArray, edges, numSegments, numIndividuals);
 
-            nodes = Helpers.initNodes(imgArray);
+        for (int i = 0; i < numPopulations; i++) {
 
-            rootNodes = Helpers.initRootNodes(nodes, numSegments);
+            ArrayList<ArrayList<ArrayList<Integer>>> newRoots = GA.doGA(imgArray, p, numIndividuals);
 
-            MST.prim(rootNodes, nodes, edges, numSegments);
-
-
-            ArrayList<Segment> segments = BFS.BFS(rootNodes);
-
-
-        individuals.add(new Individual(segments, nodes));
+            p = new Population(imgArray, edges, newRoots, numIndividuals);
 
         }
 
-        ArrayList<Individual> best = Helpers.crowdingDistance(individuals, 1);
 
-        for(Segment segment : best.get(0).getSegments()){
-            for(Node n : segment.getNodes()){
-               img = changeImage(img, n, segment.getRootNode());
-          }
+        BufferedImage img2 = deepCopy(img);
 
-        }
+        Individual i = p.getIndividuals().get(0);
+            for(Segment segment : i.getSegments()){
+                for(Node n : segment.getNodes()){
+                    img2 = changeImageWithColors(img2, n);
+                    img = changeImageGroundTruth(img, n);
+                }
+            }
 
 
         writeImage(path, img);
+        writeImage(path+"COLORS", img2);
 
 
+    }
+
+    static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
 
@@ -98,10 +102,7 @@ public class Main {
     }
 
 
-
-
-
-    static BufferedImage changeImage(BufferedImage img, Node node, Node rootNode) {
+    static BufferedImage changeImageGroundTruth(BufferedImage img, Node node) {
 
         Color c;
         if(node.isEdge()){
@@ -113,37 +114,21 @@ public class Main {
 
         img.setRGB(node.getY(), node.getX(), c.getRGB());
 
-        /*if(node.isEdge()){
-            try{
-                img.setRGB(node.getY()-1, node.getX(), c.getRGB());
-            }
-            catch (Exception e){
+        return img;
+    }
 
-            }
-            try{
-                img.setRGB(node.getY()+1, node.getX(), c.getRGB());
-            }
-            catch (Exception e){
+    static BufferedImage changeImageWithColors(BufferedImage img, Node node) {
 
-            }
-            try{
-                img.setRGB(node.getY(), node.getX()+1, c.getRGB());
-            }
-            catch (Exception e){
-
-            }
-            try{
-                img.setRGB(node.getY(), node.getX()-1, c.getRGB());
-            }
-            catch (Exception e){
-
-            }
-        }*/
+        Color c;
+        if(node.isEdge()){
+            c = Color.GREEN;
+        }
+        else{
+            c = new Color(img.getRGB(node.getY(), node.getX()));
+        }
 
 
-
-
-
+        img.setRGB(node.getY(), node.getX(), c.getRGB());
 
         return img;
     }

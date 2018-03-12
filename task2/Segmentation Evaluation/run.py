@@ -1,6 +1,4 @@
-from __future__ import division
 import os
-import numpy as np
 from fileReader import readImage
 from fileReader import readTextFile
 
@@ -39,16 +37,16 @@ def comparePics(studentPic, optimalSegmentPic):
 			if color1 < blackValueThreshold:
 				#black color
 				numberOfBlackPixels +=1
-				if(color1 - colorValueSlackRange< color2  and color2 < colorValueSlackRange + color1):
+				if(int(color1) == int(color2)):
 					counter +=1
 					continue
 				elif checkEightSurroundingPixels:
 					#check surroundings
 					correctFound = False
-					for w2 in range(w-pixelRangeCheck, w + pixelRangeCheck+1):
+					for w2 in range(w-pixelRangeCheck, w + pixelRangeCheck):
 						if(correctFound):
 							break
-						for h2 in range(h - pixelRangeCheck, h + pixelRangeCheck+1):
+						for h2 in range(h - pixelRangeCheck, h + pixelRangeCheck):
 							if(w2 >=0 and h2 >= 0 and w2 < width and h2 < height):
 
 								color2 = optimalSegmentPic[w2][h2]
@@ -57,7 +55,7 @@ def comparePics(studentPic, optimalSegmentPic):
 									counter +=1
 									break
 	
-	return float(counter)/float(max(numberOfBlackPixels,1))
+	return counter/max(numberOfBlackPixels,1)
 
 
 def main():
@@ -74,7 +72,8 @@ def main():
 		totalScore += highestScore
 		a = highestScore*100
 		print("Score: %.2f" % a + "%")
-	a = totalScore/max(len(studentFiles),1)*100
+	a = totalScore/len(studentFiles)*100
 	print("Total Average Score: %.2f" % a + "%")
 	
 main()
+

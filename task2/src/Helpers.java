@@ -64,7 +64,11 @@ public abstract class Helpers {
         //Sort by crowding distance
         Collections.sort(individuals, crowdingDistanceComparator);
 
-        return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
+
+
+
+        //return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
+        return individuals;
     }
 
 
