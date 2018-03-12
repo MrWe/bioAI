@@ -1,52 +1,47 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class BFS {
 
-    public static ArrayList<Node> BFS(Node startNode, Segment segment) {
+    public static ArrayList<Segment> BFS(ArrayList<Node> rootnodes) {
 
-        final ArrayList<Node> closed = new ArrayList<>();
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final ArrayList<Segment> segments = new ArrayList<>();
 
-        executorService.execute(() -> {
+        final HashSet<Node> seen = new HashSet<>();
 
-            final LinkedList<Node> BFSQueue = new LinkedList<>();
 
-            //Set initial condition
-            BFSQueue.add(startNode);
+        for (int n = 0; n < rootnodes.size(); n++) {
+            final int index = n;
 
-            //While will run until all possible nodes are checked, even if solution is not found
-            while (!BFSQueue.isEmpty()) {
-                //Set current to first in open list
-                final Node current = BFSQueue.pop();
 
-                closed.add(current);
-                current.setSegment(segment);
+            final LinkedList<Node> children = new LinkedList<>();
+            segments.add(new Segment());
 
-                //else add neighbours to current node
-                final ArrayList<Node> children = current.getChildren();
-                for (int i = 0; i < children.size(); i++) {
-                   final int j = i;
-                   final Node child = children.get(j);
+            children.add(rootnodes.get(index));
 
-                    //If neighbours is in closed list; ignore it
-                    if (closed.contains(child) || child.isRoot()) {
+            while (!children.isEmpty()) {
+
+                final Node current = children.remove(0);
+                segments.get(index).add(current);
+                current.setSegment(segments.get(index));
+
+                for (final Node child : current.getChildren()) {
+                    if (child.isRoot() || seen.contains(child)) {
                         continue;
                     }
 
-                    //If open list does not contains neighbour
-                    if (!BFSQueue.contains(child)) {
-                        BFSQueue.offer(child);
-                    }
+                    children.add(child);
+                    seen.add(child);
+
+
                 }
             }
-        });
-
-        executorService.shutdown();
-        while(!executorService.isTerminated()){}
-        return closed;
+        }
+        return segments;
     }
+
 }

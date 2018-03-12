@@ -239,27 +239,17 @@ public abstract class Helpers {
 
         final ArrayList<Node> rootNodes = new ArrayList<>();
 
-
             final Random r = new Random();
-
-            final HashSet<String> selected = new HashSet<>();
 
             for (int n = 0; n < numSegments; n++) {
 
-                for (int i = 0; i < 100; i++) {
-
                     final int x = r.nextInt(nodes.size());
                     final int y = r.nextInt(nodes.get(0).size());
-                    final String s = x + "" + y;
-                    if(!selected.contains(s)){
-                        selected.add(s);
 
-                        nodes.get(x).get(y).setRoot(true);
 
-                        rootNodes.add(nodes.get(x).get(y));
-                        break;
-                    }
-                }
+                    nodes.get(x).get(y).setRoot(true);
+
+                    rootNodes.add(nodes.get(x).get(y));
             }
 
 
@@ -310,28 +300,26 @@ public abstract class Helpers {
         try{
             Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
 
-                neighbours.add(neighbour);
-
-
+            neighbours.add(neighbour);
         }
         catch(Exception ignored){
         }
         try{
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
 
             neighbours.add(neighbour);
         }
         catch(Exception ignored){
         }
         try{
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()+1));
 
             neighbours.add(neighbour);
         }
         catch(Exception ignored){
         }
         try{
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
 
             neighbours.add(neighbour);
         }

@@ -2,9 +2,11 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,8 +18,8 @@ public class Main {
         /*
         Change these
          */
-        String path = "3";
-        int numSegments = 30;
+        String path = "5";
+        int numSegments = 10;
         int numPopulations = 20;
         int numIndividuals = 20;
 
@@ -39,60 +41,37 @@ public class Main {
             }
         }
 
-
         ArrayList<Node> rootNodes;
         ArrayList<Individual> individuals = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
+            System.out.println(i);
 
             nodes = Helpers.initNodes(imgArray);
 
             rootNodes = Helpers.initRootNodes(nodes, numSegments);
 
-            nodes = MST.prim(nodes, rootNodes, edges);
+            MST.prim(rootNodes, nodes, edges, numSegments);
 
 
-            ArrayList<Segment> segments = new ArrayList<>();
+            ArrayList<Segment> segments = BFS.BFS(rootNodes);
 
-        for(Node rootNode : rootNodes){
-            Segment segment = new Segment();
-            segment.setNodes(BFS.BFS(rootNode, segment));
-
-            segment.setRootNode(rootNode);
-            segments.add(segment);
-
-
-
-        }
 
         individuals.add(new Individual(segments, nodes));
 
-
         }
 
-        double bestEdge = Integer.MAX_VALUE;
-        double bestOverall = Integer.MAX_VALUE;
-        Individual bestI = individuals.get(0);
+        ArrayList<Individual> best = Helpers.crowdingDistance(individuals, 1);
 
-        for(Individual individual : individuals){
-            if(individual.getEdgeValue() < bestEdge && individual.getOverallDeviation() < bestOverall){
-                bestEdge = individual.getEdgeValue();
-                bestOverall = individual.getOverallDeviation();
-                bestI = individual;
-            }
-        }
-
-
-        for(Segment segment : bestI.getSegments()){
+        for(Segment segment : best.get(0).getSegments()){
             for(Node n : segment.getNodes()){
-                img = changeImage(img, n, segment.getRootNode());
-            }
+               img = changeImage(img, n, segment.getRootNode());
+          }
 
         }
 
 
         writeImage(path, img);
-
 
 
     }
@@ -124,14 +103,47 @@ public class Main {
 
     static BufferedImage changeImage(BufferedImage img, Node node, Node rootNode) {
 
+        Color c;
+        if(node.isEdge()){
+            c = Color.BLACK;
+        }
+        else{
+            c = Color.WHITE;
+        }
 
-            //Color c = Color.WHITE;
-            //if(node.getColor() == Color.BLACK) {
-            Color c = new Color(rootNode.getColor());
-            //  c = Color.BLACK;
-            //}
+        img.setRGB(node.getY(), node.getX(), c.getRGB());
 
-            img.setRGB(node.getY(), node.getX(), c.getRGB());
+        /*if(node.isEdge()){
+            try{
+                img.setRGB(node.getY()-1, node.getX(), c.getRGB());
+            }
+            catch (Exception e){
+
+            }
+            try{
+                img.setRGB(node.getY()+1, node.getX(), c.getRGB());
+            }
+            catch (Exception e){
+
+            }
+            try{
+                img.setRGB(node.getY(), node.getX()+1, c.getRGB());
+            }
+            catch (Exception e){
+
+            }
+            try{
+                img.setRGB(node.getY(), node.getX()-1, c.getRGB());
+            }
+            catch (Exception e){
+
+            }
+        }*/
+
+
+
+
+
 
         return img;
     }
@@ -148,4 +160,6 @@ public class Main {
         }
         return dbi;
     }
+
+
 }

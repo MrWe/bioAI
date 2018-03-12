@@ -57,14 +57,19 @@ public class Individual implements Comparable<Individual> {
      */
     private double edgeValue(Segment segment, ArrayList<ArrayList<Node>> nodes) {
         double fitness = 0;
+
+
+
         for (Node node : segment.getNodes()) {
 
             for (Node neighbour : Helpers.getNodeNeighbours(node, nodes)) {
 
                 if (node.getSegment() == neighbour.getSegment()) {
-
                     continue;
                 }
+
+                node.setEdge(true);
+
                 //node.setColor(Color.BLACK);
                 fitness += Helpers.rgbDistance(node.getColor(), neighbour.getColor());
             }

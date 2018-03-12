@@ -11,6 +11,7 @@ public class Node implements Comparable<Node> {
     private int cost = Integer.MAX_VALUE;
     private int color;
     private Segment segment;
+    private boolean isEdge = false;
 
     private ArrayList<Edge> edges;
 
@@ -144,5 +145,13 @@ public class Node implements Comparable<Node> {
 
     public void setSegment(Segment segment) {
         this.segment = segment;
+    }
+
+    public boolean isEdge() {
+        return isEdge;
+    }
+
+    public void setEdge(boolean edge) {
+        isEdge = edge;
     }
 }
