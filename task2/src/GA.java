@@ -37,7 +37,7 @@ public class GA {
 
         for (int i = 0; i < children.size(); i++) {
             for (int j = 0; j < children.get(i).size(); j++) {
-                if(r.nextDouble() < 0.01){
+                if(r.nextDouble() < 0.1){
                     int newX = r.nextInt(imgArray[0].length);
                     int newY = r.nextInt(imgArray.length);
 
