@@ -6,10 +6,14 @@ public class Node implements Comparable<Node> {
     private Node parent;
     private boolean isRoot = false;
     private boolean isTreeRoot = false;
-    private ArrayList<Node> children;
-    private ArrayList<Node> neighbours;
+    public ArrayList<Node> children;
+    public ArrayList<Node> neighbours;
     private int cost = Integer.MAX_VALUE;
     private int color;
+    private Segment segment;
+    private boolean isEdge = false;
+
+    private ArrayList<Edge> edges;
 
     private Centroid belongsToCentroid;
     private String hash;
@@ -21,6 +25,7 @@ public class Node implements Comparable<Node> {
         this.color = c;
         this.hash = hashNode();
         this.children = new ArrayList<>();
+        this.edges = new ArrayList<>();
 
     }
 
@@ -124,5 +129,29 @@ public class Node implements Comparable<Node> {
 
     public void setTreeRoot(boolean treeRoot) {
         isTreeRoot = treeRoot;
+    }
+
+    public ArrayList<Edge> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(ArrayList<Edge> edges) {
+        this.edges = edges;
+    }
+
+    public Segment getSegment() {
+        return segment;
+    }
+
+    public void setSegment(Segment segment) {
+        this.segment = segment;
+    }
+
+    public boolean isEdge() {
+        return isEdge;
+    }
+
+    public void setEdge(boolean edge) {
+        isEdge = edge;
     }
 }

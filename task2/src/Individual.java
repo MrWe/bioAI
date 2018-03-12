@@ -2,73 +2,80 @@ import java.util.ArrayList;
 
 public class Individual implements Comparable<Individual> {
 
-    private ArrayList<Centroid> centroids;
+    private ArrayList<Segment> segments;
     private double overallDeviation;
     private double edgeValue;
     private int rank;
     private double crowdingDistance;
 
 
-    /*public Individual(ArrayList<Centroid> centroids){
-        this.centroids = centroids;
-        this.overallDeviation = sumOverallDeviation(centroids);
-        this.edgeValue = sumEdgeValue(centroids);
+    public Individual(ArrayList<Segment> segments, ArrayList<ArrayList<Node>> nodes){
+        this.segments = segments;
+        this.overallDeviation = sumOverallDeviation(segments);
+        this.edgeValue = sumEdgeValue(segments, nodes);
         this.rank = 0;
         this.crowdingDistance = 0;
-    }*/
+    }
 
-    /*double sumOverallDeviation(ArrayList<Centroid> centroids){
+    double sumOverallDeviation(ArrayList<Segment> segments){
 
         double totalFitness = 0;
-        for (Centroid centroid : centroids) {
-            totalFitness += overallDeviation(centroid);
+        for (Segment segment : segments) {
+            totalFitness += overallDeviation(segment);
         }
 
         return totalFitness;
 
     }
 
-    double sumEdgeValue(ArrayList<Centroid> centroids){
+    double sumEdgeValue(ArrayList<Segment> segments, ArrayList<ArrayList<Node>> nodes){
         double totalFitness = 0;
-        for(Centroid centroid : centroids) {
-            totalFitness -= edgeValue(centroid);  //Trying to minimize this value, therefore it is the minus value. TODO: Test if we are correct.
+        for(Segment segment : segments) {
+            totalFitness -= edgeValue(segment, nodes);  //Trying to minimize this value, therefore it is the minus value. TODO: Test if we are correct.
         }
         return totalFitness;
 
-    }*/
+    }
 
 
     /*
    We want to minimize this
     */
-    /*private double overallDeviation(Centroid centroid){
+    private double overallDeviation(Segment segment){
 
         double fitness = 0;
-        for (Node node : centroid.getcurrentlyAssignedNodes()) {
-            fitness += Helpers.ColorEuclideanDistance(node.getColor(), centroid.getColor());
+        for (Node node : segment.getNodes()) {
+            fitness += Helpers.rgbDistance(node.getColor(), segment.getNodes().get(0).getColor());
         }
-        centroid.setOverallDeviation(fitness);
+        //segment.setOverallDeviation(fitness);
         return fitness;
 
-    }*/
+    }
 
     /*
     We want to maximize this
      */
-    /*private double edgeValue(Centroid centroid){
+    private double edgeValue(Segment segment, ArrayList<ArrayList<Node>> nodes) {
         double fitness = 0;
-        for(Node node : centroid.getcurrentlyAssignedNodes()){
-            for(Node neighbour : node.getNeighbours()){
-                if(node.getBelongsToCentroid().getHash().equals(neighbour.getBelongsToCentroid().getHash())){
+
+
+
+        for (Node node : segment.getNodes()) {
+
+            for (Node neighbour : Helpers.getNodeNeighbours(node, nodes)) {
+
+                if (node.getSegment() == neighbour.getSegment()) {
                     continue;
                 }
+
+                node.setEdge(true);
+
                 //node.setColor(Color.BLACK);
-                fitness += Helpers.ColorEuclideanDistance(node.getColor(), neighbour.getColor());
+                fitness += Helpers.rgbDistance(node.getColor(), neighbour.getColor());
             }
         }
-        centroid.setEdgeValue(fitness);
         return fitness;
-    }*/
+    }
 
 
     public double getEdgeValue() {
@@ -77,10 +84,6 @@ public class Individual implements Comparable<Individual> {
 
     public double getOverallDeviation() {
         return overallDeviation;
-    }
-
-    public ArrayList<Centroid> getCentroids() {
-        return centroids;
     }
 
 
@@ -102,5 +105,13 @@ public class Individual implements Comparable<Individual> {
 
     public void setCrowdingDistance(double crowdingDistance) {
         this.crowdingDistance = crowdingDistance;
+    }
+
+    public ArrayList<Segment> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(ArrayList<Segment> segments) {
+        this.segments = segments;
     }
 }

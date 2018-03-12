@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class Helpers {
 
@@ -62,7 +64,11 @@ public abstract class Helpers {
         //Sort by crowding distance
         Collections.sort(individuals, crowdingDistanceComparator);
 
-        return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
+
+
+
+        //return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
+        return individuals;
     }
 
 
@@ -157,21 +163,33 @@ public abstract class Helpers {
         int g2 = (argb2 >> 8) & 255;
         int b2 = (argb2) & 255;
 
-        //return ColorEuclideanDistance(new Color(r1, g1, b1), new Color(r2, g2, b2));
+        return ColorEuclideanDistance(new Color(r1, g1, b1), new Color(r2, g2, b2));
 
-        return Math.sqrt(r1 * r2 + g1 * g2 + b1 * b2);
+        //return Math.sqrt(r1 * r2 + g1 * g2 + b1 * b2);
     }
 
     public static ArrayList<ArrayList<Node>> initNodes(int[][] img) {
-        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
-        for (int i = 0; i < img.length; i++) {
-            nodes.add(new ArrayList<>());
-            for (int j = 0; j < img[0].length; j++) {
 
-                int c = img[i][j];
-                nodes.get(i).add(new Node(i, j, c));
+        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        executorService.execute(() -> {
+
+
+            for (int i = 0; i < img.length; i++) {
+                nodes.add(new ArrayList<>());
+                for (int j = 0; j < img[0].length; j++) {
+
+                    final int c = img[i][j];
+                    nodes.get(i).add(new Node(i, j, c));
+                }
             }
-        }
+        });
+
+        executorService.shutdown();
+        while(!executorService.isTerminated()){}
+
         return nodes;
     }
 
@@ -205,42 +223,115 @@ public abstract class Helpers {
         return centroids;
     }
 
-    public static ArrayList<Node> initRootNodes(ArrayList<ArrayList<Node>> nodes, int numSegments) {
 
-        ArrayList<Node> rootNodes = new ArrayList<>();
+    public static ArrayList<ArrayList<Node>> resetNodes(ArrayList<ArrayList<Node>> nodes){
 
-        nodes.get(0).get(0).setRoot(true);
-        nodes.get(0).get(0).setTreeRoot(true);
-
-        rootNodes.add(nodes.get(0).get(0));
-
-        Random r = new Random();
-
-        HashSet<String> selected = new HashSet<>();
-
-        for (int n = 0; n < numSegments - 1; n++) { //init with 0 0 as root, so we take that into account for number of segments.
-            int x = r.nextInt(nodes.size());
-            int y = r.nextInt(nodes.get(0).size());
-            String s = x + "" + y;
-            int counter = 0;
-            while (selected.contains(s) && (x == 0 && y == 0) && counter < 1000) {
-                x = r.nextInt(nodes.size());
-                y = r.nextInt(nodes.get(0).size());
-                s = x + "" + y;
-                counter += 1;
+        for (int i = 0; i < nodes.size(); i++) {
+            for (int j = 0; j < nodes.get(i).size(); j++) {
+                nodes.get(i).get(j).children = new ArrayList<>();
+                nodes.get(i).get(j).setParent(null);
+                nodes.get(i).get(j).setCost(Integer.MAX_VALUE);
+                nodes.get(i).get(j).setRoot(false);
+                nodes.get(i).get(j).neighbours = new ArrayList<>();
             }
-            if (counter >= 999) {
-                break;
-            }
-
-            selected.add(s);
-
-            nodes.get(x).get(y).setRoot(true);
-
-            rootNodes.add(nodes.get(x).get(y));
         }
 
+        return nodes;
+    }
+
+    public static ArrayList<Node> initRootNodes(ArrayList<ArrayList<Node>> nodes, int numSegments) {
+
+        final ArrayList<Node> rootNodes = new ArrayList<>();
+
+            final Random r = new Random();
+
+            for (int n = 0; n < numSegments; n++) {
+
+                    final int x = r.nextInt(nodes.size());
+                    final int y = r.nextInt(nodes.get(0).size());
+
+
+                    nodes.get(x).get(y).setRoot(true);
+
+                    rootNodes.add(nodes.get(x).get(y));
+            }
+
+
         return rootNodes;
+    }
+
+    static ArrayList<Edge> setNodeEdges(Node node, ArrayList<ArrayList<Node>> nodes) {
+        final ArrayList<Edge> edges = new ArrayList<>();
+        try {
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
+            final double g = rgbDistance(node.getColor(), neighbour.getColor());
+            final Edge edge = new Edge(node.getX(),neighbour.getX() , node.getY(),  neighbour.getY(), g);
+                edges.add(edge);
+
+        } catch (Exception ignored) {
+        }
+        try {
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
+            final double g = rgbDistance(node.getColor(), neighbour.getColor());
+            final Edge edge = new Edge(node.getX(),neighbour.getX() , node.getY(),  neighbour.getY(), g);
+            edges.add(edge);
+
+        } catch (Exception ignored) {
+        }
+        try {
+            final Node neighbour = nodes.get((int) node.getX() - 1).get((int) (node.getY()));
+            final double g = rgbDistance(node.getColor(), neighbour.getColor());
+            final Edge edge = new Edge(node.getX(),neighbour.getX() , node.getY(),  neighbour.getY(), g);
+            edges.add(edge);
+
+        } catch (Exception ignored) {
+        }
+        try {
+            final Node neighbour = nodes.get((int) node.getX() + 1).get((int) (node.getY()));
+            final double g = rgbDistance(node.getColor(), neighbour.getColor());
+            final Edge edge = new Edge(node.getX(),neighbour.getX() , node.getY(),  neighbour.getY(), g);
+            edges.add(edge);
+
+        } catch (Exception ignored) {
+        }
+
+
+        return edges;
+    }
+
+    public static  ArrayList<Node> getNodeNeighbours(Node node, ArrayList<ArrayList<Node>> nodes){
+        ArrayList<Node> neighbours = new ArrayList<>();
+        try{
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()-1));
+
+            neighbours.add(neighbour);
+        }
+        catch(Exception ignored){
+        }
+        try{
+            Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+
+            neighbours.add(neighbour);
+        }
+        catch(Exception ignored){
+        }
+        try{
+            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY()+1));
+
+            neighbours.add(neighbour);
+        }
+        catch(Exception ignored){
+        }
+        try{
+            Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+
+            neighbours.add(neighbour);
+        }
+        catch(Exception ignored){
+        }
+
+
+        return neighbours;
     }
 
 

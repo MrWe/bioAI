@@ -1,68 +1,50 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class MST {
 
-    private PriorityQueue<Node> pqueue;
-    private HashSet<String> pqueueHash;
-    private HashMap<String, Double> memoizer;
+    public static ArrayList<ArrayList<Node>> prim(ArrayList<Node> rootNodes, ArrayList<ArrayList<Node>> nodes, ArrayList<ArrayList<ArrayList<Edge>>> initedges, int numSegments) {
 
-
-    MST(Node start) {
-        pqueue = new PriorityQueue<>();
-        pqueueHash = new HashSet<>();
-        memoizer = new HashMap<>();
+        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         //Set initial condition
-        start.setCost(0);
-        pqueue.offer(start);
 
 
+        for (int i = 0; i < numSegments; i++) {
+            final int index = i;
 
-    }
+            executorService.execute(() -> {
 
-    public ArrayList<ArrayList<Node>> prim(ArrayList<ArrayList<Node>> nodes) {
-        while (!pqueue.isEmpty()) {
-            //Set current to best possible node in priority queue, comparison can be found i Node class
-            Node current = pqueue.poll();
+                rootNodes.get(index).setCost(0);
+                final PriorityQueue<Edge> pqueue = new PriorityQueue<>(addEdges(rootNodes.get(index), nodes, initedges));
 
-            current.setClosed(true);
 
-            current.setNeighbours(addNeighbours(current, nodes));
+                while (!pqueue.isEmpty()) {
+                    //Set current to best possible node in priority queue, comparison can be found i Node class
+                    final Edge current = pqueue.poll();
 
-            for (int i = 0; i < current.getNeighbours().size(); i++) {
-                Node neighbour = current.getNeighbours().get(i);
+                    nodes.get(current.getN1X()).get(current.getN1Y()).setClosed(true);
+                    nodes.get(current.getN2X()).get(current.getN2Y()).setClosed(true);
 
-                double g_score = getG(current, neighbour);
+                    pqueue.addAll(addEdges(nodes.get(current.getN1X()).get(current.getN1Y()), nodes, initedges));
+                    pqueue.addAll(addEdges(nodes.get(current.getN2X()).get(current.getN2Y()), nodes, initedges));
 
-                //If neighbours is in closed list; ignore it
-                if (neighbour.isClosed()) {
-                    continue;
+
                 }
-
-                // Add to open list if not already there
-                if (!pqueueHash.contains(neighbour.hashNode())) {
-                    neighbour.setCost(g_score);
-                    neighbour.setParent(current);
-                    pqueue.offer(neighbour);
-                    pqueueHash.add(neighbour.hashNode());
-                }
-
-                //If open list contains neighbour OR it is better, set parent to current node.
-                else if (g_score < neighbour.getCost()) {
-                    neighbour.setParent(current);
-                    neighbour.setCost(g_score);
-                    pqueue.remove(neighbour);
-                    pqueue.offer(neighbour);
-                }
-            }
+            });
         }
-        return addChildren(nodes);
+
+        executorService.shutdown();
+        while(!executorService.isTerminated()){}
+        return nodes;
     }
 
-    private ArrayList<ArrayList<Node>> addChildren(ArrayList<ArrayList<Node>> nodes) {
+    private  static ArrayList<ArrayList<Node>> addChildren(ArrayList<ArrayList<Node>> nodes) {
         for (ArrayList<Node> row : nodes) {
             for (Node node : row) {
                 if (node.getParent() != null) {
@@ -73,56 +55,106 @@ class MST {
         return nodes;
     }
 
-    private double getG(Node current, Node neighbour) {
-        String key = current.getColor() + "" + neighbour.getColor();
-        String revKey = neighbour.getColor() + "" + current.getColor();
+    private static double getG(Node current, Node neighbour) {
+        return Helpers.rgbDistance(current.getColor(), neighbour.getColor());
 
-        double g_score;
 
-        if (memoizer.containsKey(key)) {
-            g_score = memoizer.get(key);
-        } else if (memoizer.containsKey(revKey)) {
-            g_score = memoizer.get(revKey);
-        } else {
-            g_score = Helpers.rgbDistance(current.getColor(), neighbour.getColor());
-            memoizer.put(key, g_score);
-        }
 
-        return g_score;
     }
 
+    private static ArrayList<Edge> addEdges(Node node, ArrayList<ArrayList<Node>> nodes, ArrayList<ArrayList<ArrayList<Edge>>> initedges) {
 
-    private ArrayList<Node> addNeighbours(Node node, ArrayList<ArrayList<Node>> nodes) {
-        ArrayList<Node> neighbours = new ArrayList<>();
+        final ArrayList<Edge> neighbourEdges = initedges.get(node.getX()).get(node.getY());
+
+        final ArrayList<Edge> edgesToReturn = new ArrayList<>();
+
+        for(final Edge e : neighbourEdges){
+
+            if(! (nodes.get(e.getN1X()).get(e.getN1Y()).isClosed() && (nodes.get(e.getN2X()).get(e.getN2Y()).isClosed()))){
+                edgesToReturn.add(e);
+
+                Node child = nodes.get(e.getN2X()).get(e.getN2Y());
+
+                child.setParent(node);
+                child.setCost(e.getEdgeCost());
+
+                node.addChild(child);
+
+                node.setClosed(true);
+
+            }
+        }
+
+        return edgesToReturn;
+
+
+        /*
+
+
         try {
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
-            neighbours.add(neighbour);
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() - 1));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
+
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
+
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
+            final Node neighbour = nodes.get((int) node.getX()).get((int) (node.getY() + 1));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
 
-            neighbours.add(neighbour);
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
 
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX() - 1).get((int) (node.getY()));
+            final  Node neighbour = nodes.get((int) node.getX()-1).get((int) (node.getY()));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
 
-            neighbours.add(neighbour);
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
 
         } catch (Exception ignored) {
         }
         try {
-            Node neighbour = nodes.get((int) node.getX() + 1).get((int) (node.getY()));
+            final Node neighbour = nodes.get((int) node.getX()+1).get((int) (node.getY()));
+            final double g = getG(node, neighbour);
+            final Edge edge = new Edge(node, neighbour, g);
+            if(!(node.isClosed() && neighbour.isClosed())){
 
-            neighbours.add(neighbour);
+                neighbour.setParent(node);
+                node.addChild(neighbour);
+                neighbour.setCost(g);
+
+                edges.add(edge);
+            }
 
         } catch (Exception ignored) {
         }
 
 
-        return neighbours;
+        return edges;
+        */
     }
 
 

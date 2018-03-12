@@ -1,25 +1,30 @@
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class Population {
 
-    /*private ArrayList<Node> closedList = new ArrayList<>();
+    private ArrayList<Node> closedList = new ArrayList<>();
     private ArrayList<Individual> individuals;
 
-    public Population(BufferedImage img, int numCentroids, int numIndividuals){
-        individuals = new ArrayList<>();
-        createRandomIndividuals(img, numCentroids, numIndividuals);
+    public Population(int[][] imgArray, ArrayList<ArrayList<ArrayList<Edge>>> edges, int numSegments, int numIndividuals){
+        this.individuals = initRandomPopulation(imgArray, edges, numSegments, numIndividuals);
+
         setRanks();
         sortIndividuals();
         ArrayList<Individual> fronts = selectFronts(numIndividuals);
         this.individuals = reduceFronts(fronts, numIndividuals);
 
-
     }
 
-    public Population(BufferedImage img, int numCentroids, ArrayList<Individual> individuals){
-        runIndividuals(img, numCentroids, individuals);
+    public Population(int[][] imgArray, ArrayList<ArrayList<ArrayList<Edge>>> edges, ArrayList<ArrayList<ArrayList<Integer>>> newIndividualRoots, int numIndividuals){
+        this.individuals = initChildPopulation(imgArray, edges, newIndividualRoots);
+
         setRanks();
         sortIndividuals();
-        ArrayList<Individual> fronts = selectFronts(individuals.size());
-        this.individuals = reduceFronts(fronts, individuals.size());
+        ArrayList<Individual> fronts = selectFronts(numIndividuals);
+        this.individuals = reduceFronts(fronts, numIndividuals);
+
     }
 
     public ArrayList<Individual> getIndividuals() {
@@ -45,27 +50,96 @@ public class Population {
 
         int rankCounter = 1;
 
-        while (true) {
+        while (acceptedIndividuals.size() < numIndividuals*2) {
             ArrayList<Individual> individualsToAdd = getAllIndividualsOfRankN(rankCounter);
+
             if (acceptedIndividuals.size() + individualsToAdd.size() > numIndividuals * 2) {
-                acceptedIndividuals.addAll(Helpers.crowdingDistance(individualsToAdd, acceptedIndividuals.size() + individualsToAdd.size() - numIndividuals * 2));
+
+
+                System.out.println("Hei1 " + acceptedIndividuals.size() + " : " + individualsToAdd.size());
+
+                ArrayList<Individual> toAdd = Helpers.crowdingDistance(individualsToAdd, ((acceptedIndividuals.size() + individualsToAdd.size()) - (numIndividuals * 2)));
+
+                for(Individual i : toAdd){
+                    acceptedIndividuals.add(i);
+                    if(acceptedIndividuals.size() == numIndividuals*2){
+                        break;
+                    }
+                }
+
+
+
+                System.out.println("Hei11: " + acceptedIndividuals.size());
                 break;
+
             } else {
                 acceptedIndividuals.addAll(individualsToAdd);
                 if(acceptedIndividuals.size() == numIndividuals * 2){ //We added exactly as many as we needed
+                    System.out.println("Hei2 " + acceptedIndividuals.size());
                     break;
+
                 }
             }
             rankCounter++;
         }
+
         return acceptedIndividuals;
     }
 
     private ArrayList<Individual> reduceFronts(ArrayList<Individual> fronts, int numIndividuals){
+        System.out.println("HER: " + numIndividuals);
+        System.out.println("FRONTS: " + fronts.size());
         return Helpers.crowdingDistance(fronts, numIndividuals); //Reduce number of individuals from 2N to N=numIndividuals
     }
 
-    private void createRandomIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
+    private ArrayList<Individual> initRandomPopulation(int[][] imgArray, ArrayList<ArrayList<ArrayList<Edge>>> edges, int numSegments, int numIndividuals){
+        ArrayList<Node> rootNodes;
+        ArrayList<Individual> individuals = new ArrayList<>();
+
+        for (int i = 0; i < numIndividuals * 3; i++) {
+
+            ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
+
+            rootNodes = Helpers.initRootNodes(nodes, numSegments);
+
+            MST.prim(rootNodes, nodes, edges, numSegments);
+
+            ArrayList<Segment> segments = BFS.BFS(rootNodes);
+
+            individuals.add(new Individual(segments, nodes));
+
+        }
+
+        return individuals;
+    }
+
+    private ArrayList<Individual> initChildPopulation(int[][] imgArray, ArrayList<ArrayList<ArrayList<Edge>>> edges, ArrayList<ArrayList<ArrayList<Integer>>> newIndividualRoots){
+        ArrayList<Individual> individuals = new ArrayList<>();
+
+        for (int i = 0; i < newIndividualRoots.size(); i++) {
+
+                System.out.println(i);
+
+                ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
+                ArrayList<Node> rootNodes = new ArrayList<>();
+
+                for(ArrayList<Integer> rootCoord : newIndividualRoots.get(i)){
+                    nodes.get(rootCoord.get(0)).get(rootCoord.get(1)).setRoot(true);
+                    rootNodes.add(nodes.get(rootCoord.get(0)).get(rootCoord.get(1)));
+
+                }
+
+                MST.prim(rootNodes, nodes, edges, rootNodes.size());
+
+                ArrayList<Segment> segments = BFS.BFS(rootNodes);
+
+                individuals.add(new Individual(segments, nodes));
+
+        }
+        return individuals;
+    }
+
+    /*private void createRandomIndividuals(BufferedImage img, int numCentroids, int numIndividuals){
         for (int i = 0; i < 3*numIndividuals; i++) {
             ArrayList<ArrayList<Node>> nodes = initNodes(img);
 
@@ -80,9 +154,9 @@ public class Population {
             this.individuals.add(new Individual(centroids));
         }
 
-    }
+    }*/
 
-    private void runIndividuals(BufferedImage img, int numCentroids, ArrayList<Individual> individuals) {
+    /*private void runIndividuals(BufferedImage img, int numCentroids, ArrayList<Individual> individuals) {
         for (int i = 0; i < individuals.size(); i++) {
             Individual currentIndividual = individuals.get(i);
 
@@ -95,19 +169,8 @@ public class Population {
             Helpers.setAvgColor(currentIndividual.getCentroids());
         }
         this.individuals = individuals;
-    }
+    }*/
 
-    private void dijkstra(BufferedImage img, ArrayList<ArrayList<Node>> nodes, ArrayList<SearchPath> searches,  ArrayList<Centroid> centroids){
-        boolean runMore = true;
-        while(runMore) {
-            runMore = false;
-            for (int j = 0; j < searches.size(); j++) {
-                if(searches.get(j).runOneStep(closedList, img, centroids.get(j), nodes)){
-                    runMore = true;
-                }
-            }
-        }
-    }
 
 
 
@@ -125,13 +188,13 @@ public class Population {
         int rank = 1;
         for (Individual individual : this.individuals){
             if(individual != i){
-
                 if(isDominated(i, individual)){
                     rank++;
                 }
             }
         }
         i.setRank(rank);
+
     }
 
     public boolean isDominated(Individual i, Individual o){
@@ -141,64 +204,4 @@ public class Population {
         return false;
     }
 
-
-
-    private ArrayList<ArrayList<Node>> initNodes(BufferedImage img){
-        ArrayList<ArrayList<Node>> nodes = new ArrayList<>();
-        for (int i = 0; i < img.getWidth(); i++) {
-            nodes.add(new ArrayList<Node>());
-            for (int j = 0; j < img.getHeight(); j++) {
-                Color c = new Color(img.getRGB(i,j));
-                nodes.get(i).add(new Node(i,j,c));
-            }
-        }
-        return nodes;
-    }
-
-    private ArrayList<Centroid> initCentroids(BufferedImage img, int num_centroids){
-
-        Random r = new Random();
-
-        HashSet<String> selected = new HashSet<>();
-
-        ArrayList<Centroid> centroids = new ArrayList<>();
-        for (int n = 0; n < num_centroids; n++){
-            int x = r.nextInt(img.getWidth());
-            int y = r.nextInt(img.getHeight());
-            String s = x+""+y;
-            int counter = 0;
-            while(selected.contains(s) && counter < 1000){
-                x = r.nextInt(img.getWidth());
-                y = r.nextInt(img.getHeight());
-                s = x+""+y;
-                counter += 1;
-            }
-            if(counter >= 999){
-                break;
-            }
-
-            selected.add(s);
-
-            Color c = new Color(img.getRGB(x,y));
-            centroids.add(new Centroid(x,y,c));
-        }
-        return centroids;
-    }
-
-    private ArrayList<Node> getStartNodes(ArrayList<Centroid> centroids, ArrayList<ArrayList<Node>> nodes){
-        ArrayList<Node> startNodes = new ArrayList<>();
-
-        for(Centroid c : centroids){
-            startNodes.add(nodes.get((int) c.getX()).get((int) c.getY()));
-        }
-        return startNodes;
-    }
-
-    private ArrayList<SearchPath> initSearches(ArrayList<Node> startNodes){
-        ArrayList<SearchPath> searches = new ArrayList<>();
-        for (Node n : startNodes){
-            searches.add(new SearchPath(n));
-        }
-        return searches;
-    }*/
 }

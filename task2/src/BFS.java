@@ -1,40 +1,48 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BFS {
 
-    public static ArrayList<Node> BFS(Node startNode) {
-
-        LinkedList<Node> BFSQueue = new LinkedList<>();
-        ArrayList<Node> closed = new ArrayList<>();
+    public static ArrayList<Segment> BFS(ArrayList<Node> rootnodes) {
 
 
-        //Set initial condition
-        BFSQueue.add(startNode);
-        Node current;
-        //While will run until all possible nodes are checked, even if solution is not found
-        while (!BFSQueue.isEmpty()) {
-            //Set current to first in open list
-            current = BFSQueue.pop();
+        final ArrayList<Segment> segments = new ArrayList<>();
 
-            closed.add(current);
+        final HashSet<Node> seen = new HashSet<>();
 
-            //else add neighbours to current node
-            ArrayList<Node> children = current.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                Node child = children.get(i);
 
-                //If neighbours is in closed list; ignore it
-                if (closed.contains(child) || child.isRoot()) {
-                    continue;
-                }
+        for (int n = 0; n < rootnodes.size(); n++) {
+            final int index = n;
 
-                //If open list does not contains neighbour
-                if (!BFSQueue.contains(child)) {
-                    BFSQueue.offer(child);
+
+            final LinkedList<Node> children = new LinkedList<>();
+            segments.add(new Segment());
+
+            children.add(rootnodes.get(index));
+
+            while (!children.isEmpty()) {
+
+                final Node current = children.remove(0);
+                segments.get(index).add(current);
+                segments.get(index).setRootNode(current);
+                current.setSegment(segments.get(index));
+
+                for (final Node child : current.getChildren()) {
+                    if (child.isRoot() || seen.contains(child)) {
+                        continue;
+                    }
+
+                    children.add(child);
+                    seen.add(child);
+
+
                 }
             }
         }
-        return closed;
+        return segments;
     }
+
 }
