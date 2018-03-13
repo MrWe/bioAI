@@ -20,10 +20,10 @@ public class Main {
         /*
         Change these
          */
-        String path = "2";
-        int numSegments = 26;
-        int numPopulations = 10;
-        int numIndividuals = 3;
+        String path = "4";
+        int numSegments = 100;
+        int numPopulations = 20;
+        int numIndividuals = 2;
 
 
         BufferedImage img = readImage(path);
@@ -49,18 +49,24 @@ public class Main {
 
         for (int i = 0; i < numPopulations; i++) {
 
+            System.out.println("Population: " + i);
+            System.out.println("Overall Deviation: " + p.getIndividuals().get(0).getOverallDeviation());
+            System.out.println("Edge Value: " + p.getIndividuals().get(0).getEdgeValue());
+
             ArrayList<ArrayList<ArrayList<Integer>>> newRoots = GA.doGA(imgArray, p, numIndividuals);
 
             p = new Population(imgArray, edges, newRoots, numIndividuals);
 
+            BufferedImage currImg = deepCopy(img);
+
             Individual outIndividual = p.getIndividuals().get(0);
             for(Segment segment : outIndividual.getSegments()){
                 for(Node n : segment.getNodes()){
-                    img = changeImageGroundTruth(img, n);
+                    currImg = changeImageGroundTruth(currImg, n);
                 }
             }
 
-            writeImage(path, img, i);
+            writeImage(path, currImg, i);
 
         }
 
@@ -71,12 +77,9 @@ public class Main {
             for(Segment segment : i.getSegments()){
                 for(Node n : segment.getNodes()){
                     img2 = changeImageWithColors(img2, n);
-                    img = changeImageGroundTruth(img, n);
                 }
             }
 
-
-        writeImage(path, img, numIndividuals+2);
         writeImage(path+"COLORS", img2, 0);
 
 
@@ -94,7 +97,7 @@ public class Main {
         BufferedImage img = null;
 
         try {
-            img = ImageIO.read(new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/TestImages/2/Test image.jpg"));
+            img = ImageIO.read(new File("TestImages/" + path + "/Test image.jpg"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,13 +105,11 @@ public class Main {
         return img;
     }
 
-
     static void writeImage(String path, BufferedImage img, int imgCount) {
         File dir = new File("OutFiles/" + path);
         dir.mkdir();
 
-        File outputfile = new File("/Users/agnetedjupvik/Desktop/Skolearbeid/8. semester/Bio-AI/bioAI/task2/src/OutFiles/2.jpg");
-
+        File outputfile = new File("OutFiles/" + path +"/" + path + imgCount + ".jpg");
         try {
             ImageIO.write(img, "jpg", outputfile);
         } catch (IOException e) {

@@ -55,9 +55,6 @@ public class Population {
 
             if (acceptedIndividuals.size() + individualsToAdd.size() > numIndividuals * 2) {
 
-
-                System.out.println("Hei1 " + acceptedIndividuals.size() + " : " + individualsToAdd.size());
-
                 ArrayList<Individual> toAdd = Helpers.crowdingDistance(individualsToAdd, ((acceptedIndividuals.size() + individualsToAdd.size()) - (numIndividuals * 2)));
 
                 for(Individual i : toAdd){
@@ -67,15 +64,11 @@ public class Population {
                     }
                 }
 
-
-
-                System.out.println("Hei11: " + acceptedIndividuals.size());
                 break;
 
             } else {
                 acceptedIndividuals.addAll(individualsToAdd);
                 if(acceptedIndividuals.size() == numIndividuals * 2){ //We added exactly as many as we needed
-                    System.out.println("Hei2 " + acceptedIndividuals.size());
                     break;
 
                 }
@@ -87,8 +80,6 @@ public class Population {
     }
 
     private ArrayList<Individual> reduceFronts(ArrayList<Individual> fronts, int numIndividuals){
-        System.out.println("HER: " + numIndividuals);
-        System.out.println("FRONTS: " + fronts.size());
         return Helpers.crowdingDistance(fronts, numIndividuals); //Reduce number of individuals from 2N to N=numIndividuals
     }
 
@@ -117,8 +108,6 @@ public class Population {
         ArrayList<Individual> individuals = new ArrayList<>();
 
         for (int i = 0; i < newIndividualRoots.size(); i++) {
-
-                System.out.println(i);
 
                 ArrayList<ArrayList<Node>> nodes = Helpers.initNodes(imgArray);
                 ArrayList<Node> rootNodes = new ArrayList<>();

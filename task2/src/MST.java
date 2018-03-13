@@ -23,7 +23,6 @@ class MST {
                 rootNodes.get(index).setCost(0);
                 final PriorityQueue<Edge> pqueue = new PriorityQueue<>(addEdges(rootNodes.get(index), nodes, initedges));
 
-
                 while (!pqueue.isEmpty()) {
                     //Set current to best possible node in priority queue, comparison can be found i Node class
                     final Edge current = pqueue.poll();
@@ -33,8 +32,6 @@ class MST {
 
                     pqueue.addAll(addEdges(nodes.get(current.getN1X()).get(current.getN1Y()), nodes, initedges));
                     pqueue.addAll(addEdges(nodes.get(current.getN2X()).get(current.getN2Y()), nodes, initedges));
-
-
                 }
             });
         }
