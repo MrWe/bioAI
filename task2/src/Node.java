@@ -6,7 +6,7 @@ public class Node implements Comparable<Node> {
     private Node parent;
     private boolean isRoot = false;
     private boolean isTreeRoot = false;
-    public ArrayList<Node> children;
+    public final ArrayList<Node> children;
     public ArrayList<Node> neighbours;
     private int cost = Integer.MAX_VALUE;
     private int color;
@@ -55,7 +55,11 @@ public class Node implements Comparable<Node> {
     }
 
     public void addChild(Node child) {
-        this.children.add(child);
+
+        synchronized(this.children) {
+            this.children.add(child);
+        }
+
     }
 
     public int getColor() {

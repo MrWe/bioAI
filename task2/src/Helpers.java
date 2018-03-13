@@ -65,8 +65,6 @@ public abstract class Helpers {
         Collections.sort(individuals, crowdingDistanceComparator);
 
 
-
-
         //return new ArrayList<Individual>(individuals.subList(0, num_individuals_to_keep));
         return individuals;
     }
@@ -224,7 +222,7 @@ public abstract class Helpers {
     }
 
 
-    public static ArrayList<ArrayList<Node>> resetNodes(ArrayList<ArrayList<Node>> nodes){
+    /*public static ArrayList<ArrayList<Node>> resetNodes(ArrayList<ArrayList<Node>> nodes){
 
         for (int i = 0; i < nodes.size(); i++) {
             for (int j = 0; j < nodes.get(i).size(); j++) {
@@ -237,7 +235,7 @@ public abstract class Helpers {
         }
 
         return nodes;
-    }
+    }*/
 
     public static ArrayList<Node> initRootNodes(ArrayList<ArrayList<Node>> nodes, int numSegments) {
 
