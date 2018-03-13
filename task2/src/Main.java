@@ -130,6 +130,34 @@ public class Main {
 
         img.setRGB(node.getY(), node.getX(), c.getRGB());
 
+        try{
+            img.setRGB(node.getY()+1, node.getX(), c.getRGB());
+        }
+        catch (Exception e){
+
+        }
+
+        try{
+            img.setRGB(node.getY()-1, node.getX(), c.getRGB());
+        }
+        catch (Exception e){
+
+        }
+
+        try{
+            img.setRGB(node.getY(), node.getX()+1, c.getRGB());
+        }
+        catch (Exception e){
+
+        }
+
+        try{
+            img.setRGB(node.getY(), node.getX()-1, c.getRGB());
+        }
+        catch (Exception e){
+
+        }
+
         return img;
     }
 
@@ -143,8 +171,9 @@ public class Main {
             c = new Color(img.getRGB(node.getY(), node.getX()));
         }
 
-
         img.setRGB(node.getY(), node.getX(), c.getRGB());
+
+
 
         return img;
     }
