@@ -20,8 +20,8 @@ public class Main {
         /*
         Change these
          */
-        String path = "4";
-        int numSegments = 100;
+        String path = "2";
+        int numSegments = 50;
         int numPopulations = 20;
         int numIndividuals = 2;
 
@@ -52,6 +52,7 @@ public class Main {
             System.out.println("Population: " + i);
             System.out.println("Overall Deviation: " + p.getIndividuals().get(0).getOverallDeviation());
             System.out.println("Edge Value: " + p.getIndividuals().get(0).getEdgeValue());
+            System.out.println();
 
             ArrayList<ArrayList<ArrayList<Integer>>> newRoots = GA.doGA(imgArray, p, numIndividuals);
 

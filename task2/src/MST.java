@@ -12,9 +12,6 @@ class MST {
 
         final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        //Set initial condition
-
-
         for (int i = 0; i < numSegments; i++) {
             final int index = i;
 
@@ -32,6 +29,7 @@ class MST {
 
                     pqueue.addAll(addEdges(nodes.get(current.getN1X()).get(current.getN1Y()), nodes, initedges));
                     pqueue.addAll(addEdges(nodes.get(current.getN2X()).get(current.getN2Y()), nodes, initedges));
+
                 }
             });
         }
@@ -70,15 +68,12 @@ class MST {
             if(! (nodes.get(e.getN1X()).get(e.getN1Y()).isClosed() && (nodes.get(e.getN2X()).get(e.getN2Y()).isClosed()))){
                 edgesToReturn.add(e);
 
-                Node child = nodes.get(e.getN2X()).get(e.getN2Y());
+                final Node child = nodes.get(e.getN2X()).get(e.getN2Y());
 
                 child.setParent(node);
                 child.setCost(e.getEdgeCost());
 
                 node.addChild(child);
-
-                node.setClosed(true);
-
             }
         }
 

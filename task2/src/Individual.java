@@ -11,7 +11,7 @@ public class Individual implements Comparable<Individual> {
 
     public Individual(ArrayList<Segment> segments, ArrayList<ArrayList<Node>> nodes){
         this.segments = segments;
-        this.overallDeviation = 0.4 * sumOverallDeviation(segments);
+        this.overallDeviation = 0.1 * sumOverallDeviation(segments);
         this.edgeValue = (-1) * sumEdgeValue(segments, nodes);
         this.rank = 0;
         this.crowdingDistance = 0;
