@@ -1,6 +1,6 @@
-1. Import jobs
-2. Create jobs object
-    - Contains array of sub-jobs -> job number, machine number and duration
+1. Import jobs DONE
+2. Create jobs object DONE
+    - Contains array of sub-jobs -> job number, machine number and duration DONE
 
 3. Create machine object
     - Init with empty sub-job array.
