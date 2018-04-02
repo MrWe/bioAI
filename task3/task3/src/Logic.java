@@ -1,9 +1,9 @@
 import java.util.*;
 
-public class Main {
+public class Logic {
 
-    public static void main(String[] args) {
-        ImportJobs imports = new ImportJobs("/Users/Wiker/Documents/bioAI/task3/task3/Data/1.txt");
+    public ArrayList<Machine> run(){
+        ImportJobs imports = new ImportJobs("Data/1.txt");
 
         ArrayList<Machine> machines = new ArrayList<>();
         ArrayList<Job> jobs = new ArrayList<>();
@@ -33,6 +33,10 @@ public class Main {
             }
             System.out.println();
         }
+
+       return machines;
+
+
 
     }
 
