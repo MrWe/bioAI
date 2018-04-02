@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.*;
 
 public class Main {
 
@@ -13,11 +13,30 @@ public class Main {
         }
 
         for (int i = 0; i < imports.numJobs; i++) {
-            jobs.add(new Job(imports.stringJobs.get(i)));
+            jobs.add(new Job(imports.stringJobs.get(i), i));
+        }
+        for (int i = 0; i < imports.numMachines; i++) {
+            for(Job job : jobs){
+                machines.get(job.getSubJobs().get(i).getMachineIndex()).add(job.getSubJobs().get(i));
+            }
         }
 
-        System.out.println(jobs);
+        for(Machine m : machines){
 
+           List<Integer> keys = new ArrayList(m.getSubJobs().keySet());
+
+            Collections.sort(keys);
+
+            for(int time : keys){
+                SubJob sj = m.getSubJobs().get(time);
+                System.out.print(sj.getParent().getIndex() + "-" + sj.getStartTime() + "-" + sj.getDuration() + " ");
+            }
+            System.out.println();
+        }
 
     }
+
+
+
+
 }
