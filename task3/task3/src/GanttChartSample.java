@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Random;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -17,10 +17,20 @@ import javafx.stage.Stage;
 public class GanttChartSample extends Application {
 
     public void start(Stage stage) {
-
+        
         Logic program = new Logic();
-
+        
         ArrayList<Machine> machines = program.run();
+
+        ArrayList<String> colors = new ArrayList<>();
+
+        for (int i = 0; i < program.numJobs; i++) {
+            Random rand = new Random();
+            int r = rand.nextInt(255);
+            int g = rand.nextInt(255);
+            int b = rand.nextInt(255);
+            colors.add("-fx-background-color:rgba("+r+","+g+","+b+",0.7);");
+        }
 
         stage.setTitle("Gantt Chart Sample");
 
@@ -56,7 +66,7 @@ public class GanttChartSample extends Application {
 
             for(int startTime : machines.get(i).getSubJobs().keySet()){
                 SubJob sj = machines.get(i).getSubJobs().get(startTime);
-                XYChart.Data point = new XYChart.Data(startTime, machineName, new GanttChart.ExtraData( sj.getDuration(), "status-red"));
+                XYChart.Data point = new XYChart.Data(startTime, machineName, new GanttChart.ExtraData( sj.getDuration(), "status-red", colors.get(sj.getParent().getIndex())));
 
                 s.getData().add(point);
             }
@@ -73,7 +83,8 @@ public class GanttChartSample extends Application {
 
         //chart.getData().addAll((Collection<? extends XYChart.Series<Number, String>>) series);
 
-        chart.getStylesheets().add(getClass().getResource("ganttchart.css").toExternalForm());
+        //chart.getStylesheets().add(getClass().getResource("ganttchart.css").toExternalForm());
+        //System.out.println(getClass().getResource("ganttchart.css").toExternalForm());
         //chart.getStylesheets().add("-fx-background-color:rgba(0,0,128,0.7);");
 
         Scene scene  = new Scene(chart,2000,500);

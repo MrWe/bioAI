@@ -2,8 +2,11 @@ import java.util.*;
 
 public class Logic {
 
+    int numJobs;
+
     public ArrayList<Machine> run(){
-        ImportJobs imports = new ImportJobs("Data/1.txt");
+        ImportJobs imports = new ImportJobs("Data/2.txt");
+        numJobs = imports.numJobs;
 
         ArrayList<Machine> machines = new ArrayList<>();
         ArrayList<Job> jobs = new ArrayList<>();

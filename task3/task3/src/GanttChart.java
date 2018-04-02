@@ -20,12 +20,14 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
 
         public long length;
         public String styleClass;
+        public String color;
 
 
-        public ExtraData(long lengthMs, String styleClass) {
+        public ExtraData(long lengthMs, String styleClass, String color) {
             super();
             this.length = lengthMs;
             this.styleClass = styleClass;
+            this.color = color;
         }
         public long getLength() {
             return length;
@@ -38,6 +40,10 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
         }
         public void setStyleClass(String styleClass) {
             this.styleClass = styleClass;
+        }
+
+        public String getColor() {
+            return this.color;
         }
 
 
@@ -65,6 +71,10 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
         return ((ExtraData) obj).getLength();
     }
 
+    private static String getColor( Object obj) {
+        return ((ExtraData) obj).getColor();
+    }
+
     @Override protected void layoutPlotChildren() {
 
         for (int seriesIndex=0; seriesIndex < getData().size(); seriesIndex++) {
@@ -80,6 +90,9 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
                     continue;
                 }
                 Node block = item.getNode();
+
+                block.setStyle(getColor(item.getExtraValue()));
+
                 Rectangle ellipse;
                 if (block != null) {
                     if (block instanceof StackPane) {
