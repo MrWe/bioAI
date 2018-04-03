@@ -6,7 +6,7 @@ public class ACO {
 
     static int numJobs;
 
-    public static ArrayList<Machine> run(ImportJobs imports) {
+    public static ArrayList<Machine> run(ImportJobs imports, int optimalValue) {
 
         //ImportJobs imports = new ImportJobs("Data/1.txt");
         numJobs = imports.numJobs;
@@ -29,7 +29,7 @@ public class ACO {
                 jobs.add(new Job(imports.stringJobs.get(i), i));
             }
 
-            Individual individual = new Individual(numJobs, imports.numMachines);
+            Gene individual = new Gene(numJobs, imports.numMachines);
 
 
             for (Integer index : individual.queue) {
@@ -50,7 +50,7 @@ public class ACO {
                 //System.out.println();
             }
 
-            int curr = getMakeSpan(jobs);
+            int curr = Helper.getMakeSpan(machines);
 
             if (curr < best) {
                 best = curr;
@@ -61,18 +61,4 @@ public class ACO {
         return bestM;
 
     }
-
-
-    private static int getMakeSpan(ArrayList<Job> jobs) {
-        int highest = 0;
-
-        for (Job j : jobs) {
-            if (j.getTotalTime() > highest) {
-                highest = j.getTotalTime();
-            }
-        }
-        return highest;
-    }
-
-
 }

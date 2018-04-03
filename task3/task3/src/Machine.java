@@ -36,4 +36,8 @@ public class Machine {
         int latestTimeStart = Collections.max(subJobs.keySet());
         return latestTimeStart + subJobs.get(latestTimeStart).getDuration();
     }
+
+    public int getTotalTime(){
+        return getFirstAvailableSlot();
+    }
 }

@@ -1,5 +1,10 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -16,21 +21,43 @@ import javafx.stage.Stage;
 // TODO: use date for x-axis
 public class Main extends Application {
 
-    String filename = "1";
+    private String filename = "1";
 
     public void start(Stage stage) {
 
+        int optimalValue = readOptimalValue(filename);
+
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
-        ArrayList<Machine> machines = ACO.run(imports);
-        
+
+        ArrayList<Machine> machines = BeesAlgorithm.run(imports, optimalValue);
 
 
-        stage.setTitle("Gantt Chart Sample");
+        //ArrayList<Machine> machines = ACO.run(imports, optimalValue);
+
+        stage.setTitle("Gantt");
         GanttChart<Number, String> chart = createChart(machines, imports.numJobs);
 
         Scene scene  = new Scene(chart,2000,500);
         stage.setScene(scene);
         stage.show();
+    }
+
+    private int readOptimalValue(String filename){
+        File f = new File("optimals.txt");
+
+        ArrayList<String> lines = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Integer.parseInt(lines.get(Integer.parseInt(filename)-1));
     }
 
 
