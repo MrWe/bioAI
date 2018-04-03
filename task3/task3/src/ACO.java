@@ -2,14 +2,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Logic {
+public class ACO {
 
-    int numJobs;
+    static int numJobs;
 
-    public ArrayList<Machine> run() {
-        ImportJobs imports = new ImportJobs("Data/1.txt");
+    public static ArrayList<Machine> run(ImportJobs imports) {
+
+        //ImportJobs imports = new ImportJobs("Data/1.txt");
         numJobs = imports.numJobs;
-        ArrayList<Machine> machines = new ArrayList<>();
+        ArrayList<Machine> machines;
 
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();
@@ -62,7 +63,7 @@ public class Logic {
     }
 
 
-    private int getMakeSpan(ArrayList<Job> jobs) {
+    private static int getMakeSpan(ArrayList<Job> jobs) {
         int highest = 0;
 
         for (Job j : jobs) {

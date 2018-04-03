@@ -14,17 +14,30 @@ import javafx.stage.Stage;
 
 
 // TODO: use date for x-axis
-public class GanttChartSample extends Application {
+public class Main extends Application {
+
+    String filename = "1";
 
     public void start(Stage stage) {
 
-        Logic program = new Logic();
+        ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
+        ArrayList<Machine> machines = ACO.run(imports);
+        
 
-        ArrayList<Machine> machines = program.run();
 
+        stage.setTitle("Gantt Chart Sample");
+        GanttChart<Number, String> chart = createChart(machines, imports.numJobs);
+
+        Scene scene  = new Scene(chart,2000,500);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+
+    private ArrayList<String> generateColors(int numJobs){
         ArrayList<String> colors = new ArrayList<>();
 
-        for (int i = 0; i < program.numJobs; i++) {
+        for (int i = 0; i < numJobs; i++) {
             Random rand = new Random();
             int r = rand.nextInt(255);
             int g = rand.nextInt(255);
@@ -32,7 +45,12 @@ public class GanttChartSample extends Application {
             colors.add("-fx-background-color:rgba("+r+","+g+","+b+",0.7);");
         }
 
-        stage.setTitle("Gantt Chart Sample");
+        return colors;
+    }
+
+    private GanttChart<Number, String> createChart(ArrayList<Machine> machines, int numJobs){
+
+        ArrayList<String> colors = generateColors(numJobs);
 
         String[] UImachines = new String[machines.size()];
         for (int i = 0; i < machines.size(); i++) {
@@ -79,10 +97,7 @@ public class GanttChartSample extends Application {
             chart.getData().add(s);
         }
 
-
-        Scene scene  = new Scene(chart,2000,500);
-        stage.setScene(scene);
-        stage.show();
+        return chart;
     }
 
     public static void main(String[] args) {
