@@ -2,25 +2,25 @@
 2. Create jobs object DONE
     - Contains array of sub-jobs -> job number, machine number and duration DONE
 
-3. Create machine object
-    - Init with empty sub-job array.
-    - Populate with VALID sub-jobs
-    - Valid function:
-        -  sub-job 2 of job 1 cannot be before sub-job 1 of job 1.
-        - Sub-jobs cannot overlap
-        - Sub-jobs must start after sum of all previous durations of the same job.
+3. Create machine object DONE
+    - Init with empty sub-job array. DONE
+    - Populate with VALID sub-jobs DONE
+    - Valid function: DONE
+        -  sub-job 2 of job 1 cannot be before sub-job 1 of job 1. DONE
+        - Sub-jobs cannot overlap DONE
+        - Sub-jobs must start after sum of all previous durations of the same job. DONE
 
-4. Create gene
-   - Sorted order of sub-jobs which provide a valid solution
-        - F.eks. Entire job 1, entire job 2 ...
+4. Create gene DONE
+   - Sorted order of sub-jobs which provide a valid solution DONE
+        - F.eks. Entire job 1, entire job 2 ... DONE
    - Fitness function
         - Closeness to optimal value
         - Mutate based on length from optimal value -> more when far away, less when close
 
-5. Fill machine objects from gene
-6. Plot Gantt-diagram of machines
+5. Fill machine objects from gene DONE
+6. Plot Gantt-diagram of machines DONE
 
-7. Create populations of individuals(genes)
+7. Create populations of individuals(genes) DONE
 
 8. Implement ACO
 9. Implement Bees

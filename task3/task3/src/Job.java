@@ -37,4 +37,8 @@ public class Job {
     public int getIndex() {
         return index;
     }
+
+    public SubJob pop(){
+        return subJobs.remove(0);
+    }
 }

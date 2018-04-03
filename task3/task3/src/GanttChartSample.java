@@ -17,9 +17,9 @@ import javafx.stage.Stage;
 public class GanttChartSample extends Application {
 
     public void start(Stage stage) {
-        
+
         Logic program = new Logic();
-        
+
         ArrayList<Machine> machines = program.run();
 
         ArrayList<String> colors = new ArrayList<>();
@@ -79,13 +79,6 @@ public class GanttChartSample extends Application {
             chart.getData().add(s);
         }
 
-
-
-        //chart.getData().addAll((Collection<? extends XYChart.Series<Number, String>>) series);
-
-        //chart.getStylesheets().add(getClass().getResource("ganttchart.css").toExternalForm());
-        //System.out.println(getClass().getResource("ganttchart.css").toExternalForm());
-        //chart.getStylesheets().add("-fx-background-color:rgba(0,0,128,0.7);");
 
         Scene scene  = new Scene(chart,2000,500);
         stage.setScene(scene);
