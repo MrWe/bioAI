@@ -6,47 +6,52 @@ public class BeesAlgorithm {
     static double bestErr = Integer.MAX_VALUE;
     static Gene bestGene;
     static Bee bestBee;
-    static int nb = 100;
-    static int neighbourhoodSize = 50; // We begin by generating 100 new bees in a single scout local search
+    static int nb = 50;
+    static int neighbourhoodSize = 10; // We begin by generating 100 new bees in a single scout local search
     static int bestMakespan = Integer.MAX_VALUE;
+    static int optimalValue;
 
-    public static ArrayList<Machine> run(ImportJobs imports, int optimalValue) {
+    public static ArrayList<Machine> run(ImportJobs imports, int optValue) {
+        optimalValue = optValue;
 
         ArrayList<Bee> hive = new ArrayList<>();
 
         int numActive = (int) Math.floor(nb * 0.5);
         int numScout = (int) Math.floor(nb * 0.25);
 
-        for (int i = 0; i < nb; i++) {
-            Bee bee = new Bee(imports.numJobs, imports.numMachines, imports.stringJobs, optimalValue);
-            if(i <= numActive){
-                bee.setStatus(1);
-            }
-            else if (i > numActive && i <= numScout){
-                bee.setStatus(2);
-            }
-            hive.add(bee);
-        }
+        ArrayList<Bee> scouts = createScouts(numScout, imports);
+        hive.addAll(scouts);
+
+        int iter = 0;
 
         while(bestMakespan > optimalValue){
+
             Collections.sort(hive, errComparator);
 
-            hive = new ArrayList<Bee>(hive.subList(0, (int) Math.floor(hive.size() * 0.3))); // Retain 25% of the best bees
+            hive = new ArrayList<Bee>(hive.subList(0, (int) Math.floor(hive.size()))); // Retain 10% of the best bees
             ArrayList<Bee> newHive = new ArrayList<>();
 
             for(Bee bee : hive){
                 ArrayList<Bee> localSearchResults = waggleDance(bee, neighbourhoodSize);
                 newHive.addAll(localSearchResults);
             }
+
             Collections.sort(newHive, errComparator);
 
             hive = new ArrayList<Bee>(newHive.subList(0, nb));
 
             setBestErr(hive);
 
-            System.out.println(bestMakespan);
+            iter++;
+
+            if(iter % 100 == 0){
+                System.out.println(iter + "   " +bestMakespan);
+            }
+
 
         }
+
+        System.out.println(bestMakespan);
 
         return bestBee.getMachines();
 
@@ -65,8 +70,15 @@ public class BeesAlgorithm {
     }
 
 
-    private void initialsizeScouts(){
+    private static ArrayList<Bee> createScouts(int ns, ImportJobs imports){
+        ArrayList<Bee> hive = new ArrayList<>();
+        for (int i = 0; i < ns; i++) {
+            Bee bee = new Bee(imports.numJobs, imports.numMachines, imports.stringJobs, optimalValue);
+            bee.setStatus(2);
 
+            hive.add(bee);
+        }
+        return hive;
     }
 
     private void initializeFlowerPatch(){
@@ -84,11 +96,13 @@ public class BeesAlgorithm {
             Gene newBeeGene = newBee.getGene();
 
             Random r = new Random();
-            int swapFrom = r.nextInt(newBeeGene.getQueue().size());
-            int swapTo = r.nextInt(newBeeGene.getQueue().size());
+            for (int j = 0; j < 15; j++) {
 
-            Collections.swap(newBeeGene.getQueue(), swapFrom, swapTo);
+                int swapFrom = r.nextInt(newBeeGene.getQueue().size());
+                int swapTo = r.nextInt(newBeeGene.getQueue().size());
 
+                Collections.swap(newBeeGene.getQueue(), swapFrom, swapTo);
+            }
             newBees.add(newBee);
         }
         return newBees;
