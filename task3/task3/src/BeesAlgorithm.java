@@ -7,7 +7,9 @@ public class BeesAlgorithm {
     static Gene bestGene;
     static Bee bestBee;
     static int nb = 50;
-    static int neighbourhoodSize = 10; // We begin by generating 100 new bees in a single scout local search
+    static int nep = 50;
+    static int nsp = 25;
+    static int neighbourhoodSize = 10; // We begin by generating 10 new bees in a single scout local search
     static int bestMakespan = Integer.MAX_VALUE;
     static int optimalValue;
 
@@ -25,14 +27,19 @@ public class BeesAlgorithm {
         int iter = 0;
 
         while(bestMakespan > optimalValue){
-
+            ArrayList<Bee> newHive = new ArrayList<Bee>();
             Collections.sort(hive, errComparator);
 
-            hive = new ArrayList<Bee>(hive.subList(0, (int) Math.floor(hive.size()))); // Retain 10% of the best bees
-            ArrayList<Bee> newHive = new ArrayList<>();
+            ArrayList<Bee> eliteHive = new ArrayList<Bee>(hive.subList(0, (int) Math.floor(hive.size() * 0.1))); // Retain 10% of the best bees
+            ArrayList<Bee> bestHive = new ArrayList<Bee>(hive.subList((int) Math.floor(hive.size() * 0.1), (int) Math.floor(hive.size() * 0.3))); // The next 20% of bees
 
-            for(Bee bee : hive){
-                ArrayList<Bee> localSearchResults = waggleDance(bee, neighbourhoodSize);
+            for(Bee bee : eliteHive){
+                ArrayList<Bee> localSearchResults = waggleDance(bee, nep);
+                newHive.addAll(localSearchResults);
+            }
+
+            for(Bee bee : bestHive){
+                ArrayList<Bee> localSearchResults = waggleDance(bee, nsp);
                 newHive.addAll(localSearchResults);
             }
 
@@ -96,7 +103,7 @@ public class BeesAlgorithm {
             Gene newBeeGene = newBee.getGene();
 
             Random r = new Random();
-            for (int j = 0; j < 15; j++) {
+            for (int j = 0; j < 3; j++) {
 
                 int swapFrom = r.nextInt(newBeeGene.getQueue().size());
                 int swapTo = r.nextInt(newBeeGene.getQueue().size());
