@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class PheromoneMatrix {
 
     ArrayList<ArrayList<Double>> matrix;
-    double p = 0.1;
+    double p = 0.01;
     double min = .001;
     double max = 2.0;
 

@@ -4,12 +4,14 @@ public class SubJob {
     private int machineIndex;
     private int duration;
     private Job parent;
+    private int pheromoneMatrixIndex;
 
-    public SubJob(int machine, int duration, Job parent){
+    public SubJob(int machine, int duration, Job parent, int index, int totalNumberOfSubjobs){
         this.machineIndex = machine;
         this.duration = duration;
         this.parent = parent;
         this.startTime = 0;
+        this.pheromoneMatrixIndex = totalNumberOfSubjobs * parent.getIndex() + index;
     }
 
     public int getStartTime() {
@@ -30,5 +32,9 @@ public class SubJob {
 
     public Job getParent() {
         return parent;
+    }
+
+    public int getPheromoneMatrixIndex() {
+        return pheromoneMatrixIndex;
     }
 }

@@ -6,9 +6,9 @@ import java.util.Scanner;
 
 public class ImportJobs {
 
-    public int numMachines;
-    public int numJobs;
-    public ArrayList<ArrayList<String>> stringJobs;
+    public static int numMachines;
+    public static int numJobs;
+    public static ArrayList<ArrayList<String>> stringJobs;
 
     ImportJobs(String file){
         File f = new File(file);
