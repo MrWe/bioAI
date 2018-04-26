@@ -6,7 +6,7 @@ public class Job {
     private ArrayList<SubJob> subJobs;
     private int totalTime;
     private int index;
-    private int currIndex = 0;
+    public int currIndex = 0;
 
     public Job(ArrayList<String> stringJob, int index){
         this.subJobs = new ArrayList<>();
@@ -45,7 +45,20 @@ public class Job {
         return s;
     }
 
+    public SubJob getCurrSubJob(){
+        return subJobs.get(this.currIndex);
+    }
+
+    public boolean isNotOnLastSubJob(){
+        //System.out.println(this.currIndex + " " + (this.subJobs.size()-1));
+        return this.currIndex < this.subJobs.size();
+    }
+
     public void resetSubJobIndex(){
         this.currIndex = 0;
+    }
+
+    public void lowercurrIndexByOne(){
+        this.currIndex--;
     }
 }
