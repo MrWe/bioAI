@@ -20,7 +20,7 @@ public class Bee{
         this.machines = createMachines();
         this.optimalValue = optimalValue;
         this.makespan = Helper.getMakeSpan(this.machines);
-        this.err = optimalValue - makespan;
+        this.err =  makespan - optimalValue;
         this.status = 0;
     }
 
@@ -31,7 +31,7 @@ public class Bee{
         this.stringJobs = stringJobs;
         this.machines = createMachines();
         this.makespan = Helper.getMakeSpan(this.machines);
-        this.err = optimalValue - makespan;
+        this.err =  makespan - optimalValue;
         this.status = 0;
     }
 

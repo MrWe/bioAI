@@ -21,42 +21,12 @@ public class Ant {
         }
     }
 
-    /*private void localSearch(ArrayList<Integer> queue) {
-
-        int size = 3;
-
-        Random r = new Random();
-
-        int start = r.nextInt(this.gene.queue.size()-size);
-        int stop = start + size;
-
-        ArrayList<Integer> partQueue = new ArrayList<>(this.gene.getQueue().subList(start, stop));
-
-        Integer[] intArray = partQueue.toArray(new Integer[0]);
-
-        List<List<Integer>> permutations = permute(intArray);
-
-
-        for(List<Integer> permutation : permutations) {
-            ArrayList<Integer> newGene = new ArrayList<>(this.getGene().getQueue());
-            newGene.subList(start, stop).clear();
-            newGene.addAll(start, permutation);
-
-            ArrayList<Machine> currSolution = createSolution(newGene);
-            int currScore = Helper.getMakeSpan(currSolution);
-
-
-            if(currScore < this.score){
-                this.solution = currSolution;
-            }
-        }
-    }*/
 
     private void localSearch(ArrayList<Integer> queue) {
 
         Gene start = new Gene(queue);
 
-        Astar a = new Astar(start);
+        LocalSearch a = new LocalSearch(start);
 
         if(a.bestSolution.getScore() < this.getScore()){
             this.solution = a.bestMachines;
@@ -64,31 +34,6 @@ public class Ant {
             this.score = a.bestSolution.getScore();
         }
 
-    }
-
-    public List<List<Integer>> permute(Integer[] numbers) {
-        // we use a list of lists rather than a list of arrays
-        // because lists support adding in the middle
-        // and track current length
-        List<List<Integer>> permutations = new ArrayList<List<Integer>>();
-        // Add an empty list so that the middle for loop runs
-        permutations.add(new ArrayList<Integer>());
-
-        for ( int i = 0; i < numbers.length; i++ ) {
-            // create a temporary container to hold the new permutations
-            // while we iterate over the old ones
-            List<List<Integer>> current = new ArrayList<List<Integer>>();
-            for ( List<Integer> permutation : permutations ) {
-                for ( int j = 0, n = permutation.size() + 1; j < n; j++ ) {
-                    List<Integer> temp = new ArrayList<Integer>(permutation);
-                    temp.add(j, numbers[i]);
-                    current.add(temp);
-                }
-            }
-            permutations = new ArrayList<List<Integer>>(current);
-        }
-
-        return permutations;
     }
 
     public ArrayList<Job> getJobs() {

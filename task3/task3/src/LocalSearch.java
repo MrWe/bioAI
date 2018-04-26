@@ -1,50 +1,45 @@
-import com.sun.tools.internal.ws.wsdl.document.Import;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.SplittableRandom;
 
 
-public class Astar {
+public class LocalSearch {
 
     ArrayList<Machine> bestMachines;
-    AstarSolution bestSolution;
+    LocalSearchSolution bestSolution;
 
-    public Astar(int optimalValue) {
+    public LocalSearch(int optimalValue) {
         Randrun(optimalValue);
-
     }
 
-    public Astar(Gene start){
+    public LocalSearch(Gene start){
         run(start);
     }
 
     private void run(Gene start){
-        PriorityQueue<AstarSolution> open = new PriorityQueue<>();
-        LinkedList<AstarSolution> closed = new LinkedList<>();
+        PriorityQueue<LocalSearchSolution> open = new PriorityQueue<>();
+        LinkedList<LocalSearchSolution> closed = new LinkedList<>();
 
         int bestScore = Integer.MAX_VALUE;
 
-        for (int i = 0; i < 5; i++) {
-            open.add(new AstarSolution(start));
+        for (int i = 0; i < 40; i++) {
+            open.add(new LocalSearchSolution(start));
         }
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 30; i++) {
 
             if(open.isEmpty()){
                 for (int k = 0; k < 5; k++) {
-                    open.add(new AstarSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
+                    open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
                 }
             }
 
-
-
-            AstarSolution current = open.poll();
+            LocalSearchSolution current = open.poll();
             closed.add(current);
 
-            ArrayList<AstarSolution> neighbours = createNeighbours(current);
+            ArrayList<LocalSearchSolution> neighbours = createNeighbours(current);
 
-            for (AstarSolution as : neighbours){
+            for (LocalSearchSolution as : neighbours){
 
                 if(as.getScore() < bestScore){
                     bestScore = as.getScore();
@@ -59,33 +54,30 @@ public class Astar {
                     open.add(as);
                 }
             }
-
         }
 
-
-        //System.out.println(bestScore);
     }
 
 
     private void Randrun(int optimalValue){
-        PriorityQueue<AstarSolution> open = new PriorityQueue<>();
+        PriorityQueue<LocalSearchSolution> open = new PriorityQueue<>();
 
 
         int bestScore = Integer.MAX_VALUE;
 
         for (int i = 0; i < 100; i++) {
-            open.add(new AstarSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
+            open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
         }
 
         for (int i = 0; i < 100000; i++) {
 
             if(open.isEmpty()){
                 for (int k = 0; k < 5; k++) {
-                    open.add(new AstarSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
+                    open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
                 }
             }
 
-            AstarSolution current = open.poll();
+            LocalSearchSolution current = open.poll();
 
             SplittableRandom r = new SplittableRandom();
 
@@ -102,9 +94,9 @@ public class Astar {
             }
 
 
-            ArrayList<AstarSolution> neighbours = createNeighbours(current);
+            ArrayList<LocalSearchSolution> neighbours = createNeighbours(current);
 
-            for (AstarSolution as : neighbours){
+            for (LocalSearchSolution as : neighbours){
 
                 if(as.getScore() < bestScore){
                     bestScore = as.getScore();
@@ -125,8 +117,8 @@ public class Astar {
 
 
 
-    private ArrayList<AstarSolution> createNeighbours(AstarSolution current) {
-        final ArrayList<AstarSolution> neighbours = new ArrayList<>();
+    private ArrayList<LocalSearchSolution> createNeighbours(LocalSearchSolution current) {
+        final ArrayList<LocalSearchSolution> neighbours = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             SplittableRandom r = new SplittableRandom();
             ArrayList<Integer> sequence = new ArrayList<>(current.getGene().getQueue());
@@ -141,20 +133,20 @@ public class Astar {
                 Collections.swap(sequence, r1, r2);
             }
 
-            neighbours.add(new AstarSolution(new Gene(sequence)));
+            neighbours.add(new LocalSearchSolution(new Gene(sequence)));
         }
         return neighbours;
     }
 }
 
-class AstarSolution implements Comparable<AstarSolution> {
+class LocalSearchSolution implements Comparable<LocalSearchSolution> {
 
     private int score;
     private ArrayList<Machine> machines;
     private Gene gene;
     private String hash;
 
-    public AstarSolution(Gene gene) {
+    public LocalSearchSolution(Gene gene) {
         this.gene = gene;
         this.machines = createMachines(gene);
         this.score = Helper.getMakeSpan(this.machines);
@@ -181,7 +173,7 @@ class AstarSolution implements Comparable<AstarSolution> {
     }
 
     @Override
-    public int compareTo(AstarSolution o) {
+    public int compareTo(LocalSearchSolution o) {
         return this.getScore()-o.getScore();
     }
 
@@ -189,7 +181,7 @@ class AstarSolution implements Comparable<AstarSolution> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AstarSolution that = (AstarSolution) o;
+        LocalSearchSolution that = (LocalSearchSolution) o;
         return this.gene.getQueue().equals(that.gene.getQueue());
     }
 
