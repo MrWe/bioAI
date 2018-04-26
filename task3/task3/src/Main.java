@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 // TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "1";
+    private String filename = "3";
 
     public void start(Stage stage) {
 
@@ -29,17 +29,36 @@ public class Main extends Application {
 
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
 
-        ArrayList<Machine> machines = BeesAlgorithm.run(imports, optimalValue);
+        //ArrayList<Machine> machines = BeesAlgorithm.run(imports, optimalValue);
 
+        /*ACO aco = new ACO();
 
-        //ArrayList<Machine> machines = ACO.run(imports, optimalValue);
+        ArrayList<Machine> machines = aco.run(optimalValue);
+        */
+
+        Astar a = null;
+        ArrayList<Machine> machines = new ArrayList<>();
+
+        try{
+            a = new Astar(optimalValue);
+        }
+        catch(Exception e){
+            System.out.println("Heisann");
+            System.out.println(e);
+            machines = a.bestMachines;
+        }
+
+        if(machines.size() == 0){
+            machines = a.bestMachines;
+        }
 
         stage.setTitle("Gantt");
-        GanttChart<Number, String> chart = createChart(machines, imports.numJobs);
+        GanttChart<Number, String> chart = createChart(machines, ImportJobs.numJobs);
 
         Scene scene  = new Scene(chart,2000,500);
         stage.setScene(scene);
         stage.show();
+
     }
 
     private int readOptimalValue(String filename){

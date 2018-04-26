@@ -2,13 +2,16 @@ import java.util.ArrayList;
 
 public class PheromoneMatrix {
 
-    ArrayList<ArrayList<Double>> matrix;
-    double p = 0.01;
-    double min = .001;
-    double max = 2.0;
+    private ArrayList<ArrayList<Double>> matrix;
+    private double p = 0.0001;
+    private double min = 0.0001;
+    private double max = 1;
 
 
     PheromoneMatrix(int dimensions, double initVal){
+
+        matrix = new ArrayList<>();
+
         for (int i = 0; i < dimensions; i++) {
             ArrayList<Double> row = new ArrayList<>();
             for (int j = 0; j < dimensions; j++) {
@@ -33,7 +36,16 @@ public class PheromoneMatrix {
 
     public void updateSingle(int i, int j, double value){
         double y = this.matrix.get(i).get(j);
-        this.matrix.get(i).set(j, y < this.max ? y + value : y);
+        this.matrix.get(i).set(j, y < this.max ? y * value : y);
+    }
+
+    public void show(){
+        for (ArrayList<Double> row : this.matrix){
+            for(double d : row){
+                System.out.print(d + " ");
+            }
+            System.out.println();
+        }
     }
 
 }
