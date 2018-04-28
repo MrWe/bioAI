@@ -21,43 +21,31 @@ import javafx.stage.Stage;
 // TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "3";
+    private String filename = "1";
 
-    public void start(Stage stage) {
+    public void start(Stage s1) {
+
+        Stage s2 = new Stage();
 
         int optimalValue = readOptimalValue(filename);
 
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
 
-        ArrayList<Machine> machines = BeesAlgorithm.run(imports, optimalValue);
+        ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
+        ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
 
-        /*ACO aco = new ACO();
+        GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
+        GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
 
-        ArrayList<Machine> machines = aco.run(optimalValue);
-        */
 
-        /*Astar a = null;
-        ArrayList<Machine> machines = new ArrayList<>();
+        s1.setTitle("Bees");
+        s2.setTitle("Ants");
 
-        try{
-            a = new Astar(optimalValue);
-        }
-        catch(Exception e){
-            System.out.println("Heisann");
-            System.out.println(e);
-            machines = a.bestMachines;
-        }
+        s1.setScene(new Scene(chartBee,2000,500));
+        s2.setScene(new Scene(chartAnt, 2000, 500));
 
-        if(machines.size() == 0){
-            machines = a.bestMachines;
-        }*/
-
-        stage.setTitle("Gantt");
-        GanttChart<Number, String> chart = createChart(machines, ImportJobs.numJobs);
-
-        Scene scene  = new Scene(chart,2000,500);
-        stage.setScene(scene);
-        stage.show();
+        s1.show();
+        s2.show();
 
     }
 

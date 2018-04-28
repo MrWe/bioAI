@@ -23,4 +23,4 @@
 7. Create populations of individuals(genes) DONE
 
 8. Implement ACO
-9. Implement Bees
+9. Implement Bees DONE

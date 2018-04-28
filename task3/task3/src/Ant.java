@@ -23,7 +23,7 @@ public class Ant {
 
 
     private void localSearch(ArrayList<Integer> queue) {
-
+    /*
         Gene start = new Gene(queue);
 
         LocalSearch a = new LocalSearch(start);
@@ -33,6 +33,7 @@ public class Ant {
             this.gene = a.bestSolution.getGene();
             this.score = a.bestSolution.getScore();
         }
+        */
 
     }
 
