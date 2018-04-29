@@ -59,7 +59,6 @@ public class BeesAlgorithm {
             if(sites.peek().getScore() < bestMakespan){
                 bestMakespan = sites.peek().getScore();
                 bestSolution = sites.peek();
-                System.out.println(bestMakespan);
                 if(bestMakespan <= optimalValue){
                     break;
                 }
