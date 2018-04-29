@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 // TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "1";
+    private String filename = "3";
 
     public void start(Stage s1) {
 

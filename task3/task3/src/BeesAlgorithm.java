@@ -2,13 +2,12 @@ import java.util.*;
 
 public class BeesAlgorithm {
 
-    private static int initialPopulation = 20;
+    private static int initialPopulation = 30;
     private static int m = (int)Math.floor(initialPopulation/2);
     private static int elites =  (int)Math.floor(m*0.3);
     private static int nonElites = m - elites;
     private static int nep = 20;
     private static int nsp = 5;
-
 
     private static Solution bestSolution;
     private static int bestMakespan = Integer.MAX_VALUE;
@@ -33,16 +32,21 @@ public class BeesAlgorithm {
             }
 
             ArrayList<Solution> nonEliteSites = new ArrayList<>();
-            //Get elites
+            //Get nonelites
             for (int i = 0; i < nonElites; i++) {
                 nonEliteSites.add(sites.poll());
             }
 
-            sites = new PriorityQueue<>();
+            //Site abandonment
+            if(new Random().nextDouble() < 0.1) {
+                sites = new PriorityQueue<>();
+            }
 
+            //Scouts
             for (int i = 0; i < initialPopulation/4; i++) {
                 sites.add(new Solution(new Gene()));
             }
+
 
             for(Solution s : eliteSites){
                 sites.addAll(createNeighbours(s, nep));
@@ -55,6 +59,7 @@ public class BeesAlgorithm {
             if(sites.peek().getScore() < bestMakespan){
                 bestMakespan = sites.peek().getScore();
                 bestSolution = sites.peek();
+                System.out.println(bestMakespan);
                 if(bestMakespan <= optimalValue){
                     break;
                 }

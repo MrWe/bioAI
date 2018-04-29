@@ -32,11 +32,11 @@ public class ACO {
                         best = a.getScore();
                         bestM = a.getSolution();
 
-                        System.out.println(best);
+                        //System.out.println(best);
 
                         if(best <= optimalValue){
-                            System.out.println("VI VANT!");
-                            System.out.println(best);
+                            //System.out.println("VI VANT!");
+                            //System.out.println(best);
                             return bestM;
                         }
 
