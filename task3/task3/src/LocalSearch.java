@@ -6,40 +6,34 @@ import java.util.SplittableRandom;
 public class LocalSearch {
 
     ArrayList<Machine> bestMachines;
-    LocalSearchSolution bestSolution;
+    Solution bestSolution;
 
     public LocalSearch(int optimalValue) {
         Randrun(optimalValue);
     }
 
-    public LocalSearch(Gene start){
-        run(start);
+    public LocalSearch(Gene start, int iterations){
+        run(start, iterations);
     }
 
-    private void run(Gene start){
-        PriorityQueue<LocalSearchSolution> open = new PriorityQueue<>();
-        LinkedList<LocalSearchSolution> closed = new LinkedList<>();
+    private void run(Gene start, int iterations){
+        PriorityQueue<Solution> open = new PriorityQueue<>();
+        LinkedList<Solution> closed = new LinkedList<>();
 
         int bestScore = Integer.MAX_VALUE;
 
-        for (int i = 0; i < 40; i++) {
-            open.add(new LocalSearchSolution(start));
-        }
 
-        for (int i = 0; i < 30; i++) {
+        open.add(new Solution(start));
 
-            if(open.isEmpty()){
-                for (int k = 0; k < 5; k++) {
-                    open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
-                }
-            }
 
-            LocalSearchSolution current = open.poll();
+        for (int i = 0; i < iterations; i++) {
+
+            Solution current = open.poll();
             closed.add(current);
 
-            ArrayList<LocalSearchSolution> neighbours = createNeighbours(current);
+            ArrayList<Solution> neighbours = createNeighbours(current);
 
-            for (LocalSearchSolution as : neighbours){
+            for (Solution as : neighbours){
 
                 if(as.getScore() < bestScore){
                     bestScore = as.getScore();
@@ -60,24 +54,24 @@ public class LocalSearch {
 
 
     private void Randrun(int optimalValue){
-        PriorityQueue<LocalSearchSolution> open = new PriorityQueue<>();
+        PriorityQueue<Solution> open = new PriorityQueue<>();
 
 
         int bestScore = Integer.MAX_VALUE;
 
         for (int i = 0; i < 100; i++) {
-            open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
+            open.add(new Solution(new Gene()));
         }
 
         for (int i = 0; i < 100000; i++) {
 
             if(open.isEmpty()){
                 for (int k = 0; k < 5; k++) {
-                    open.add(new LocalSearchSolution(new Gene(ImportJobs.numJobs, ImportJobs.numMachines)));
+                    open.add(new Solution(new Gene()));
                 }
             }
 
-            LocalSearchSolution current = open.poll();
+            Solution current = open.poll();
 
             SplittableRandom r = new SplittableRandom();
 
@@ -94,9 +88,9 @@ public class LocalSearch {
             }
 
 
-            ArrayList<LocalSearchSolution> neighbours = createNeighbours(current);
+            ArrayList<Solution> neighbours = createNeighbours(current);
 
-            for (LocalSearchSolution as : neighbours){
+            for (Solution as : neighbours){
 
                 if(as.getScore() < bestScore){
                     bestScore = as.getScore();
@@ -117,8 +111,8 @@ public class LocalSearch {
 
 
 
-    private ArrayList<LocalSearchSolution> createNeighbours(LocalSearchSolution current) {
-        final ArrayList<LocalSearchSolution> neighbours = new ArrayList<>();
+    private ArrayList<Solution> createNeighbours(Solution current) {
+        final ArrayList<Solution> neighbours = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             SplittableRandom r = new SplittableRandom();
             ArrayList<Integer> sequence = new ArrayList<>(current.getGene().getQueue());
@@ -133,81 +127,10 @@ public class LocalSearch {
                 Collections.swap(sequence, r1, r2);
             }
 
-            neighbours.add(new LocalSearchSolution(new Gene(sequence)));
+            neighbours.add(new Solution(new Gene(sequence)));
         }
         return neighbours;
     }
 }
 
-class LocalSearchSolution implements Comparable<LocalSearchSolution> {
 
-    private int score;
-    private ArrayList<Machine> machines;
-    private Gene gene;
-    private String hash;
-
-    public LocalSearchSolution(Gene gene) {
-        this.gene = gene;
-        this.machines = createMachines(gene);
-        this.score = Helper.getMakeSpan(this.machines);
-    }
-
-    public Gene getGene() {
-        return gene;
-    }
-
-    public ArrayList<Machine> getMachines() {
-        return machines;
-    }
-
-    public void setMachines(ArrayList<Machine> machines) {
-        this.machines = machines;
-    }
-
-    public int getScore() {
-        return this.score;
-    }
-
-    public void setScore(int val) {
-        this.score = val;
-    }
-
-    @Override
-    public int compareTo(LocalSearchSolution o) {
-        return this.getScore()-o.getScore();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LocalSearchSolution that = (LocalSearchSolution) o;
-        return this.gene.getQueue().equals(that.gene.getQueue());
-    }
-
-
-    private ArrayList<Machine> createMachines(Gene gene) {
-        ArrayList<Machine> machines = new ArrayList<>();
-        ArrayList<Job> jobs = new ArrayList<>();
-
-        for (int i = 0; i < ImportJobs.numMachines; i++) {
-            machines.add(new Machine());
-        }
-
-        for (int i = 0; i < ImportJobs.numJobs; i++) {
-            jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
-        }
-
-        for (Integer index : gene.queue) {
-            SubJob subJob = jobs.get(index).pop();
-            machines.get(subJob.getMachineIndex()).add(subJob);
-        }
-
-        return machines;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-}

@@ -7,7 +7,7 @@ public class ACO {
 
     static int numJobs;
 
-    public ArrayList<Machine> run(int optimalValue) {
+    public static ArrayList<Machine> run(int optimalValue) {
 
 
         PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( ImportJobs.numMachines * ImportJobs.numJobs, 0.5);
@@ -15,12 +15,10 @@ public class ACO {
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
 
             int currBest = Integer.MAX_VALUE;
             Ant currBestAnt = new Ant(pheromoneMatrix);
-
-
 
             for (int j = 0; j < 3; j++) {
                 Ant a = new Ant(pheromoneMatrix);
@@ -34,13 +32,13 @@ public class ACO {
                         best = a.getScore();
                         bestM = a.getSolution();
 
-                        System.out.println(best);
+                        //System.out.println(best);
 
-                        /*if(best <= optimalValue){
-                            System.out.println("VI VANT!");
-                            System.out.println(best);
+                        if(best <= optimalValue){
+                            //System.out.println("VI VANT!");
+                            //System.out.println(best);
                             return bestM;
-                        }*/
+                        }
 
                     }
                 }
@@ -60,7 +58,7 @@ public class ACO {
 
     }
 
-    private void updatePheromoneMatrix(Ant ant, PheromoneMatrix pheromoneMatrix){
+    private static void updatePheromoneMatrix(Ant ant, PheromoneMatrix pheromoneMatrix){
 
         resetJobIndices(ant.getJobs());
 
@@ -78,7 +76,7 @@ public class ACO {
 
     }
 
-    private void resetJobIndices(ArrayList<Job> jobs){
+    private static void resetJobIndices(ArrayList<Job> jobs){
         for(Job j : jobs){
             j.resetSubJobIndex();
         }

@@ -8,18 +8,18 @@ public class Gene {
     ArrayList<Integer> queue;
 
 
-    public Gene(int numJobs, int numMachines) {
-        queue = randomQueue(numJobs, numMachines);
+    public Gene() {
+        queue = randomQueue();
     }
 
     public Gene(ArrayList<Integer> queue) {
         this.queue = queue;
     }
 
-    private ArrayList<Integer> randomQueue(int numJobs, int numMachines) {
+    private ArrayList<Integer> randomQueue() {
         ArrayList<Integer> queue = new ArrayList<>();
-        for (int i = 0; i < numJobs; i++) {
-            for (int j = 0; j < numMachines; j++) {
+        for (int i = 0; i < ImportJobs.numJobs; i++) {
+            for (int j = 0; j < ImportJobs.numMachines; j++) {
                 queue.add(i);
             }
         }
