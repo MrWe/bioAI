@@ -16,25 +16,23 @@ public class Ant {
 
 
         Random r = new Random();
-        if(r.nextDouble() < 1){
+        if(r.nextDouble() < 0.1){
             localSearch(this.getGene().getQueue());
         }
     }
 
 
     private void localSearch(ArrayList<Integer> queue) {
-    /*
+
         Gene start = new Gene(queue);
 
-        LocalSearch a = new LocalSearch(start);
+        LocalSearch a = new LocalSearch(start, 10);
 
         if(a.bestSolution.getScore() < this.getScore()){
             this.solution = a.bestMachines;
             this.gene = a.bestSolution.getGene();
             this.score = a.bestSolution.getScore();
         }
-        */
-
     }
 
     public ArrayList<Job> getJobs() {
@@ -120,15 +118,15 @@ public class Ant {
             probabilities.set(j, probabilities.get(j)/divider);
         }
 
-        /*for (int j = 0; j < probabilities.size(); j++) {
+        for (int j = 0; j < probabilities.size(); j++) {
             probabilities.set(j, probabilities.get(j)/sum);
-        }*/
+        }
 
        // System.out.println(probabilities);
 
         Random r = new Random();
 
-        if(r.nextDouble() < 0.3){
+        if(r.nextDouble() < 0.1){
             int index = r.nextInt(probabilities.size());
             if(probabilities.get(index) != 0.0){
                 return index;

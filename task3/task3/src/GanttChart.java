@@ -13,21 +13,26 @@ import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 public class GanttChart<X,Y> extends XYChart<X,Y> {
 
     public static class ExtraData {
 
+        private final int pindex;
         public long length;
         public String styleClass;
         public String color;
+        public int label;
 
 
-        public ExtraData(long lengthMs, String styleClass, String color) {
+        public ExtraData(long lengthMs, String styleClass, String color, int label, int pindex) {
             super();
             this.length = lengthMs;
             this.styleClass = styleClass;
             this.color = color;
+            this.label = label;
+            this.pindex = pindex;
         }
         public long getLength() {
             return length;
@@ -45,8 +50,14 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
         public String getColor() {
             return this.color;
         }
+        public int getLabel() {
+            return this.label;
+        }
 
 
+        public int getPindex() {
+            return pindex;
+        }
     }
 
     private double blockHeight = 10;
@@ -75,6 +86,14 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
         return ((ExtraData) obj).getColor();
     }
 
+    private static int getLabel( Object obj) {
+        return ((ExtraData) obj).getLabel();
+    }
+
+    private static int getPindex( Object obj) {
+        return ((ExtraData) obj).getPindex();
+    }
+
     @Override protected void layoutPlotChildren() {
 
         for (int seriesIndex=0; seriesIndex < getData().size(); seriesIndex++) {
@@ -92,6 +111,7 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
                 Node block = item.getNode();
 
                 block.setStyle(getColor(item.getExtraValue()));
+                
 
                 Rectangle ellipse;
                 if (block != null) {

@@ -15,7 +15,7 @@ public class ACO {
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
 
             int currBest = Integer.MAX_VALUE;
             Ant currBestAnt = new Ant(pheromoneMatrix);
@@ -32,7 +32,7 @@ public class ACO {
                         best = a.getScore();
                         bestM = a.getSolution();
 
-                        //System.out.println(best);
+                        System.out.println(best);
 
                         if(best <= optimalValue){
                             //System.out.println("VI VANT!");
