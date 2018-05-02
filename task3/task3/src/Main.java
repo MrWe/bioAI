@@ -25,33 +25,29 @@ public class Main extends Application {
 
     public void start(Stage s1) {
 
-
+        int optimalValue = readOptimalValue(filename);
+        ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
         boolean enableBees = true;
         boolean enableAnts = true;
 
 
         Stage s2 = new Stage();
 
-        int optimalValue = readOptimalValue(filename);
-
-        ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
-
-        ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
-        ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
-
-        GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
-        GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
-
-
         s1.setTitle("Bees");
         s2.setTitle("Ants");
 
-        s1.setScene(new Scene(chartBee,2000,500));
-        s2.setScene(new Scene(chartAnt, 2000, 500));
-
-        s1.show();
-        s2.show();
-
+        if(enableBees) {
+            ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
+            GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
+            s1.setScene(new Scene(chartBee,2000,500));
+            s1.show();
+        }
+        if(enableAnts) {
+            ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
+            GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
+            s2.setScene(new Scene(chartAnt, 2000, 500));
+            s2.show();
+        }
     }
 
     private int readOptimalValue(String filename){
@@ -75,17 +71,7 @@ public class Main extends Application {
 
     private ArrayList<String> generateColors(int numJobs){
 
-
-
         ArrayList<String> colors = new ArrayList<>();
-
-        /*for (int i = 0; i < numJobs; i++) {
-            Random rand = new Random();
-            int r = rand.nextInt(255);
-            int g = rand.nextInt(255);
-            int b = rand.nextInt(255);
-            colors.add("-fx-background-color:rgba("+r+","+g+","+b+",0.7);");
-        }*/
 
         int intensity = 255;
 

@@ -111,7 +111,7 @@ public class GanttChart<X,Y> extends XYChart<X,Y> {
                 Node block = item.getNode();
 
                 block.setStyle(getColor(item.getExtraValue()));
-                
+
 
                 Rectangle ellipse;
                 if (block != null) {
