@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class ACO {
 
@@ -11,7 +9,9 @@ public class ACO {
 
         int n = ImportJobs.numMachines * ImportJobs.numJobs;
 
-        PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( (n*(n-1)) / 2, 0.5);
+        //PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( (n*(n-1)) / 2, 0.5);
+
+        HashMap<ArrayList<Double>, Edge> edges = new HashMap<>();
 
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();
@@ -19,10 +19,10 @@ public class ACO {
         for (int i = 0; i < 100; i++) {
 
             int currBest = Integer.MAX_VALUE;
-            Ant currBestAnt = new Ant(pheromoneMatrix);
+            Ant currBestAnt = new Ant(edges);
 
             for (int j = 0; j < 3; j++) {
-                Ant a = new Ant(pheromoneMatrix);
+                Ant a = new Ant(edges);
 
                 if(a.getScore() < currBest){
 

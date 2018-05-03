@@ -9,14 +9,14 @@ public class Ant {
     private ArrayList<Job> jobs;
     private ArrayList<Machine> solution;
     private int score;
-    private PheromoneMatrix pheromoneMatrix;
+    private HashMap<Double[], Edge> edges;
 
 
-    Ant(PheromoneMatrix pheromoneMatrix) {
+    Ant(HashMap<ArrayList<Double>, Edge> edges) {
         createEmptyMachines();
 
 
-        this.pheromoneMatrix = pheromoneMatrix;
+        this.edges = edges;
 
 //      this.score = Helper.getMakeSpan(this.solution);
 
