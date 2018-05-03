@@ -1,39 +1,45 @@
 import java.util.*;
 
+import static java.lang.Integer.max;
+
 public class Ant {
 
     private Gene gene;
     private ArrayList<Job> jobs;
     private ArrayList<Machine> solution;
     private int score;
+    private PheromoneMatrix pheromoneMatrix;
 
 
     Ant(PheromoneMatrix pheromoneMatrix) {
-        constructGeneFromMatrix(pheromoneMatrix);
-
-        this.solution = createSolution(this.getGene().getQueue());
-        this.score = Helper.getMakeSpan(this.solution);
+        createEmptyMachines();
 
 
-        Random r = new Random();
-        if(r.nextDouble() < 1){
-            localSearch(this.getGene().getQueue());
-        }
+        this.pheromoneMatrix = pheromoneMatrix;
+
+//      this.score = Helper.getMakeSpan(this.solution);
+
+        sumProbability(this.jobs.get(0));
     }
 
 
-    private void localSearch(ArrayList<Integer> queue) {
-    /*
-        Gene start = new Gene(queue);
+    private void createEmptyMachines() {
+        ArrayList<Machine> machines = new ArrayList<>();
+        jobs = new ArrayList<>();
 
-        LocalSearch a = new LocalSearch(start);
-
-        if(a.bestSolution.getScore() < this.getScore()){
-            this.solution = a.bestMachines;
-            this.gene = a.bestSolution.getGene();
-            this.score = a.bestSolution.getScore();
+        for (int i = 0; i < ImportJobs.numMachines; i++) {
+            machines.add(new Machine());
         }
-        */
+
+        setSolution(machines);
+
+        System.out.println(ImportJobs.numJobs);
+
+        System.out.println(ImportJobs.stringJobs);
+
+        for (int i = 0; i < ImportJobs.numJobs; i++) {
+            jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
+        }
 
     }
 
@@ -49,123 +55,49 @@ public class Ant {
         return score;
     }
 
-    private void constructGeneFromMatrix(PheromoneMatrix pheromoneMatrix) {
-        ArrayList<Integer> queue = new ArrayList<>();
-
-        ArrayList<Job> jobs = new ArrayList<>();
-
-        for (int i = 0; i < ImportJobs.numJobs; i++) {
-            jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
-        }
-
-        Random r = new Random();
-
-        int start = r.nextInt(ImportJobs.numJobs);
-        jobs.get(start).pop();
-
-        queue.add(start);
-
-        for (int i = 0; i < (ImportJobs.numJobs * ImportJobs.numMachines)-1; i++) {
-
-                int next = nextQueueElement(queue.get(queue.size() - 1), pheromoneMatrix, jobs);
-            if(jobs.get(next).isNotOnLastSubJob()) {
-                jobs.get(next).pop();
-                queue.add(next);
-            }
-        }
-
-        for (Job j : jobs){
-            j.resetSubJobIndex();
-        }
-
-        this.jobs = jobs;
-        this.gene = new Gene(queue);
-
+    public void setSolution(ArrayList<Machine> solution){
+        this.solution = solution;
     }
 
-    private ArrayList<Job> createJobs(){
-        ArrayList<Job> jobs = new ArrayList<>();
-
-        for (int i = 0; i < ImportJobs.numJobs; i++) {
-            jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
-        }
-
-        return jobs;
+    private void constructGeneFromMatrix() {
     }
 
-    private Integer nextQueueElement(Integer i, PheromoneMatrix pheromoneMatrix, ArrayList<Job> jobs) {
+    private double getHeuristic(SubJob subJob){
+        int firstAvailableSlot = solution.get(subJob.getMachineIndex()).getFirstAvailableSlot();
+        firstAvailableSlot =  max(subJob.getParent().getTotalTime(), firstAvailableSlot);
 
-        ArrayList<Double> probabilities = new ArrayList<>();
+        //return (1 / Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta)); // apparently we don't want this between 0 and 1
+        return (Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta));
+    }
 
-        double sum = 0;
 
-        for (int j = 0; j < ImportJobs.numJobs; j++) {
-            if(jobs.get(j).isNotOnLastSubJob()) {
-                double p = probability(i, j, pheromoneMatrix, jobs);
-                probabilities.add(p);
-                sum += p;
+    private double probability(Job from, Job to) {
+        double pheromoneValue = Math.pow(this.pheromoneMatrix.get(from.getCurrSubJob().getPheromoneMatrixIndex(), to.getCurrSubJob().getPheromoneMatrixIndex()), Constants.alpha);
+        double heuristic = getHeuristic(to.getCurrSubJob());
+
+        return pheromoneValue * heuristic;
+    }
+
+    private double sumProbability(Job from){
+        ArrayList<Double> jProbabilities = new ArrayList<>();
+        for(Job to : jobs){
+            double ijProbability = 0.0;
+            if(!to.isFinished()){
+                ijProbability = probability(from, to);
+            } else {
+                jProbabilities.add(0.0);
+                continue;
             }
-            else{
-                probabilities.add(0.0);
-            }
-        }
-
-        for (int j = 0; j < probabilities.size(); j++) {
-            double divider = 0;
-            for (int k = 0; k < probabilities.size(); k++) {
-                if(k != j){
-                    divider += probabilities.size();
+            double pSum = 0.0;
+            for(Job l : jobs){
+                if(!l.isFinished()){
+                    pSum += probability(from, l);
                 }
             }
-            probabilities.set(j, probabilities.get(j)/divider);
+            jProbabilities.add(ijProbability / pSum);
         }
-
-        /*for (int j = 0; j < probabilities.size(); j++) {
-            probabilities.set(j, probabilities.get(j)/sum);
-        }*/
-
-       // System.out.println(probabilities);
-
-        Random r = new Random();
-
-        if(r.nextDouble() < 0.3){
-            int index = r.nextInt(probabilities.size());
-            if(probabilities.get(index) != 0.0){
-                return index;
-            }
-
-        }
-        return probabilities.indexOf(Collections.max(probabilities));
-    }
-
-    private double probability(int i, Integer j, PheromoneMatrix pheromoneMatrix, ArrayList<Job> jobs) {
-        double pheromoneValue = Math.pow(pheromoneMatrix.get(i, j), Constants.alpha);
-        double heuristic = 1 / Math.pow(jobs.get(j).getCurrSubJob().getDuration(), Constants.beta);
-        return pheromoneValue * heuristic;
-
-    }
-
-    private ArrayList<Machine> createSolution(ArrayList<Integer> queue){
-
-        ArrayList<Job> jobs = createJobs();
-
-        ArrayList<Machine> machines = new ArrayList<>();
-
-        for (int i = 0; i < ImportJobs.numMachines; i++) {
-            machines.add(new Machine());
-        }
-
-        for (Integer index : queue) {
-            SubJob subJob = jobs.get(index).pop();
-            machines.get(subJob.getMachineIndex()).add(subJob);
-        }
-
-        for (Job j : jobs){
-            j.resetSubJobIndex();
-        }
-
-        return machines;
-
+        System.out.println(jProbabilities);
+        return 0.0;
     }
 
 
@@ -173,7 +105,18 @@ public class Ant {
         return gene;
     }
 
+    public static void main(String[] args){
+        ImportJobs imports = new ImportJobs("Data/1.txt");
+        int n = ImportJobs.numMachines * ImportJobs.numJobs;
+
+
+        Ant ant = new Ant(new PheromoneMatrix((n*(n-1)) / 2, 0.5));
+        //ant.sumProbability(ant.getJobs().get(0));
+    }
 
 }
+
+
+
 
 

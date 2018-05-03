@@ -9,8 +9,9 @@ public class ACO {
 
     public static ArrayList<Machine> run(int optimalValue) {
 
+        int n = ImportJobs.numMachines * ImportJobs.numJobs;
 
-        PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( ImportJobs.numMachines * ImportJobs.numJobs, 0.5);
+        PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( (n*(n-1)) / 2, 0.5);
 
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();

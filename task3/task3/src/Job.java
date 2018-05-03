@@ -49,9 +49,9 @@ public class Job {
         return subJobs.get(this.currIndex);
     }
 
-    public boolean isNotOnLastSubJob(){
+    public boolean isFinished(){
         //System.out.println(this.currIndex + " " + (this.subJobs.size()-1));
-        return this.currIndex < this.subJobs.size();
+        return this.currIndex == this.subJobs.size();
     }
 
     public void resetSubJobIndex(){
