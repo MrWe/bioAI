@@ -11,7 +11,7 @@ public class ACO {
 
         //PheromoneMatrix pheromoneMatrix = new PheromoneMatrix( (n*(n-1)) / 2, 0.5);
 
-        HashMap<ArrayList<Double>, Edge> edges = new HashMap<>();
+        HashMap<ArrayList<Integer>, Edge> edges = new HashMap<>();
 
         int best = Integer.MAX_VALUE;
         ArrayList<Machine> bestM = new ArrayList<>();
@@ -44,7 +44,7 @@ public class ACO {
                     }
                 }
             }
-            updatePheromoneMatrix(currBestAnt, pheromoneMatrix);
+            //updatePheromoneMatrix(currBestAnt, pheromoneMatrix);
 
             /*Random r = new Random();
             if(r.nextDouble() > 0.999){

@@ -2,10 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -47,9 +44,11 @@ public class Main extends Application {
             int n = ImportJobs.numMachines * ImportJobs.numJobs;
 
 
-            Ant ant = new Ant(new PheromoneMatrix((n*(n-1)) / 2, 0.5));
+            Ant ant = new Ant(new HashMap<>());
 
             ArrayList<Machine> machinesAnt = ant.getSolution();
+
+            System.out.println(ant.edges.size());
 
             //ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
             GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);

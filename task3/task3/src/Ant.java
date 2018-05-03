@@ -9,10 +9,10 @@ public class Ant {
     private ArrayList<Job> jobs;
     private ArrayList<Machine> solution;
     private int score;
-    private HashMap<Double[], Edge> edges;
+    public HashMap<ArrayList<Integer>, Edge> edges;
 
 
-    Ant(HashMap<ArrayList<Double>, Edge> edges) {
+    Ant(HashMap<ArrayList<Integer>, Edge> edges) {
         createEmptyMachines();
 
 
@@ -82,7 +82,7 @@ public class Ant {
 
 
     private double probability(Job from, Job to) {
-        double pheromoneValue = Math.pow(this.pheromoneMatrix.get(from.getCurrSubJob().getPheromoneMatrixIndex(), to.getCurrSubJob().getPheromoneMatrixIndex()), Constants.alpha);
+        double pheromoneValue = Math.pow(this.edges.get(createKey(to.getCurrSubJob(), from.getCurrSubJob())).getPheromoneValue(), Constants.alpha);
         double heuristic = getHeuristic(to.getCurrSubJob());
         return pheromoneValue * heuristic;
     }
@@ -92,6 +92,10 @@ public class Ant {
         for(Job to : jobs){
             double ijProbability;
             if(!to.isFinished()){
+                ArrayList<Integer> edgeKey = createKey(to.getCurrSubJob(), from.getCurrSubJob());
+                if( ! edges.containsKey(edgeKey)){
+                    insertEdge(edgeKey, new Edge(to.getCurrSubJob().getPheromoneMatrixIndex(), from.getCurrSubJob().getPheromoneMatrixIndex()));
+                }
                 ijProbability = probability(from, to);
             } else {
                 jProbabilities.add(0.0);
@@ -100,6 +104,10 @@ public class Ant {
             double pSum = 0.0;
             for(Job l : jobs){
                 if(!l.isFinished() && !l.equals(from)){
+                    ArrayList<Integer> edgeKey = createKey(l.getCurrSubJob(), from.getCurrSubJob());
+                    if( ! edges.containsKey(edgeKey)){
+                        insertEdge(edgeKey, new Edge(l.getCurrSubJob().getPheromoneMatrixIndex(), from.getCurrSubJob().getPheromoneMatrixIndex()));
+                    }
                     pSum += probability(from, l);
                 }
             }
@@ -108,6 +116,21 @@ public class Ant {
         //System.out.println(jProbabilities);
         //System.out.println("Winner:" + assignWinner(jProbabilities));
         return assignWinner(jProbabilities);
+    }
+
+    private void insertEdge(ArrayList<Integer> key, Edge edge){
+        edges.put(key, edge);
+    }
+
+    private boolean keyInEdges(ArrayList<Integer> key){
+        return edges.containsKey(key);
+    }
+
+    private ArrayList<Integer> createKey(SubJob to, SubJob from){
+        ArrayList<Integer> key = new ArrayList<>();
+        key.add(to.getPheromoneMatrixIndex());
+        key.add(from.getPheromoneMatrixIndex());
+        return key;
     }
 
     private int assignWinner(ArrayList<Double> distribution){ // Assign a winning node from a probability distribution

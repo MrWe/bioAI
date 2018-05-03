@@ -10,4 +10,12 @@ public class Edge {
 
         this.pheromoneValue = Constants.initialPheromoneValue;
     }
+
+    public double getPheromoneValue() {
+        return pheromoneValue;
+    }
+
+    public void setPheromoneValue(double pheromoneValue) {
+        this.pheromoneValue = pheromoneValue;
+    }
 }
