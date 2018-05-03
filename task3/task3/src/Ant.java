@@ -1,6 +1,7 @@
 import java.util.*;
 
 import static java.lang.Integer.max;
+import static java.lang.Math.min;
 
 public class Ant {
 
@@ -19,9 +20,8 @@ public class Ant {
 
 //      this.score = Helper.getMakeSpan(this.solution);
 
-        sumProbability(this.jobs.get(0));
+        run();
     }
-
 
     private void createEmptyMachines() {
         ArrayList<Machine> machines = new ArrayList<>();
@@ -33,12 +33,23 @@ public class Ant {
 
         setSolution(machines);
 
-        System.out.println(ImportJobs.numJobs);
-
-        System.out.println(ImportJobs.stringJobs);
-
         for (int i = 0; i < ImportJobs.numJobs; i++) {
             jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
+        }
+    }
+
+    private void addSubJobToMachine(Job job){
+        SubJob subJob = job.pop();
+        solution.get(subJob.getMachineIndex()).add(subJob);
+    }
+
+    private void run(){
+        Random r = new Random();
+        int next = r.nextInt(ImportJobs.numJobs);
+
+        for (int i = 0; i < (ImportJobs.numJobs * ImportJobs.numMachines)-1; i++) {
+            addSubJobToMachine(this.jobs.get(next));
+            next = sumProbability(this.jobs.get(next));
         }
     }
 
@@ -63,24 +74,23 @@ public class Ant {
 
     private double getHeuristic(SubJob subJob){
         int firstAvailableSlot = solution.get(subJob.getMachineIndex()).getFirstAvailableSlot();
-        firstAvailableSlot =  max(subJob.getParent().getTotalTime(), firstAvailableSlot);
+        firstAvailableSlot =  min(subJob.getParent().getTotalTime(), firstAvailableSlot);
 
-        //return (1 / Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta)); // apparently we don't want this between 0 and 1
-        return (Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta));
+        return (1 / Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta)); // apparently we don't want this between 0 and 1
+        //return (Math.pow(firstAvailableSlot + subJob.getDuration(), Constants.beta));
     }
 
 
     private double probability(Job from, Job to) {
         double pheromoneValue = Math.pow(this.pheromoneMatrix.get(from.getCurrSubJob().getPheromoneMatrixIndex(), to.getCurrSubJob().getPheromoneMatrixIndex()), Constants.alpha);
         double heuristic = getHeuristic(to.getCurrSubJob());
-
         return pheromoneValue * heuristic;
     }
 
-    private double sumProbability(Job from){
+    private int sumProbability(Job from){
         ArrayList<Double> jProbabilities = new ArrayList<>();
         for(Job to : jobs){
-            double ijProbability = 0.0;
+            double ijProbability;
             if(!to.isFinished()){
                 ijProbability = probability(from, to);
             } else {
@@ -89,28 +99,34 @@ public class Ant {
             }
             double pSum = 0.0;
             for(Job l : jobs){
-                if(!l.isFinished()){
+                if(!l.isFinished() && !l.equals(from)){
                     pSum += probability(from, l);
                 }
             }
             jProbabilities.add(ijProbability / pSum);
         }
-        System.out.println(jProbabilities);
-        return 0.0;
+        //System.out.println(jProbabilities);
+        //System.out.println("Winner:" + assignWinner(jProbabilities));
+        return assignWinner(jProbabilities);
+    }
+
+    private int assignWinner(ArrayList<Double> distribution){ // Assign a winning node from a probability distribution
+        Random r = new Random();
+        double n = r.nextDouble();
+
+        int index = 0;
+        while(n > distribution.get(index)){
+            n -= distribution.get(index);
+            index++;
+        }
+
+        return distribution.indexOf(Collections.max(distribution));
+        //return index;
     }
 
 
     public Gene getGene() {
         return gene;
-    }
-
-    public static void main(String[] args){
-        ImportJobs imports = new ImportJobs("Data/1.txt");
-        int n = ImportJobs.numMachines * ImportJobs.numJobs;
-
-
-        Ant ant = new Ant(new PheromoneMatrix((n*(n-1)) / 2, 0.5));
-        //ant.sumProbability(ant.getJobs().get(0));
     }
 
 }

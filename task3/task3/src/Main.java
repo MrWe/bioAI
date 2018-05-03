@@ -27,7 +27,7 @@ public class Main extends Application {
 
         int optimalValue = readOptimalValue(filename);
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
-        boolean enableBees = true;
+        boolean enableBees = false;
         boolean enableAnts = true;
 
 
@@ -43,7 +43,15 @@ public class Main extends Application {
             s1.show();
         }
         if(enableAnts) {
-            ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
+
+            int n = ImportJobs.numMachines * ImportJobs.numJobs;
+
+
+            Ant ant = new Ant(new PheromoneMatrix((n*(n-1)) / 2, 0.5));
+
+            ArrayList<Machine> machinesAnt = ant.getSolution();
+
+            //ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
             GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
             s2.setScene(new Scene(chartAnt, 2000, 500));
             s2.show();

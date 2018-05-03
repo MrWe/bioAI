@@ -9,7 +9,7 @@ public class PheromoneMatrix {
 
 
     PheromoneMatrix(int dimensions, double initVal){
-
+        System.out.println(dimensions);
         matrix = new ArrayList<>();
 
         for (int i = 0; i < dimensions; i++) {
@@ -19,6 +19,9 @@ public class PheromoneMatrix {
             }
             matrix.add(row);
         }
+
+
+        System.out.println("Hei");
     }
 
     public double get(int i, int j){

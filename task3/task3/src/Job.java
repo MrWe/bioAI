@@ -41,11 +41,15 @@ public class Job {
 
     public SubJob pop(){
         SubJob s = subJobs.get(this.currIndex);
+
         this.currIndex++;
         return s;
     }
 
     public SubJob getCurrSubJob(){
+        if(isFinished()){
+            return subJobs.get(this.currIndex-1);
+        }
         return subJobs.get(this.currIndex);
     }
 
