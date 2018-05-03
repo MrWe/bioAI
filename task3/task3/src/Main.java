@@ -21,32 +21,33 @@ import javafx.stage.Stage;
 // TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "3";
+    private String filename = "5";
 
     public void start(Stage s1) {
 
-        Stage s2 = new Stage();
-
         int optimalValue = readOptimalValue(filename);
-
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
+        boolean enableBees = true;
+        boolean enableAnts = true;
 
-        ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
-        ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
 
-        GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
-        GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
-
+        Stage s2 = new Stage();
 
         s1.setTitle("Bees");
         s2.setTitle("Ants");
 
-        s1.setScene(new Scene(chartBee,2000,500));
-        s2.setScene(new Scene(chartAnt, 2000, 500));
-
-        s1.show();
-        s2.show();
-
+        if(enableBees) {
+            ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
+            GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
+            s1.setScene(new Scene(chartBee,2000,500));
+            s1.show();
+        }
+        if(enableAnts) {
+            ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
+            GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
+            s2.setScene(new Scene(chartAnt, 2000, 500));
+            s2.show();
+        }
     }
 
     private int readOptimalValue(String filename){
@@ -69,14 +70,44 @@ public class Main extends Application {
 
 
     private ArrayList<String> generateColors(int numJobs){
+
         ArrayList<String> colors = new ArrayList<>();
 
-        for (int i = 0; i < numJobs; i++) {
-            Random rand = new Random();
-            int r = rand.nextInt(255);
-            int g = rand.nextInt(255);
-            int b = rand.nextInt(255);
-            colors.add("-fx-background-color:rgba("+r+","+g+","+b+",0.7);");
+        int intensity = 255;
+
+        while(colors.size() < numJobs) {
+
+            int r = intensity;
+            int g = 0;
+            int b = 0;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            r = 0;
+            g = intensity;
+            b = 0;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            r = 0;
+            g = 0;
+            b = intensity;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            r = 0;
+            g = intensity;
+            b = intensity;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            r = intensity;
+            g = 0;
+            b = intensity;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            r = intensity;
+            g = intensity;
+            b = 0;
+            colors.add("-fx-background-color:rgba(" + r + "," + g + "," + b + ",0.7);");
+
+            intensity /= 2;
         }
 
         return colors;
@@ -118,7 +149,7 @@ public class Main extends Application {
 
             for(int startTime : machines.get(i).getSubJobs().keySet()){
                 SubJob sj = machines.get(i).getSubJobs().get(startTime);
-                XYChart.Data point = new XYChart.Data(startTime, machineName, new GanttChart.ExtraData( sj.getDuration(), "status-red", colors.get(sj.getParent().getIndex())));
+                XYChart.Data point = new XYChart.Data(startTime, machineName, new GanttChart.ExtraData( sj.getDuration(), "status-red", colors.get(sj.getParent().getIndex()), sj.getIndex(), sj.getParent().getIndex()));
 
                 s.getData().add(point);
             }

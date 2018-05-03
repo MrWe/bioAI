@@ -40,7 +40,6 @@ public class Ant {
         for (int i = 0; i < ImportJobs.numJobs; i++) {
             jobs.add(new Job(ImportJobs.stringJobs.get(i), i));
         }
-
     }
 
     public ArrayList<Job> getJobs() {
