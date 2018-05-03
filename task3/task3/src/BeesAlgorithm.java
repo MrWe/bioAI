@@ -2,7 +2,7 @@ import java.util.*;
 
 public class BeesAlgorithm {
 
-    private static int initialPopulation = 30;
+    private static int initialPopulation = 50;
     private static int m = (int)Math.floor(initialPopulation/2);
     private static int elites =  (int)Math.floor(m*0.3);
     private static int nonElites = m - elites;
@@ -23,7 +23,7 @@ public class BeesAlgorithm {
             sites.add(new Solution(new Gene()));
         }
 
-        for (int n = 0; n < 3000; n++) {
+        while(true){
 
             ArrayList<Solution> eliteSites = new ArrayList<>();
             //Get elites
@@ -38,7 +38,7 @@ public class BeesAlgorithm {
             }
 
             //Site abandonment
-            if(new Random().nextDouble() < 0.1) {
+            if(new SplittableRandom().nextDouble() < 0.01) {
                 sites = new PriorityQueue<>();
             }
 
