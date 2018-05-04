@@ -14,11 +14,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 
-
-// TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "5";
+    private String filename = "1";
 
     public void start(Stage s1) {
 
@@ -36,13 +34,13 @@ public class Main extends Application {
         if(enableBees) {
             ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
             GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
-            s1.setScene(new Scene(chartBee,2000,500));
+            s1.setScene(new Scene(chartBee,2000,400));
             s1.show();
         }
         if(enableAnts) {
             ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
             GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
-            s2.setScene(new Scene(chartAnt, 2000, 500));
+            s2.setScene(new Scene(chartAnt, 2000, 400));
             s2.show();
         }
     }

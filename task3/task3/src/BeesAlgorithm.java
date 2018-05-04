@@ -2,13 +2,6 @@ import java.util.*;
 
 public class BeesAlgorithm {
 
-    private static int initialPopulation = 50;
-    private static int m = (int)Math.floor(initialPopulation/2);
-    private static int elites =  (int)Math.floor(m*0.3);
-    private static int nonElites = m - elites;
-    private static int nep = 20;
-    private static int nsp = 5;
-
     private static Solution bestSolution;
     private static int bestMakespan = Integer.MAX_VALUE;
     private static int optimalValue;
@@ -19,7 +12,7 @@ public class BeesAlgorithm {
         PriorityQueue<Solution> sites = new PriorityQueue<>();
 
         //Create initial sites
-        for (int i = 0; i < initialPopulation; i++) {
+        for (int i = 0; i < Constants.initialPopulation; i++) {
             sites.add(new Solution(new Gene()));
         }
 
@@ -27,13 +20,13 @@ public class BeesAlgorithm {
 
             ArrayList<Solution> eliteSites = new ArrayList<>();
             //Get elites
-            for (int i = 0; i < elites; i++) {
+            for (int i = 0; i < Constants.elites; i++) {
                 eliteSites.add(sites.poll());
             }
 
             ArrayList<Solution> nonEliteSites = new ArrayList<>();
             //Get nonelites
-            for (int i = 0; i < nonElites; i++) {
+            for (int i = 0; i < Constants.nonElites; i++) {
                 nonEliteSites.add(sites.poll());
             }
 
@@ -43,17 +36,17 @@ public class BeesAlgorithm {
             }
 
             //Scouts
-            for (int i = 0; i < initialPopulation/4; i++) {
+            for (int i = 0; i < Constants.initialPopulation/4; i++) {
                 sites.add(new Solution(new Gene()));
             }
 
 
             for(Solution s : eliteSites){
-                sites.addAll(createNeighbours(s, nep));
+                sites.addAll(createNeighbours(s, Constants.nep));
             }
 
             for(Solution s : nonEliteSites){
-                sites.addAll(createNeighbours(s, nsp));
+                sites.addAll(createNeighbours(s, Constants.nsp));
             }
 
             if(sites.peek().getScore() < bestMakespan){
