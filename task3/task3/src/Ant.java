@@ -1,26 +1,45 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Random;
 
-import static java.lang.Integer.max;
 import static java.lang.Math.min;
 
-public class Ant {
+public class Ant implements Comparable<Ant> {
 
     private Gene gene;
     private ArrayList<Job> jobs;
     private ArrayList<Machine> solution;
     private int score;
-    public HashMap<ArrayList<Integer>, Edge> edges;
+    private HashMap<ArrayList<Integer>, Edge> edges;
+    private ArrayList<Edge> path;
+    private ArrayList<Integer> geneQueue;
 
-
-    Ant(HashMap<ArrayList<Integer>, Edge> edges) {
-        createEmptyMachines();
-
-
+    Ant(HashMap<ArrayList<Integer>, Edge> edges, Gene parent) {
+        path = new ArrayList<>();
+        geneQueue = new ArrayList<>();
         this.edges = edges;
 
-//      this.score = Helper.getMakeSpan(this.solution);
+        if(new Random().nextDouble() < 0.1){
+            LocalSearch localSearch = new LocalSearch(parent, Constants.antLocalSearchIterations);
+            this.solution = localSearch.bestMachines;
+            this.score = localSearch.bestSolution.getScore();
+            this.gene = localSearch.bestSolution.getGene();
+        }
+        else{
+            createEmptyMachines();
+            run();
+            this.gene = new Gene(this.geneQueue);
+            this.score = Helper.getMakeSpan(this.solution);
+        }
+    }
 
-        run();
+    public ArrayList<Integer> getGeneQueue() {
+        return geneQueue;
+    }
+
+    public ArrayList<Edge> getPath() {
+        return path;
     }
 
     private void createEmptyMachines() {
@@ -38,18 +57,23 @@ public class Ant {
         }
     }
 
-    private void addSubJobToMachine(Job job){
-        SubJob subJob = job.pop();
-        solution.get(subJob.getMachineIndex()).add(subJob);
+    private void addSubJobToMachine(Job to){
+        SubJob current = to.pop();
+        geneQueue.add(to.getIndex());
+        solution.get(current.getMachineIndex()).add(current);
     }
 
     private void run(){
         Random r = new Random();
         int next = r.nextInt(ImportJobs.numJobs);
+        int previous;
 
         for (int i = 0; i < (ImportJobs.numJobs * ImportJobs.numMachines)-1; i++) {
+
             addSubJobToMachine(this.jobs.get(next));
+            previous = next;
             next = sumProbability(this.jobs.get(next));
+            path.add(edges.get(createKey(this.jobs.get(next).getCurrSubJob(), this.jobs.get(previous).getCurrSubJob())));
         }
     }
 
@@ -61,12 +85,12 @@ public class Ant {
         return solution;
     }
 
-    public int getScore() {
-        return score;
-    }
-
     public void setSolution(ArrayList<Machine> solution){
         this.solution = solution;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     private void constructGeneFromMatrix() {
@@ -93,7 +117,7 @@ public class Ant {
             double ijProbability;
             if(!to.isFinished()){
                 ArrayList<Integer> edgeKey = createKey(to.getCurrSubJob(), from.getCurrSubJob());
-                if( ! edges.containsKey(edgeKey)){
+                if(!keyInEdges(edgeKey)){
                     insertEdge(edgeKey, new Edge(to.getCurrSubJob().getPheromoneMatrixIndex(), from.getCurrSubJob().getPheromoneMatrixIndex()));
                 }
                 ijProbability = probability(from, to);
@@ -105,7 +129,7 @@ public class Ant {
             for(Job l : jobs){
                 if(!l.isFinished() && !l.equals(from)){
                     ArrayList<Integer> edgeKey = createKey(l.getCurrSubJob(), from.getCurrSubJob());
-                    if( ! edges.containsKey(edgeKey)){
+                    if(!keyInEdges(edgeKey)){
                         insertEdge(edgeKey, new Edge(l.getCurrSubJob().getPheromoneMatrixIndex(), from.getCurrSubJob().getPheromoneMatrixIndex()));
                     }
                     pSum += probability(from, l);
@@ -150,6 +174,11 @@ public class Ant {
 
     public Gene getGene() {
         return gene;
+    }
+
+    @Override
+    public int compareTo(Ant o) {
+        return this.getScore()-o.getScore();
     }
 
 }

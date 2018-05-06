@@ -14,17 +14,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 
-
-// TODO: use date for x-axis
 public class Main extends Application {
 
-    private String filename = "5";
+    private String filename = "6";
 
     public void start(Stage s1) {
 
         int optimalValue = readOptimalValue(filename);
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
-        boolean enableBees = false;
+        boolean enableBees = true;
         boolean enableAnts = true;
 
 
@@ -34,28 +32,34 @@ public class Main extends Application {
         s2.setTitle("Ants");
 
         if(enableBees) {
+            final long startTime = System.currentTimeMillis();
+
             ArrayList<Machine> machinesBee = BeesAlgorithm.run(optimalValue);
+
+            final long endTime = System.currentTimeMillis();
+            System.out.println("Total BA time: " + (endTime - startTime) );
+
             GanttChart<Number, String> chartBee = createChart(machinesBee, ImportJobs.numJobs);
-            s1.setScene(new Scene(chartBee,2000,500));
+            s1.setScene(new Scene(chartBee,2000,400));
             s1.show();
+
         }
         if(enableAnts) {
+            final long startTime = System.currentTimeMillis();
 
-            int n = ImportJobs.numMachines * ImportJobs.numJobs;
+            ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
 
+            final long endTime = System.currentTimeMillis();
+            System.out.println("Total ACO time: " + (endTime - startTime) );
 
-            Ant ant = new Ant(new HashMap<>());
-
-            ArrayList<Machine> machinesAnt = ant.getSolution();
-
-            System.out.println(ant.edges.size());
-
-            //ArrayList<Machine> machinesAnt = ACO.run(optimalValue);
             GanttChart<Number, String> chartAnt = createChart(machinesAnt, ImportJobs.numJobs);
-            s2.setScene(new Scene(chartAnt, 2000, 500));
+            s2.setScene(new Scene(chartAnt, 2000, 400));
             s2.show();
         }
+
     }
+
+
 
     private int readOptimalValue(String filename){
         File f = new File("optimals.txt");

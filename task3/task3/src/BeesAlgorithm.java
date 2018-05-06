@@ -2,13 +2,6 @@ import java.util.*;
 
 public class BeesAlgorithm {
 
-    private static int initialPopulation = 30;
-    private static int m = (int)Math.floor(initialPopulation/2);
-    private static int elites =  (int)Math.floor(m*0.3);
-    private static int nonElites = m - elites;
-    private static int nep = 20;
-    private static int nsp = 5;
-
     private static Solution bestSolution;
     private static int bestMakespan = Integer.MAX_VALUE;
     private static int optimalValue;
@@ -19,41 +12,41 @@ public class BeesAlgorithm {
         PriorityQueue<Solution> sites = new PriorityQueue<>();
 
         //Create initial sites
-        for (int i = 0; i < initialPopulation; i++) {
+        for (int i = 0; i < Constants.initialPopulation; i++) {
             sites.add(new Solution(new Gene()));
         }
 
-        for (int n = 0; n < 3000; n++) {
+        while(true){
 
             ArrayList<Solution> eliteSites = new ArrayList<>();
             //Get elites
-            for (int i = 0; i < elites; i++) {
+            for (int i = 0; i < Constants.elites; i++) {
                 eliteSites.add(sites.poll());
             }
 
             ArrayList<Solution> nonEliteSites = new ArrayList<>();
             //Get nonelites
-            for (int i = 0; i < nonElites; i++) {
+            for (int i = 0; i < Constants.nonElites; i++) {
                 nonEliteSites.add(sites.poll());
             }
 
             //Site abandonment
-            if(new Random().nextDouble() < 0.1) {
+            if(new SplittableRandom().nextDouble() < 0.01) {
                 sites = new PriorityQueue<>();
             }
 
             //Scouts
-            for (int i = 0; i < initialPopulation/4; i++) {
+            for (int i = 0; i < Constants.initialPopulation/4; i++) {
                 sites.add(new Solution(new Gene()));
             }
 
 
             for(Solution s : eliteSites){
-                sites.addAll(createNeighbours(s, nep));
+                sites.addAll(createNeighbours(s, Constants.nep, Constants.softMutationRate));
             }
 
             for(Solution s : nonEliteSites){
-                sites.addAll(createNeighbours(s, nsp));
+                sites.addAll(createNeighbours(s, Constants.nsp, Constants.strongMutationRate));
             }
 
             if(sites.peek().getScore() < bestMakespan){
@@ -71,22 +64,15 @@ public class BeesAlgorithm {
 
         return bestSolution.getMachines();
 
-
-
-
-
-
     }
 
-    private static ArrayList<Solution> createNeighbours(Solution current, int iterations) {
+    private static ArrayList<Solution> createNeighbours(Solution current, int iterations, int mutationRate) {
         final ArrayList<Solution> neighbours = new ArrayList<>();
         for (int i = 0; i < iterations; i++) {
             SplittableRandom r = new SplittableRandom();
             ArrayList<Integer> sequence = new ArrayList<>(current.getGene().getQueue());
 
-            int iter = r.nextInt(3)+1;
-
-            for (int j = 0; j < iter; j++) {
+            for (int j = 0; j < mutationRate; j++) {
 
                 int r1 = r.nextInt(sequence.size());
                 int r2 = r.nextInt(sequence.size());
