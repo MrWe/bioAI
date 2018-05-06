@@ -16,14 +16,14 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private String filename = "1";
+    private String filename = "3";
 
     public void start(Stage s1) {
 
         int optimalValue = readOptimalValue(filename);
         ImportJobs imports = new ImportJobs("Data/"+filename+".txt");
         boolean enableBees = true;
-        boolean enableAnts = true;
+        boolean enableAnts = false;
 
 
         Stage s2 = new Stage();
@@ -43,7 +43,10 @@ public class Main extends Application {
             s2.setScene(new Scene(chartAnt, 2000, 400));
             s2.show();
         }
+
     }
+
+
 
     private int readOptimalValue(String filename){
         File f = new File("optimals.txt");
